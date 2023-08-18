@@ -1,0 +1,41 @@
+name: Pytest
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    permissions:
+      # Gives the action the necessary permissions for publishing new
+      # comments in pull requests.
+      pull-requests: write
+      # Gives the action the necessary permissions for pushing data to the
+      # python-coverage-comment-action branch, and for editing existing
+      # comments (to avoid publishing multiple comments in the same PR)
+      contents: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version-file: .github/workflows/.python-version
+          cache: pip
+          cache-dependency-path: "**/pyproject.toml"
+
+      - name: Install Python dependencies
+        run: pip install -e .[test]
+
+      - name: Run tests
+        run: ./bin/coverage.sh
+
+      - name: Coverage comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
+          MINIMUM_GREEN: 90
+          MINIMUM_ORANGE: 80

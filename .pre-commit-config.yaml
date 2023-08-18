@@ -1,0 +1,41 @@
+ci:
+  autofix_commit_msg: "chore(pre-commit): autofix run"
+  autoupdate_commit_msg: "chore(pre-commit): autoupdate hooks"
+
+repos:
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v2.3.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: ["--unsafe"]
+      - id: check-added-large-files
+
+  - repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+      - id: black
+        types:
+          - python
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        types:
+          - python
+
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: ["-ll"]
+        files: .py$

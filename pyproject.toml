@@ -1,0 +1,56 @@
+[project]
+name = "littlepay"
+version = "1.0.0"
+description = "APIs and admin tasks for Littlepay."
+readme = "README.md"
+license = { file = "LICENSE" }
+classifiers = ["Programming Language :: Python :: 3 :: Only"]
+requires-python = ">=3.11"
+dependencies = [
+]
+
+[project.urls]
+code = "https://github.com/cal-itp/littlepay"
+tracker = "https://github.com/cal-itp/littlepay"
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "build",
+    "flake8",
+    "pre-commit"
+]
+test = [
+    "coverage",
+    "pytest",
+    "pytest-mock"
+]
+
+[project.scripts]
+littlepay = "littlepay.main:main"
+
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 127
+target-version = ['py311']
+include = '\.pyi?$'
+
+[tool.coverage.run]
+branch = true
+relative_files = true
+source = ["littlepay"]
+
+[tool.pyright]
+include = ["littlepay", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = [
+    "*.egg-info",
+    ".git",
+    ".pytest_cache",
+    ".vscode",
+]
