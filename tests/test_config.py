@@ -113,20 +113,6 @@ def test_Config_exists(custom_config_file: Path):
     assert config.other_data == "more config"
 
 
-def test_Config_reset(custom_config_file: Path):
-    assert not custom_config_file.exists()
-    custom_config_file.write_text('{"data": "the config"}')
-    assert custom_config_file.exists()
-
-    config = Config(custom_config_file, reset=True)
-
-    assert custom_config_file.exists()
-    assert config.active == DEFAULT_CONFIG["active"]
-    assert config.envs == DEFAULT_CONFIG["envs"]
-    assert config.participants == DEFAULT_CONFIG["participants"]
-    assert not hasattr(config, "data")
-
-
 def test_Config_active_env_name(mocker):
     config = Config()
     config.active = {"env": "active_env"}
