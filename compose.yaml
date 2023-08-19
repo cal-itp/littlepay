@@ -7,3 +7,4 @@ services:
     entrypoint: sleep infinity
     volumes:
       - .:/home/calitp/app
+      - ./.config:/home/calitp/.littlepay
