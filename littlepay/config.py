@@ -74,19 +74,17 @@ class Config:
     read = staticmethod(_read_config)
     write = staticmethod(_write_config)
 
-    def __init__(self, config_file_path: str | Path = None, reset: bool = False):
+    def __init__(self, config_file_path: str | Path = None):
         """Initialize a new Config instance, reading from the given path or a default location.
 
         Args:
             config_file_path (str|Path): Path to a readable config file. If None, the default is used.
-
-            reset (bool): True to reset the configuration to the default.
         """
         if config_file_path is None or config_file_path == "":
             config_file_path = Config.current_path()
         if isinstance(config_file_path, str):
             config_file_path = Path(config_file_path)
-        if not config_file_path.exists() or reset:
+        if not config_file_path.exists():
             print(f"Creating config file: {config_file_path.resolve()}")
             config_file_path.parent.mkdir(parents=True, exist_ok=True)
             Config.write(DEFAULT_CONFIG, config_file_path)
