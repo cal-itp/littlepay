@@ -1,13 +1,21 @@
 import subprocess
 
-from littlepay import __version__ as version
 from littlepay.commands import RESULT_SUCCESS
 
 
 def test_littlepay(capfd):
-    # call CLI command as a subprocess
     res = subprocess.call(["littlepay"])
-    captured = capfd.readouterr()
+    capture = capfd.readouterr()
 
+    assert "Config:" in capture.out
+    assert "Env:" in capture.out
     assert res == RESULT_SUCCESS
-    assert f"littlepay: {version}" in captured.out
+
+
+def test_config(capfd):
+    res = subprocess.call(["littlepay", "config"])
+    capture = capfd.readouterr()
+
+    assert "Config:" in capture.out
+    assert "Env:" in capture.out
+    assert res == RESULT_SUCCESS

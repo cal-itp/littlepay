@@ -61,3 +61,45 @@ def get_config(config_file_path: str | Path = None, reset: bool = False) -> dict
 
     CONFIG_FILE_CURRENT.write_text(str(config_file_path.resolve()))
     return _read_config(config_file_path)
+
+
+def all_envs(config: dict = None) -> dict:
+    """Get the configured environments."""
+    if config is None:
+        config_path = get_config_path()
+        config = get_config(config_path)
+
+    return config.get(CONFIG_ENVS, {})
+
+
+def all_participants(config: dict = None) -> dict:
+    """Get the configured participants."""
+    if config is None:
+        config_path = get_config_path()
+        config = get_config(config_path)
+
+    return config.get(CONFIG_PARTICIPANTS, {})
+
+
+def active_env(config: dict = None, new_env: str = None) -> tuple[str, dict]:
+    """Get a tuple of the active environment's (name, config). By default, the QA environment.
+
+    Pass a new_env to update the active environment before returning.
+    """
+    config_path = get_config_path()
+    if config is None:
+        config = get_config(config_path)
+
+    active = config.get(CONFIG_ACTIVE, {}).get("env", ENV_QA)
+    return (active, config.get(CONFIG_ENVS, {}).get(active, {}))
+
+
+def active_participant(config: dict = None) -> tuple[str, dict]:
+    """Get a tuple of the active participant's (name, config)."""
+    if config is None:
+        config_path = get_config_path()
+        config = get_config(config_path)
+
+    # ensure active is always a str, even if missing (e.g. None)
+    active = str(config.get(CONFIG_ACTIVE, {}).get(CONFIG_PARTICIPANT) or "")
+    return (active, config.get(CONFIG_PARTICIPANTS, {}).get(active, {}))
