@@ -9,7 +9,6 @@ DEFAULT_CONFIG_FILE = CONFIG_DIR / "config.yaml"
 
 ENV_QA = "qa"
 ENV_PROD = "prod"
-ENVS = [ENV_QA, ENV_PROD]
 
 DEFAULT_ACTIVE = {"env": ENV_QA, "participant": ""}
 DEFAULT_CREDENTIALS = {"client_id": "", "client_secret": "", "audience": ""}

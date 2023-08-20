@@ -20,7 +20,9 @@ def test_configure(mocker, custom_config_file, capfd):
     assert res == RESULT_FAILURE
     assert custom_config_file.exists()
     assert "Config:" in capture.out
-    assert "Env:" in capture.out
+    assert "Envs:" in capture.out
+    assert "Participants:" in capture.out
+    assert "Active:" in capture.out
     assert "[no participant]" in capture.out
 
 

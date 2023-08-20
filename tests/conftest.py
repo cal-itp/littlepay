@@ -63,3 +63,9 @@ def mock_module_name(mocker):
 def mock_commands_config(mock_module_name):
     """Fixture returns a function that patches commands.configure in a given module."""
     return mock_module_name("configure")
+
+
+@pytest.fixture
+def mock_commands_switch(mock_module_name):
+    """Fixture returns a function that patches commands.switch in a given module."""
+    return mock_module_name("switch")
