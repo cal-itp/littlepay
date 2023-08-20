@@ -13,7 +13,9 @@ def test_configure(custom_config_file: Path, capfd):
     assert res == RESULT_SUCCESS
     assert custom_config_file.exists()
     assert "Config:" in capture.out
-    assert "Env:" in capture.out
+    assert "Envs:" in capture.out
+    assert "Participants:" in capture.out
+    assert "Active:" in capture.out
     assert "[no participant]" in capture.out
 
 
@@ -26,7 +28,9 @@ def test_configure_default(custom_config_file: Path, capfd):
     assert res == RESULT_SUCCESS
     assert custom_config_file.exists()
     assert "Config:" in capture.out
-    assert "Env:" in capture.out
+    assert "Envs:" in capture.out
+    assert "Participants:" in capture.out
+    assert "Active:" in capture.out
     assert "[no participant]" in capture.out
 
 
@@ -37,7 +41,9 @@ def test_configure_participant(mocker, capfd):
 
     assert res == RESULT_SUCCESS
     assert "Config:" in capture.out
-    assert "Env:" in capture.out
+    assert "Envs:" in capture.out
+    assert "Participants:" in capture.out
+    assert "Active:" in capture.out
     assert "participant123" in capture.out
 
 

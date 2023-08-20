@@ -3,7 +3,8 @@ import sys
 
 from littlepay import __version__ as version
 from littlepay.commands.configure import configure
-from littlepay.config import get_config_path
+from littlepay.commands.switch import switch
+from littlepay.config import CONFIG_TYPES, get_config_path
 
 
 def main(argv=None):
@@ -35,6 +36,10 @@ def main(argv=None):
     )
     config_parser.add_argument("--reset", action="store_true", default=False, help="Reset the configuration.")
 
+    switch_parser = _subcmd("switch", help="Switch the active environment or participant.")
+    switch_parser.add_argument("switch_type", choices=CONFIG_TYPES, help="The type of object to switch", metavar="TYPE")
+    switch_parser.add_argument("switch_arg", help="The new object value", metavar="VALUE")
+
     if len(argv) == 0:
         argv = ["config"]
 
@@ -42,6 +47,8 @@ def main(argv=None):
 
     if args.command == "config":
         return configure(args.config_path, args.reset)
+    elif args.command == "switch":
+        return switch(args.switch_type, args.switch_arg)
 
 
 if __name__ == "__main__":

@@ -9,7 +9,6 @@ DEFAULT_CONFIG_FILE = CONFIG_DIR / "config.yaml"
 
 ENV_QA = "qa"
 ENV_PROD = "prod"
-ENVS = [ENV_QA, ENV_PROD]
 
 CONFIG_ACTIVE = "active"
 CONFIG_ENV = "env"
@@ -90,16 +89,35 @@ def active_env(config: dict = None, new_env: str = None) -> tuple[str, dict]:
     if config is None:
         config = get_config(config_path)
 
+    if new_env is not None:
+        envs = all_envs(config)
+        if new_env not in envs:
+            raise ValueError(f"Unsupported env: {new_env}, must be one of: {', '.join(envs)}")
+
+        config[CONFIG_ACTIVE][CONFIG_ENV] = new_env
+        _write_config(config, config_path)
+
     active = config.get(CONFIG_ACTIVE, {}).get("env", ENV_QA)
     return (active, config.get(CONFIG_ENVS, {}).get(active, {}))
 
 
-def active_participant(config: dict = None) -> tuple[str, dict]:
-    """Get a tuple of the active participant's (name, config)."""
+def active_participant(config: dict = None, new_participant: str = None) -> tuple[str, dict]:
+    """Get a tuple of the active participant's (name, config).
+
+    Pass a new_participant to update the active participant before returning.
+    """
+    config_path = get_config_path()
     if config is None:
-        config_path = get_config_path()
         config = get_config(config_path)
 
+    if new_participant is not None:
+        participants = all_participants(config)
+        if new_participant not in participants:
+            raise ValueError(f"Unsupported participant: {new_participant}, must be one of: {', '.join(participants)}")
+
+        config[CONFIG_ACTIVE][CONFIG_PARTICIPANT] = new_participant
+        _write_config(config, config_path)
+
     # ensure active is always a str, even if missing (e.g. None)
-    active = str(config.get(CONFIG_ACTIVE, {}).get(CONFIG_PARTICIPANT) or "")
+    active = str(config.get(CONFIG_ACTIVE, {}).get(CONFIG_PARTICIPANT, "") or "")
     return (active, config.get(CONFIG_PARTICIPANTS, {}).get(active, {}))

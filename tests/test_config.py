@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+import littlepay.config
 from littlepay.config import (
     CONFIG_ACTIVE,
     CONFIG_ENV,
@@ -133,6 +134,27 @@ def test_active_env_config():
     assert result == ("active_env", "the active env")
 
 
+def test_active_env_update():
+    config = {"active": {"env": "original_env"}, "envs": {"original_env": "the original env", "new_env": "the new env"}}
+    result = active_env(config, "new_env")
+
+    assert result == ("new_env", "the new env")
+    result_two = active_env()
+    assert result_two == result
+
+
+def test_active_env_update_unsupported(mocker):
+    spy_write = mocker.spy(littlepay.config, "_write_config")
+    config = {"active": {"env": "original_env"}, "envs": {"original_env": "the original env"}}
+
+    with pytest.raises(ValueError):
+        active_env(config, "new_env")
+
+    assert spy_write.call_count == 0
+    result = active_env(config)
+    assert result == ("original_env", "the original env")
+
+
 def test_active_participant(mock_get_config):
     mock_get_config.return_value = {
         CONFIG_ACTIVE: {CONFIG_PARTICIPANT: "participant123"},
@@ -158,3 +180,27 @@ def test_active_participant_config():
     result = active_participant(config)
 
     assert result == ("participant456", "the active participant")
+
+
+def test_active_participant_update():
+    config = {
+        "active": {"participant": "participant123"},
+        "participants": {"participant123": "one two three", "participant456": "four five six"},
+    }
+    result = active_participant(config, "participant456")
+
+    assert result == ("participant456", "four five six")
+    result_two = active_participant()
+    assert result_two == result
+
+
+def test_active_participant_update_unsupported(mocker):
+    spy_write = mocker.spy(littlepay.config, "_write_config")
+    config = {"active": {"participant": "participant123"}, "participants": {"participant123": "one two three"}}
+
+    with pytest.raises(ValueError):
+        active_participant(config, "participant456")
+
+    assert spy_write.call_count == 0
+    result = active_participant(config)
+    assert result == ("participant123", "one two three")

@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from littlepay.commands import RESULT_SUCCESS
-from littlepay.config import all_envs, all_participants, get_config, get_config_path, active_env, active_participant
+from littlepay.config import active_env, active_participant, all_envs, all_participants, get_config, get_config_path
 
 
 def configure(config_path: str | Path = None, reset: bool = False) -> int:

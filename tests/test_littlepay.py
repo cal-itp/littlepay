@@ -8,7 +8,9 @@ def test_littlepay(capfd):
     capture = capfd.readouterr()
 
     assert "Config:" in capture.out
-    assert "Env:" in capture.out
+    assert "Envs:" in capture.out
+    assert "Participants:" in capture.out
+    assert "Active:" in capture.out
     assert res == RESULT_SUCCESS
 
 
@@ -17,5 +19,7 @@ def test_config(capfd):
     capture = capfd.readouterr()
 
     assert "Config:" in capture.out
-    assert "Env:" in capture.out
+    assert "Envs:" in capture.out
+    assert "Participants:" in capture.out
+    assert "Active:" in capture.out
     assert res == RESULT_SUCCESS
