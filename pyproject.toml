@@ -24,7 +24,8 @@ dev = [
 test = [
     "coverage",
     "pytest",
-    "pytest-mock"
+    "pytest-mock",
+    "pytest-watcher"
 ]
 
 [project.scripts]
