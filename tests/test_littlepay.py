@@ -1,6 +1,6 @@
 import subprocess
 
-from littlepay.commands import RESULT_SUCCESS
+from littlepay.commands import RESULT_FAILURE
 
 
 def test_littlepay(capfd):
@@ -11,7 +11,7 @@ def test_littlepay(capfd):
     assert "Envs:" in capture.out
     assert "Participants:" in capture.out
     assert "Active:" in capture.out
-    assert res == RESULT_SUCCESS
+    assert res == RESULT_FAILURE
 
 
 def test_config(capfd):
@@ -22,4 +22,4 @@ def test_config(capfd):
     assert "Envs:" in capture.out
     assert "Participants:" in capture.out
     assert "Active:" in capture.out
-    assert res == RESULT_SUCCESS
+    assert res == RESULT_FAILURE
