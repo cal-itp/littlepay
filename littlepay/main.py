@@ -34,7 +34,6 @@ def main(argv=None):
         dest="config_path",
         help="Path to a readable and writeable config file to use. File will be created if it does not exist.",
     )
-    config_parser.add_argument("--reset", action="store_true", default=False, help="Reset the configuration.")
 
     switch_parser = _subcmd("switch", help="Switch the active environment or participant.")
     switch_parser.add_argument("switch_type", choices=CONFIG_TYPES, help="The type of object to switch", metavar="TYPE")
@@ -46,7 +45,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     if args.command == "config":
-        return configure(args.config_path, args.reset)
+        return configure(args.config_path)
     elif args.command == "switch":
         return switch(args.switch_type, args.switch_arg)
 

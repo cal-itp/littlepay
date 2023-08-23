@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 
 from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS
@@ -100,16 +98,3 @@ def test_configure_participant_credentials_prod(mocker, mock_Config, capfd):
     assert res == RESULT_SUCCESS
     assert "Active: ⚠️  prod, participant123" in capture.out
     assert "[missing credentials]" not in capture.out
-
-
-def test_configure_reset(custom_config_file: Path):
-    content = "Custom config content written here"
-    custom_config_file.write_text(content)
-    assert custom_config_file.exists()
-    assert content in custom_config_file.read_text()
-
-    res = configure(custom_config_file, reset=True)
-
-    assert res == RESULT_FAILURE
-    assert custom_config_file.exists()
-    assert content not in custom_config_file.read_text()

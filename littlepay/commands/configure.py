@@ -4,7 +4,7 @@ from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS
 from littlepay.config import ENV_PROD, Config
 
 
-def configure(config_path: str | Path = None, reset: bool = False) -> int:
+def configure(config_path: str | Path = None) -> int:
     """Get or set project configuration.
 
     Returns:
@@ -12,7 +12,8 @@ def configure(config_path: str | Path = None, reset: bool = False) -> int:
     """
     if config_path is None:
         config_path = Config.current_path()
-    config = Config(config_path, reset=reset)
+
+    config = Config(config_path)
     current_config_path = Config.current_path()
 
     env_name = config.active_env_name()
