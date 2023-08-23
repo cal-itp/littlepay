@@ -10,114 +10,136 @@ DEFAULT_CONFIG_FILE = CONFIG_DIR / "config.yaml"
 ENV_QA = "qa"
 ENV_PROD = "prod"
 
-CONFIG_ACTIVE = "active"
-CONFIG_ENV = "env"
-CONFIG_ENVS = f"{CONFIG_ENV}s"
-CONFIG_PARTICIPANT = "participant"
-CONFIG_PARTICIPANTS = f"{CONFIG_PARTICIPANT}s"
-CONFIG_TYPES = [CONFIG_ENV, CONFIG_PARTICIPANT]
-
+DEFAULT_ACTIVE = {"env": ENV_QA, "participant": ""}
+DEFAULT_CREDENTIALS = {"client_id": "", "client_secret": "", "audience": ""}
+DEFAULT_ENV = {"url": "", "version": "v1"}
 DEFAULT_CONFIG = {
-    CONFIG_ACTIVE: {CONFIG_ENV: ENV_QA, CONFIG_PARTICIPANT: ""},
-    f"{CONFIG_ENVS}": {ENV_QA: {"url": ""}, ENV_PROD: {"url": ""}},
-    f"{CONFIG_PARTICIPANTS}": {"cst": {"client_id": "", "client_secret": "", "audience": ""}},
+    "active": DEFAULT_ACTIVE,
+    "envs": {ENV_QA: DEFAULT_ENV, ENV_PROD: DEFAULT_ENV},
+    "participants": {"cst": {ENV_QA: DEFAULT_CREDENTIALS, ENV_PROD: DEFAULT_CREDENTIALS}},
 }
+CONFIG_TYPES = list(DEFAULT_ACTIVE.keys())
 
 
-def get_config_path() -> Path:
-    """Gets a pathlib.Path of the config file currently in-use, or the default if None."""
+def _get_current_path() -> Path:
+    """
+    Returns (Path):
+        The path to the config file currently in-use, or the default.
+    """
     CONFIG_FILE_CURRENT.parent.mkdir(parents=True, exist_ok=True)
     CONFIG_FILE_CURRENT.touch()
     current = CONFIG_FILE_CURRENT.read_text().strip()
     return Path(current or DEFAULT_CONFIG_FILE)
 
 
-def _read_config(config_file_path: Path = None) -> dict:
-    if config_file_path is None:
-        config_file_path = get_config_path()
-    return yaml.safe_load(config_file_path.read_text())
+def _update_current_path(new_path: str | Path):
+    """Saves new_path as the path to the current config file."""
+    if isinstance(new_path, Path):
+        new_path = str(new_path.expanduser().absolute())
+    CONFIG_FILE_CURRENT.write_text(new_path)
 
 
-def _write_config(config: dict, config_file_path: Path = None) -> None:
-    if config_file_path is None:
-        config_file_path = get_config_path()
-    config_file_path.write_text(yaml.dump(config))
+def _read_config(config_file: Path) -> dict:
+    """Reads configuration data from config_file."""
+    return yaml.safe_load(config_file.read_text())
 
 
-def get_config(config_file_path: str | Path = None, reset: bool = False) -> dict:
-    """If config_file_path does not exist, creates it with a default configuration.
-
-    Returns a dict representation of the config file.
-    """
-    if config_file_path is None or config_file_path == "":
-        config_file_path = get_config_path()
-    if isinstance(config_file_path, str):
-        config_file_path = Path(config_file_path)
-    if not config_file_path.exists() or reset:
-        print(f"Creating config file: {config_file_path.resolve()}")
-        config_file_path.parent.mkdir(parents=True, exist_ok=True)
-        _write_config(DEFAULT_CONFIG, config_file_path)
-
-    CONFIG_FILE_CURRENT.write_text(str(config_file_path.resolve()))
-    return _read_config(config_file_path)
+def _write_config(config: dict, config_file: Path) -> None:
+    """Writes configuration data to config_file."""
+    config_file.write_text(yaml.dump(config))
 
 
-def all_envs(config: dict = None) -> dict:
-    """Get the configured environments."""
-    if config is None:
-        config_path = get_config_path()
-        config = get_config(config_path)
+class Config:
+    """Interface to the configuration backend."""
 
-    return config.get(CONFIG_ENVS, {})
+    current_path = staticmethod(_get_current_path)
+    update_path = staticmethod(_update_current_path)
+    read = staticmethod(_read_config)
+    write = staticmethod(_write_config)
 
+    def __init__(self, config_file_path: str | Path = None, reset: bool = False):
+        """Initialize a new Config instance, reading from the given path or a default location.
 
-def all_participants(config: dict = None) -> dict:
-    """Get the configured participants."""
-    if config is None:
-        config_path = get_config_path()
-        config = get_config(config_path)
+        Args:
+            config_file_path (str|Path): Path to a readable config file. If None, the default is used.
 
-    return config.get(CONFIG_PARTICIPANTS, {})
+            reset (bool): True to reset the configuration to the default.
+        """
+        if config_file_path is None or config_file_path == "":
+            config_file_path = Config.current_path()
+        if isinstance(config_file_path, str):
+            config_file_path = Path(config_file_path)
+        if not config_file_path.exists() or reset:
+            print(f"Creating config file: {config_file_path.resolve()}")
+            config_file_path.parent.mkdir(parents=True, exist_ok=True)
+            Config.write(DEFAULT_CONFIG, config_file_path)
 
+        Config.update_path(config_file_path)
 
-def active_env(config: dict = None, new_env: str = None) -> tuple[str, dict]:
-    """Get a tuple of the active environment's (name, config). By default, the QA environment.
+        data = Config.read(config_file_path)
+        for key, value in data.items():
+            setattr(self, key, value)
 
-    Pass a new_env to update the active environment before returning.
-    """
-    config_path = get_config_path()
-    if config is None:
-        config = get_config(config_path)
+    def active_credentials(self, required: bool = False) -> dict:
+        """Get credentials from the active participant's environment config.
 
-    if new_env is not None:
-        envs = all_envs(config)
-        if new_env not in envs:
-            raise ValueError(f"Unsupported env: {new_env}, must be one of: {', '.join(envs)}")
+        Args:
+            required (bool): If True, raise a ValueError for missing credentials.
+        """
+        participant = self.active_participant()
+        for key in [k for k in DEFAULT_CREDENTIALS.keys() if required and k not in participant]:
+            raise ValueError(f"Participant missing required credential: {key}")
+        return {key: value for key, value in participant.items() if key in DEFAULT_CREDENTIALS.keys()}
 
-        config[CONFIG_ACTIVE][CONFIG_ENV] = new_env
-        _write_config(config, config_path)
+    def active_env(self) -> dict:
+        """
+        Returns (dict):
+            Configuration data for the active environment.
+        """
+        return self.envs[self.active_env_name()]
 
-    active = config.get(CONFIG_ACTIVE, {}).get("env", ENV_QA)
-    return (active, config.get(CONFIG_ENVS, {}).get(active, {}))
+    def active_env_name(self, new_env: str = None) -> str:
+        """Get or set the active environment by name. By default, the QA environment.
 
+        Args:
+            new_env (str): The new environment name to activate. Must exist.
 
-def active_participant(config: dict = None, new_participant: str = None) -> tuple[str, dict]:
-    """Get a tuple of the active participant's (name, config).
+        Returns (str):
+            The name of the active environment.
+        """
+        if new_env is not None:
+            if new_env not in self.envs:
+                raise ValueError(f"Unsupported env: {new_env}, must be one of: {', '.join(self.envs.keys())}")
 
-    Pass a new_participant to update the active participant before returning.
-    """
-    config_path = get_config_path()
-    if config is None:
-        config = get_config(config_path)
+            self.active["env"] = new_env
+            Config.write(self.__dict__, Config.current_path())
 
-    if new_participant is not None:
-        participants = all_participants(config)
-        if new_participant not in participants:
-            raise ValueError(f"Unsupported participant: {new_participant}, must be one of: {', '.join(participants)}")
+        return self.active.get("env", ENV_QA)
 
-        config[CONFIG_ACTIVE][CONFIG_PARTICIPANT] = new_participant
-        _write_config(config, config_path)
+    def active_participant(self) -> dict:
+        """
+        Returns (dict):
+            Configuration data for the active participant.
+        """
+        return self.participants[self.active_participant_id()][self.active_env_name()]
 
-    # ensure active is always a str, even if missing (e.g. None)
-    active = str(config.get(CONFIG_ACTIVE, {}).get(CONFIG_PARTICIPANT, "") or "")
-    return (active, config.get(CONFIG_PARTICIPANTS, {}).get(active, {}))
+    def active_participant_id(self, new_participant: str = None) -> str:
+        """Get or set the active participant by participant_id.
+
+        Args:
+            new_participant (str): The new participant_id to activate. Must exist.
+
+        Returns (str):
+            The participant_id of the active participant.
+        """
+        if new_participant is not None:
+            if new_participant not in self.participants:
+                raise ValueError(
+                    f"Unsupported participant: {new_participant}, must be one of: {', '.join(self.participants.keys())}"
+                )
+
+            self.active["participant"] = new_participant
+            Config.write(self.__dict__, Config.current_path())
+
+        # ensure active is always a str, even if missing (e.g. None)
+        return self.active.get("participant", "") or ""

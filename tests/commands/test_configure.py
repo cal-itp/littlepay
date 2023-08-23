@@ -1,12 +1,20 @@
 from pathlib import Path
 
+import pytest
+
 from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS
 from littlepay.commands.configure import configure
+from littlepay.config import DEFAULT_CREDENTIALS
+
+
+@pytest.fixture
+def mock_Config(mocker):
+    return mocker.patch("littlepay.commands.configure.Config").return_value
 
 
 def test_configure(mocker, custom_config_file, capfd):
     assert not custom_config_file.exists()
-    mocker.patch("littlepay.commands.configure.get_config", return_value={})
+    mocker.patch("littlepay.config._read_config", return_value={})
 
     res = configure(custom_config_file)
     capture = capfd.readouterr()
@@ -20,8 +28,9 @@ def test_configure(mocker, custom_config_file, capfd):
     assert "[no participant]" in capture.out
 
 
-def test_configure_default(mocker, capfd):
-    mocker.patch("littlepay.commands.configure.active_env", return_value=("env123", {}))
+def test_configure_default(mock_Config, capfd):
+    mock_Config.active_env_name.return_value = "env123"
+    mock_Config.active_participant_id.return_value = ""
 
     res = configure()
     capture = capfd.readouterr()
@@ -33,15 +42,11 @@ def test_configure_default(mocker, capfd):
     assert "Active: env123, [no participant]" in capture.out
 
 
-def test_configure_participant_auth(mocker, capfd):
-    mocker.patch("littlepay.commands.configure.active_env", return_value=("env123", {}))
-    mocker.patch(
-        "littlepay.commands.configure.active_participant",
-        return_value=(
-            "participant123",
-            {"env123": {"client_id": "client id", "client_secret": "client secret", "audience": "audience"}},
-        ),
-    )
+def test_configure_participant_credentials_empty(mock_Config, capfd):
+    mock_Config.active_env_name.return_value = "env123"
+    mock_Config.active_participant_id.return_value = "participant123"
+    mock_Config.active_credentials.return_value = DEFAULT_CREDENTIALS
+
     res = configure()
     capture = capfd.readouterr()
 
@@ -50,12 +55,14 @@ def test_configure_participant_auth(mocker, capfd):
     assert "Envs:" in capture.out
     assert "Participants:" in capture.out
     assert "Active: env123, participant123" in capture.out
-    assert "[missing auth]" not in capture.out
+    assert "[missing credentials]" in capture.out
 
 
-def test_configure_participant_no_auth(mocker, capfd):
-    mocker.patch("littlepay.commands.configure.active_env", return_value=("env123", {}))
-    mocker.patch("littlepay.commands.configure.active_participant", return_value=("participant123", {"env123": {}}))
+def test_configure_participant_credentials_missing(mock_Config, capfd):
+    mock_Config.active_env_name.return_value = "env123"
+    mock_Config.active_participant_id.return_value = "participant123"
+    mock_Config.active_credentials.side_effect = ValueError
+
     res = configure()
     capture = capfd.readouterr()
 
@@ -63,7 +70,22 @@ def test_configure_participant_no_auth(mocker, capfd):
     assert "Config:" in capture.out
     assert "Envs:" in capture.out
     assert "Participants:" in capture.out
-    assert "Active: env123, participant123 [missing auth]" in capture.out
+    assert "Active: env123, participant123 [missing credentials]" in capture.out
+
+
+def test_configure_participant_no_credentials(mock_Config, capfd):
+    mock_Config.active_env_name.return_value = "env123"
+    mock_Config.active_participant_id.return_value = "participant123"
+    mock_Config.active_credentials.return_value = None
+
+    res = configure()
+    capture = capfd.readouterr()
+
+    assert res == RESULT_FAILURE
+    assert "Config:" in capture.out
+    assert "Envs:" in capture.out
+    assert "Participants:" in capture.out
+    assert "Active: env123, participant123 [missing credentials]" in capture.out
 
 
 def test_configure_reset(custom_config_file: Path):

@@ -4,203 +4,259 @@ import pytest
 
 import littlepay.config
 from littlepay.config import (
-    CONFIG_ACTIVE,
-    CONFIG_ENV,
-    CONFIG_ENVS,
-    CONFIG_PARTICIPANT,
-    CONFIG_PARTICIPANTS,
     DEFAULT_CONFIG,
+    DEFAULT_CREDENTIALS,
     ENV_QA,
-    all_envs,
-    all_participants,
-    get_config_path,
-    get_config,
-    active_env,
-    active_participant,
+    _get_current_path,
+    _read_config,
+    _write_config,
+    _update_current_path,
+    Config,
 )
 from tests.conftest import CUSTOM_CONFIG_FILE
 
 
-@pytest.fixture
-def mock_get_config(mocker):
-    return mocker.patch("littlepay.config.get_config")
-
-
-def test_get_config_path_default(custom_config_file: Path):
-    result = get_config_path()
+def test_get_current_path_default(custom_config_file: Path):
+    result = _get_current_path()
 
     assert isinstance(result, Path)
     assert result == custom_config_file
 
 
-def test_get_config_path_current(custom_current_file: Path):
+def test_get_current_path_custom(custom_current_file: Path):
     expected = "."
     custom_current_file.write_text(expected)
 
-    result = get_config_path()
+    result = _get_current_path()
 
     assert result == Path(expected)
 
 
+def test_get_current_path_newline(custom_current_file: Path):
+    expected = "."
+    custom_current_file.write_text(".\n")
+
+    result = _get_current_path()
+
+    assert result == Path(expected)
+
+
+def test_update_current_path_str(custom_current_file: Path):
+    assert not custom_current_file.exists()
+
+    _update_current_path("/the/path")
+
+    assert custom_current_file.read_text() == "/the/path"
+
+
+def test_update_current_path_Path(custom_current_file: Path):
+    assert not custom_current_file.exists()
+
+    _update_current_path(Path("/the/path"))
+
+    assert custom_current_file.read_text() == "/the/path"
+
+
+def test_read_config(custom_config_file: Path):
+    custom_config_file.write_text("config: the config")
+
+    config = _read_config(custom_config_file)
+
+    assert config == {"config": "the config"}
+
+
+def test_write_config(custom_config_file: Path):
+    assert not custom_config_file.exists()
+
+    _write_config({"config": "the config"}, custom_config_file)
+
+    text = custom_config_file.read_text().strip()
+    assert text.startswith("config:")
+    assert text.endswith("the config")
+
+
 @pytest.mark.parametrize("path_arg", [None, "", CUSTOM_CONFIG_FILE, Path(CUSTOM_CONFIG_FILE)])
-def test_get_config(path_arg, custom_current_file: Path, custom_config_file: Path):
+def test_Config(path_arg, custom_current_file: Path, custom_config_file: Path):
     assert not custom_current_file.exists()
     assert not custom_config_file.exists()
 
-    config = get_config(path_arg)
+    config = Config(path_arg)
 
     assert custom_current_file.exists()
     current_config_path = Path(custom_current_file.read_text())
 
     assert current_config_path.resolve() == custom_config_file.resolve()
     assert custom_config_file.exists()
-    assert config == DEFAULT_CONFIG
+    assert config.active == DEFAULT_CONFIG["active"]
+    assert config.envs == DEFAULT_CONFIG["envs"]
+    assert config.participants == DEFAULT_CONFIG["participants"]
+    assert not hasattr(config, "token")
 
 
-def test_get_config_exists(custom_config_file: Path):
+def test_Config_exists(custom_config_file: Path):
     assert not custom_config_file.exists()
-    custom_config_file.write_text("the config")
+    custom_config_file.write_text('{"data": "the config", "other_data": "more config"}')
     assert custom_config_file.exists()
 
-    config = get_config(custom_config_file)
+    config = Config(custom_config_file)
 
-    assert config == "the config"
+    assert config.data == "the config"
+    assert config.other_data == "more config"
 
 
-def test_get_config_reset(custom_config_file: Path):
+def test_Config_reset(custom_config_file: Path):
     assert not custom_config_file.exists()
-    custom_config_file.write_text("the config")
+    custom_config_file.write_text('{"data": "the config"}')
     assert custom_config_file.exists()
 
-    config = get_config(custom_config_file, reset=True)
+    config = Config(custom_config_file, reset=True)
 
     assert custom_config_file.exists()
-    assert config == DEFAULT_CONFIG
+    assert config.active == DEFAULT_CONFIG["active"]
+    assert config.envs == DEFAULT_CONFIG["envs"]
+    assert config.participants == DEFAULT_CONFIG["participants"]
+    assert not hasattr(config, "data")
 
 
-def test_all_envs(mock_get_config):
-    envs = {"one": "", "two": ""}
-    mock_get_config.return_value = {CONFIG_ENVS: envs}
-    result = all_envs()
+def test_Config_active_env_name(mocker):
+    config = Config()
+    config.active = mocker.Mock()
+    config.active.get = mocker.Mock(return_value="active_env")
 
-    assert result == envs
-
-
-def test_all_envs_config():
-    envs = {"three": "", "four": ""}
-    config = {CONFIG_ENVS: envs}
-    result = all_envs(config)
-
-    assert result == envs
+    assert config.active_env_name() == "active_env"
 
 
-def test_all_participants(mock_get_config):
-    participants = {"one": "", "two": ""}
-    mock_get_config.return_value = {CONFIG_PARTICIPANTS: participants}
-    result = all_participants()
+def test_Config_active_env_name_default():
+    config = Config()
+    config.active = {}
 
-    assert result == participants
-
-
-def test_all_participants_config():
-    participants = {"three": "", "four": ""}
-    config = {CONFIG_PARTICIPANTS: participants}
-    result = all_participants(config)
-
-    assert result == participants
+    assert config.active_env_name() == ENV_QA
 
 
-def test_active_env(mocker):
-    mocker.patch(
-        "littlepay.config.get_config",
-        return_value={CONFIG_ACTIVE: {CONFIG_ENV: "active_env"}, CONFIG_ENVS: {"active_env": "the active env"}},
-    )
-    result = active_env()
+def test_Config_active_env_name_update():
+    config = Config()
+    config.active = {"env": "original_env"}
+    config.envs = {"original_env": "the original env", "new_env": "the new env"}
 
-    assert result == ("active_env", "the active env")
+    result = config.active_env_name("new_env")
 
-
-def test_active_env_default(mock_get_config):
-    mock_get_config.return_value = {CONFIG_ACTIVE: {}, CONFIG_ENVS: {ENV_QA: "the qa env"}}
-    result = active_env()
-
-    assert result == (ENV_QA, "the qa env")
+    assert result == "new_env"
+    assert config.active_env_name() == result
 
 
-def test_active_env_config():
-    config = {CONFIG_ACTIVE: {CONFIG_ENV: "active_env"}, CONFIG_ENVS: {"active_env": "the active env"}}
-    result = active_env(config)
-
-    assert result == ("active_env", "the active env")
-
-
-def test_active_env_update():
-    config = {"active": {"env": "original_env"}, "envs": {"original_env": "the original env", "new_env": "the new env"}}
-    result = active_env(config, "new_env")
-
-    assert result == ("new_env", "the new env")
-    result_two = active_env()
-    assert result_two == result
-
-
-def test_active_env_update_unsupported(mocker):
+def test_Config_active_env_name_update_unsupported(mocker):
     spy_write = mocker.spy(littlepay.config, "_write_config")
-    config = {"active": {"env": "original_env"}, "envs": {"original_env": "the original env"}}
+    config = Config()
+    config.active = {"env": "original_env"}
+    config.envs = {"original_env": "the original env"}
 
     with pytest.raises(ValueError):
-        active_env(config, "new_env")
+        config.active_env_name("new_env")
 
     assert spy_write.call_count == 0
-    result = active_env(config)
-    assert result == ("original_env", "the original env")
+    assert config.active_env_name() == "original_env"
 
 
-def test_active_participant(mock_get_config):
-    mock_get_config.return_value = {
-        CONFIG_ACTIVE: {CONFIG_PARTICIPANT: "participant123"},
-        CONFIG_PARTICIPANTS: {"participant123": "the active participant"},
-    }
-    result = active_participant()
+def test_Config_active_env():
+    config = Config()
+    config.active["env"] = "env123"
+    config.envs["env123"] = "the environment"
 
-    assert result == ("participant123", "the active participant")
+    assert config.active_env() == "the environment"
 
 
-def test_active_participant_default(mock_get_config):
-    mock_get_config.return_value = {CONFIG_ACTIVE: {}}
-    result = active_participant()
+def test_Config_active_participant_id(mocker):
+    config = Config()
+    config.active = mocker.Mock()
+    config.active.get = mocker.Mock(return_value="active_participant")
 
-    assert result == ("", {})
-
-
-def test_active_participant_config():
-    config = {
-        CONFIG_ACTIVE: {CONFIG_PARTICIPANT: "participant456"},
-        CONFIG_PARTICIPANTS: {"participant456": "the active participant"},
-    }
-    result = active_participant(config)
-
-    assert result == ("participant456", "the active participant")
+    assert config.active_participant_id() == "active_participant"
 
 
-def test_active_participant_update():
-    config = {
-        "active": {"participant": "participant123"},
-        "participants": {"participant123": "one two three", "participant456": "four five six"},
-    }
-    result = active_participant(config, "participant456")
+def test_Config_active_participant_id_default():
+    config = Config()
+    config.active = {}
 
-    assert result == ("participant456", "four five six")
-    result_two = active_participant()
-    assert result_two == result
+    assert config.active_participant_id() == ""
 
 
-def test_active_participant_update_unsupported(mocker):
+def test_Config_active_participant_id_update():
+    config = Config()
+    config.active = {"participant": "participant123"}
+    config.participants = {"participant123": "one two three", "participant456": "four five six"}
+
+    result = config.active_participant_id("participant456")
+
+    assert result == "participant456"
+    assert config.active_participant_id() == result
+
+
+def test_Config_active_participant_id_update_unsupported(mocker):
     spy_write = mocker.spy(littlepay.config, "_write_config")
-    config = {"active": {"participant": "participant123"}, "participants": {"participant123": "one two three"}}
+    config = Config()
+    config.active = {"participant": "participant123"}
+    config.participants = {"participant123": "one two three"}
 
     with pytest.raises(ValueError):
-        active_participant(config, "participant456")
+        config.active_participant_id("participant456")
 
     assert spy_write.call_count == 0
-    result = active_participant(config)
-    assert result == ("participant123", "one two three")
+    assert config.active_participant_id() == "participant123"
+
+
+def test_Config_active_participant():
+    config = Config()
+    config.active["env"] = "env123"
+    config.active["participant"] = "participant123"
+    config.participants = {"participant123": {"env123": "the participant config"}}
+
+    assert config.active_participant() == "the participant config"
+
+
+def test_Config_active_credentials_default(mocker):
+    config = Config()
+    mocker.patch.object(config, "active_participant", return_value={})
+
+    credentials = config.active_credentials()
+
+    assert credentials == {}
+
+
+def test_Config_active_credentials_custom(mocker):
+    custom = dict(**DEFAULT_CREDENTIALS)
+    custom["client_id"] = "the ID"
+    custom["client_secret"] = "123456"
+    custom["audience"] = "the audience"
+
+    config = Config()
+    mocker.patch.object(config, "active_participant", return_value=custom)
+
+    credentials = config.active_credentials()
+
+    assert credentials == custom
+
+
+def test_Config_active_credentials_missing(mocker):
+    config = Config()
+    mocker.patch.object(config, "active_participant", return_value={"env": "something", "data": "other"})
+
+    credentials = config.active_credentials()
+
+    assert credentials == {}
+
+
+def test_Config_active_credentials_required(mocker):
+    config = Config()
+    mocker.patch.object(config, "active_participant", return_value=DEFAULT_CREDENTIALS)
+
+    credentials = config.active_credentials(required=True)
+
+    assert credentials == DEFAULT_CREDENTIALS
+
+
+def test_Config_active_credentials_required_missing(mocker):
+    config = Config()
+    mocker.patch.object(config, "active_participant", return_value={})
+
+    with pytest.raises(ValueError):
+        config.active_credentials(required=True)

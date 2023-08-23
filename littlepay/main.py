@@ -4,7 +4,7 @@ import sys
 from littlepay import __version__ as version
 from littlepay.commands.configure import configure
 from littlepay.commands.switch import switch
-from littlepay.config import CONFIG_TYPES, get_config_path
+from littlepay.config import CONFIG_TYPES, Config
 
 
 def main(argv=None):
@@ -30,7 +30,7 @@ def main(argv=None):
     config_parser.add_argument(
         "-c",
         "--config",
-        default=get_config_path(),
+        default=Config.current_path(),
         dest="config_path",
         help="Path to a readable and writeable config file to use. File will be created if it does not exist.",
     )
