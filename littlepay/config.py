@@ -140,3 +140,13 @@ class Config:
 
         self.active["participant"] = value
         Config.write(self.__dict__, Config.current_path())
+
+    @property
+    def active_token(self) -> dict:
+        """The active participant's API access token."""
+        return self.active_participant.get("token", None)
+
+    @active_token.setter
+    def active_token(self, value: dict):
+        self.active_participant["token"] = dict(value)
+        Config.write(self.__dict__, Config.current_path())

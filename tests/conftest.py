@@ -1,13 +1,59 @@
 from pathlib import Path
 
 import pytest
+from pytest_socket import disable_socket
 
+from littlepay import __version__
 import littlepay.config
 from littlepay.commands import RESULT_SUCCESS
 
 
 CUSTOM_CONFIG_FILE = "./tests/test.config.yaml"
 CUSTOM_CURRENT_FILE = "./tests/.current"
+
+
+def pytest_runtest_setup():
+    disable_socket()
+
+
+@pytest.fixture
+def accept_header():
+    return ("Accept", "application/json")
+
+
+@pytest.fixture
+def content_type_header():
+    return ("Content-Type", "application/json")
+
+
+@pytest.fixture
+def credentials():
+    return {
+        "audience": "audience",
+        "client_id": "client_id",
+        "client_secret": "client_secret",
+        "grant_type": "client_credentials",
+    }
+
+
+@pytest.fixture
+def token():
+    return {"data": "token123"}
+
+
+@pytest.fixture
+def url():
+    return "https://www.example.com"
+
+
+@pytest.fixture
+def user_agent_header():
+    return ("User-Agent", f"cal-itp/littlepay:{__version__}")
+
+
+@pytest.fixture
+def version():
+    return "v5000"
 
 
 @pytest.fixture(autouse=True)
