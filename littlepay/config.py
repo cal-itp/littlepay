@@ -141,3 +141,20 @@ class Config:
 
         # ensure active is always a str, even if missing (e.g. None)
         return self.active.get("participant", "") or ""
+
+    def active_token(self, new_token: dict = None) -> dict | None:
+        """Get or set the active participant API access token.
+
+        Args:
+            new_token (dict): A new access token for the active participant.
+
+        Returns (str):
+            The active participant's access token, or None.
+        """
+        participant = self.active_participant()
+
+        if isinstance(new_token, dict):
+            participant["token"] = new_token
+            Config.write(self.__dict__, Config.current_path())
+
+        return participant.get("token")
