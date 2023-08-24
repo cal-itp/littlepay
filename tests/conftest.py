@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from pytest_socket import disable_socket
 
 import littlepay.config
 from littlepay.commands import RESULT_SUCCESS
@@ -8,6 +9,10 @@ from littlepay.commands import RESULT_SUCCESS
 
 CUSTOM_CONFIG_FILE = "./tests/test.config.yaml"
 CUSTOM_CURRENT_FILE = "./tests/.current"
+
+
+def pytest_runtest_setup():
+    disable_socket()
 
 
 @pytest.fixture(autouse=True)
