@@ -1,6 +1,32 @@
+from pathlib import Path
 import subprocess
 
+import pytest
+
 from littlepay.commands import RESULT_FAILURE
+from littlepay.config import _get_current_path, _update_current_path
+from tests.conftest import CUSTOM_CONFIG_FILE
+
+
+@pytest.fixture(autouse=True)
+def custom_config_file() -> Path:
+    """Override fixture in conftest to temporarily use the CUSTOM_CONFIG_FILE as a "real" config file."""
+    default = _get_current_path()
+
+    custom = Path(CUSTOM_CONFIG_FILE)
+    custom.unlink(missing_ok=True)
+    _update_current_path(custom)
+
+    yield custom
+
+    custom.unlink(missing_ok=True)
+    _update_current_path(default)
+
+
+@pytest.fixture(autouse=True)
+def custom_current_file() -> Path:
+    """Override fixture in conftest to NOT return the test .current file, use the real one."""
+    return
 
 
 def test_littlepay(capfd):
