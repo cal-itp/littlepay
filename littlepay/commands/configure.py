@@ -1,5 +1,7 @@
+import datetime
 from pathlib import Path
 
+from littlepay.api.client import Client
 from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS
 from littlepay.config import ENV_PROD, Config
 
@@ -32,8 +34,17 @@ def configure(config_path: str | Path = None) -> int:
     if credentials is None or not all(credentials.values()):
         print(f"Active: {config.active_env_name}, {config.active_participant_id} [missing credentials]".strip())
         return RESULT_FAILURE
+
+    # save the active token for reuse in later commands
+    config.active_token = Client.from_active_config(config).token
+
+    if config.active_token is None or config.active_token == {}:
+        print(f"Active: {config.active_env_name}, {config.active_participant_id} [misconfigured credentials]".strip())
+        return RESULT_FAILURE
     else:
         alert = "⚠️  " if config.active_env_name == ENV_PROD else ""
         print(f"Active: {alert}{config.active_env_name}, {config.active_participant_id}".strip())
-
+        if "expires_at" in config.active_token:
+            expiry = datetime.datetime.fromtimestamp(config.active_token["expires_at"])
+            print(f"Token expires: {expiry.isoformat()} UTC")
         return RESULT_SUCCESS
