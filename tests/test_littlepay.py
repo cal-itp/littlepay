@@ -1,13 +1,25 @@
 import subprocess
 
-from littlepay import __version__ as version
-from littlepay.commands import RESULT_SUCCESS
+from littlepay.commands import RESULT_FAILURE
 
 
 def test_littlepay(capfd):
-    # call CLI command as a subprocess
     res = subprocess.call(["littlepay"])
-    captured = capfd.readouterr()
+    capture = capfd.readouterr()
 
-    assert res == RESULT_SUCCESS
-    assert f"littlepay: {version}" in captured.out
+    assert "Config:" in capture.out
+    assert "Envs:" in capture.out
+    assert "Participants:" in capture.out
+    assert "Active:" in capture.out
+    assert res == RESULT_FAILURE
+
+
+def test_config(capfd):
+    res = subprocess.call(["littlepay", "config"])
+    capture = capfd.readouterr()
+
+    assert "Config:" in capture.out
+    assert "Envs:" in capture.out
+    assert "Participants:" in capture.out
+    assert "Active:" in capture.out
+    assert res == RESULT_FAILURE

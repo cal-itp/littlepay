@@ -2,7 +2,9 @@ import argparse
 import sys
 
 from littlepay import __version__ as version
-from littlepay.commands.info import info
+from littlepay.commands.configure import configure
+from littlepay.commands.switch import switch
+from littlepay.config import CONFIG_TYPES, Config
 
 
 def main(argv=None):
@@ -24,15 +26,28 @@ def main(argv=None):
         parser = subparsers.add_parser(name, help=help)
         return parser
 
-    _subcmd("info", help="Print configuration and debugging information.")
+    config_parser = _subcmd("config", help="Get or set configuration.")
+    config_parser.add_argument(
+        "-c",
+        "--config",
+        default=Config.current_path(),
+        dest="config_path",
+        help="Path to a readable and writeable config file to use. File will be created if it does not exist.",
+    )
+
+    switch_parser = _subcmd("switch", help="Switch the active environment or participant.")
+    switch_parser.add_argument("switch_type", choices=CONFIG_TYPES, help="The type of object to switch", metavar="TYPE")
+    switch_parser.add_argument("switch_arg", help="The new object value", metavar="VALUE")
 
     if len(argv) == 0:
-        argv = ["info"]
+        argv = ["config"]
 
     args = parser.parse_args(argv)
 
-    if args.command == "info":
-        return info()
+    if args.command == "config":
+        return configure(args.config_path)
+    elif args.command == "switch":
+        return switch(args.switch_type, args.switch_arg)
 
 
 if __name__ == "__main__":
