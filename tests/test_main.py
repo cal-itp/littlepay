@@ -1,7 +1,8 @@
+from pathlib import Path
 import pytest
 
 from littlepay.commands import RESULT_SUCCESS
-from littlepay.config import CONFIG_TYPES
+from littlepay.config import CONFIG_TYPES, Config
 from littlepay.main import main, __name__ as MODULE
 
 
@@ -15,18 +16,42 @@ def mock_commands_switch(mock_commands_switch):
     return mock_commands_switch(MODULE)
 
 
-def test_main_config(mock_commands_config):
-    result = main(argv=["config"])
-
-    assert result == RESULT_SUCCESS
-    mock_commands_config.assert_called_once()
-
-
 def test_main_default(mock_commands_config):
     result = main(argv=[])
 
     assert result == RESULT_SUCCESS
-    mock_commands_config.assert_called_once()
+    mock_commands_config.assert_called_once_with(Config().current_path())
+
+
+@pytest.mark.parametrize("config_flag", ["-c", "--config"])
+def test_main_config_flag(custom_config_file: Path, mock_commands_config, config_flag):
+    new_config = custom_config_file.parent / "new_config.yaml"
+    assert not new_config.exists()
+
+    new_config_path = str(new_config.absolute())
+
+    result = main(argv=[config_flag, new_config_path])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_config.assert_called_once_with(new_config_path)
+
+
+def test_main_config(mock_commands_config):
+    result = main(argv=["config"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_config.assert_called_once_with(Config().current_path())
+
+
+def test_main_config_config_path(custom_config_file: Path, mock_commands_config):
+    new_config = custom_config_file.parent / "new_config.yaml"
+    assert not new_config.exists()
+
+    new_config_path = str(new_config.absolute())
+    result = main(argv=["config", new_config_path])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_config.assert_called_once_with(new_config_path)
 
 
 @pytest.mark.parametrize("switch_type", CONFIG_TYPES)

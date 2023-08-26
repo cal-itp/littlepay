@@ -6,16 +6,18 @@ APIs and admin tasks for Littlepay.
 
 ```console
 $ littlepay -h
-usage: littlepay [-h] [-v] {config,switch} ...
+usage: littlepay [-h] [-v] [-c CONFIG_PATH] {config,switch} ...
 
 positional arguments:
   {config,switch}
-    config         Get or set configuration.
-    switch         Switch the active environment or participant.
+    config              Get or set configuration.
+    switch              Switch the active environment or participant.
 
 options:
-  -h, --help       show this help message and exit
-  -v, --version    show program's version number and exit
+  -h, --help            show this help message and exit
+  -v, --version         show program's version number and exit
+  -c CONFIG_PATH, --config CONFIG_PATH
+                        Path to a readable and writeable config file to use. File will be created if it does not exist.
 ```
 
 ## Install
@@ -60,9 +62,14 @@ envs:
     url: ""
 participants:
   cst:
-    audience: ""
-    client_id: ""
-    client_secret: ""
+    qa:
+      audience: ""
+      client_id: ""
+      client_secret: ""
+    prod:
+      audience: ""
+      client_id: ""
+      client_secret: ""
 ```
 
 There are two `envs` by default, the base API URL should be completed for each:
@@ -75,7 +82,13 @@ Add specifics for the `participants` you manage based on information received fr
 ### Use a different config file
 
 ```console
-littlepay config -c /path/to/new/config.yaml
+littlepay config /path/to/new/config.yaml
+```
+
+Or
+
+```
+littlepay --config /path/to/new/config.yaml
 ```
 
 The most recent config used is saved for next time.
