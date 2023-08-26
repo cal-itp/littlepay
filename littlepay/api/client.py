@@ -5,6 +5,7 @@ from authlib.integrations.requests_client import OAuth2Session
 from authlib.oauth2.rfc6749 import OAuth2Token
 
 from littlepay import __version__
+from littlepay.api import ClientProtocol
 from littlepay.config import Config
 
 
@@ -58,7 +59,7 @@ def _json_post_credentials(client, method, uri, headers, body) -> tuple:
     return uri, headers, json_data
 
 
-class Client:
+class Client(ClientProtocol):
     """Represents an API connection to an environment."""
 
     from_active_config = staticmethod(_client_from_active_config)
