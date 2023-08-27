@@ -1,11 +1,12 @@
 import json
+from typing import Generator
 
 from authlib.common.urls import url_decode
 from authlib.integrations.requests_client import OAuth2Session
 from authlib.oauth2.rfc6749 import OAuth2Token
 
 from littlepay import __version__
-from littlepay.api import ClientProtocol
+from littlepay.api import ClientProtocol, ListResponse, TResponse
 from littlepay.config import Config
 
 
@@ -113,6 +114,26 @@ class Client(ClientProtocol):
         if self.oauth.token is None or self.oauth.token.is_expired():
             self.oauth.token = self.oauth.fetch_token(headers=self.headers, **self.credentials)
         return self.oauth.token
+
+    def _get(self, endpoint: str, response_cls: TResponse, **kwargs) -> TResponse:
+        response = self.oauth.get(endpoint, headers=self.headers, params=kwargs)
+        response.raise_for_status()
+        return response_cls(**response.json())
+
+    def _get_list(self, endpoint: str) -> Generator[dict, None, None]:
+        params = dict(page=1, perPage=100)
+        total = 0
+
+        data = self._get(endpoint, ListResponse, **params)
+        queue = list(data.list)
+        while len(queue):
+            total += len(queue)
+            for _ in range(len(queue)):
+                yield queue.pop(0)
+            if total < int(data.total_count):
+                params["page"] += 1
+                data = self._get(endpoint, ListResponse, **params)
+                queue.extend(data.list)
 
     def _make_endpoint(self, *parts: str) -> str:
         parts = (p.strip("/") for p in parts)
