@@ -12,6 +12,11 @@ def mock_commands_config(mock_commands_config):
 
 
 @pytest.fixture
+def mock_commands_groups(mock_commands_groups):
+    return mock_commands_groups(MODULE)
+
+
+@pytest.fixture
 def mock_commands_switch(mock_commands_switch):
     return mock_commands_switch(MODULE)
 
@@ -52,6 +57,22 @@ def test_main_config_config_path(custom_config_file: Path, mock_commands_config)
 
     assert result == RESULT_SUCCESS
     mock_commands_config.assert_called_once_with(new_config_path)
+
+
+def test_main_groups(mock_commands_groups):
+    result = main(argv=["groups"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+
+
+@pytest.mark.parametrize("filter_flag", ["-f", "--filter"])
+def test_main_groups_filter(mock_commands_groups, filter_flag):
+    result = main(argv=["groups", filter_flag, "term"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    assert "term" in mock_commands_groups.call_args.args
 
 
 @pytest.mark.parametrize("switch_type", CONFIG_TYPES)
