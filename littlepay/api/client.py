@@ -24,6 +24,26 @@ def _client_from_active_config(config: Config):
     )
 
 
+def _fix_bearer_token_header(url, headers, body):
+    """Fixes the Authorization header to remove the 'Bearer' keyword.
+
+    The standard header looks like:
+
+      `Authorization: Bearer <token>`
+
+    However Littlepay expects to receive:
+
+      `Authorization: <token>`
+
+    This function should not be called directly, it is used by Client.oauth.
+
+    See https://docs.authlib.org/en/latest/client/oauth2.html#compliance-fix-for-non-standard
+    """
+    if "Authorization" in headers:
+        headers["Authorization"] = headers["Authorization"].replace("Bearer ", "")
+    return url, headers, body
+
+
 def _json_post_credentials(client, method, uri, headers, body) -> tuple:
     """Custom authentication converts x-www-form-urlencoded body (Authlib default) into JSON (Littlepay requirement).
 
@@ -79,6 +99,7 @@ class Client:
         self.oauth = OAuth2Session(
             token_endpoint=self.token_endpoint, token_endpoint_auth_method=_json_post_credentials, token=token
         )
+        self.oauth.register_compliance_hook("protected_request", _fix_bearer_token_header)
 
     @property
     def token_endpoint(self) -> str:
