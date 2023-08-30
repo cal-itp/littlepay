@@ -235,3 +235,32 @@ def test_Config_active_credentials_missing(mocker):
 
     with pytest.raises(ValueError):
         config.active_credentials
+
+
+def test_Config_active_token(mocker):
+    token = {"data": "token123"}
+    config = Config()
+    mocker.patch("littlepay.config.Config.active_participant", new_callable=mocker.PropertyMock, return_value={"token": token})
+
+    assert config.active_token == token
+
+
+def test_Config_active_token_missing(mocker):
+    config = Config()
+    mocker.patch("littlepay.config.Config.active_participant", new_callable=mocker.PropertyMock, return_value={})
+
+    assert config.active_token is None
+
+
+def test_Config_active_token_update(mocker):
+    mocker.patch("littlepay.config.Config.active_participant", new_callable=mocker.PropertyMock, return_value={})
+    config = Config()
+    assert config.active_token is None
+
+    token = {"data": "token123"}
+    config.active_token = token
+
+    assert config.active_token == token
+    assert config.active_participant["token"] == token
+
+    assert Config().active_token == token
