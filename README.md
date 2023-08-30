@@ -5,12 +5,14 @@
 | Name                               |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |----------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
 | littlepay/\_\_init\_\_.py          |        5 |        2 |        0 |        0 |     60% |       5-7 |
+| littlepay/api/\_\_init\_\_.py      |        0 |        0 |        0 |        0 |    100% |           |
+| littlepay/api/client.py            |       39 |        0 |       12 |        0 |    100% |           |
 | littlepay/commands/\_\_init\_\_.py |        2 |        0 |        0 |        0 |    100% |           |
-| littlepay/commands/configure.py    |       24 |        2 |        6 |        0 |     93% |     29-30 |
+| littlepay/commands/configure.py    |       33 |        0 |       10 |        0 |    100% |           |
 | littlepay/commands/switch.py       |       11 |        0 |        6 |        1 |     94% |    13->16 |
-| littlepay/config.py                |       79 |        0 |       34 |        0 |    100% |           |
+| littlepay/config.py                |       86 |        0 |       38 |        0 |    100% |           |
 | littlepay/main.py                  |       29 |        1 |        8 |        2 |     92% |53->exit, 58 |
-|                          **TOTAL** |  **150** |    **5** |   **54** |    **3** | **96%** |           |
+|                          **TOTAL** |  **205** |    **3** |   **74** |    **3** | **98%** |           |
 
 
 ## Setup coverage badge
