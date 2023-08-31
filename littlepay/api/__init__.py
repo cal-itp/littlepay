@@ -66,3 +66,23 @@ class ClientProtocol(Protocol):
             A complete URL for the endpoint.
         """
         pass
+
+    def _post(self, endpoint: str, data: dict, response_cls: TResponse = dict, **kwargs) -> TResponse:
+        """Make a POST request to a JSON endpoint.
+
+        Args:
+            self (ClientProtocol): The current ClientProtocol reference.
+
+            endpoint (str): The fully-formed endpoint where the POST request should be made.
+
+            data (dict): Data to send as JSON in the POST body.
+
+            response_cls (TResponse): A dataclass representing the JSON response to the POST. By default, simply returns a
+            boolean indicating success.
+
+            Extra kwargs are passed to requests.post(...)
+
+        Returns (TResponse):
+            A TResponse instance of the JSON response.
+        """
+        pass

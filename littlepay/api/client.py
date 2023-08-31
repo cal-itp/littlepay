@@ -138,3 +138,8 @@ class Client(ClientProtocol):
     def _make_endpoint(self, *parts: str) -> str:
         parts = (p.strip("/") for p in parts)
         return "/".join((self.base_url, "api", self.version, *parts))
+
+    def _post(self, endpoint: str, data: dict, response_cls: TResponse = dict, **kwargs) -> TResponse:
+        response = self.oauth.post(endpoint, headers=self.headers, json=data, **kwargs)
+        response.raise_for_status()
+        return response_cls(**response.json())
