@@ -1,3 +1,4 @@
+from argparse import Namespace
 from pathlib import Path
 import pytest
 
@@ -64,6 +65,9 @@ def test_main_groups(mock_commands_groups):
 
     assert result == RESULT_SUCCESS
     mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert isinstance(call_args, Namespace)
+    assert call_args.command == "groups"
 
 
 @pytest.mark.parametrize("filter_flag", ["-f", "--filter"])
@@ -72,7 +76,40 @@ def test_main_groups_filter(mock_commands_groups, filter_flag):
 
     assert result == RESULT_SUCCESS
     mock_commands_groups.assert_called_once()
-    assert "term" in mock_commands_groups.call_args.args
+    call_args = mock_commands_groups.call_args.args[0]
+    assert call_args.group_term == "term"
+
+
+def test_main_groups_create(mock_commands_groups):
+    result = main(argv=["groups", "create", "label"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert call_args.group_command == "create"
+    assert call_args.group_label == "label"
+
+
+def test_main_groups_remove(mock_commands_groups):
+    result = main(argv=["groups", "remove", "1234"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert call_args.group_command == "remove"
+    assert call_args.group_id == "1234"
+
+
+@pytest.mark.parametrize("argv", [["groups", "remove", "--force", "1234"], ["groups", "remove", "1234", "--force"]])
+def test_main_groups_remove_force(mock_commands_groups, argv):
+    result = main(argv=argv)
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert call_args.group_command == "remove"
+    assert call_args.group_id == "1234"
+    assert call_args.force is True
 
 
 @pytest.mark.parametrize("switch_type", CONFIG_TYPES)

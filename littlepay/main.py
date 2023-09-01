@@ -42,16 +42,24 @@ def main(argv=None):
         return _subcmd(main_commands, name, help)
 
     # littlepay config [CONFIG_PATH]
-    config_parser = _maincmd("config", help="Get or set configuration.")
+    config_parser = _maincmd("config", help="Get or set configuration")
     config_parser.add_argument("config_path", nargs="?", default=Config.current_path())
 
-    # littlepay groups [-f GROUP]
-    groups_parser = _maincmd("groups", help="Get information about groups in the active environment.")
-    groups_parser.add_argument("-f", "--filter", help="Filter for groups with matching group ID or label", dest="group")
-    _ = groups_parser.add_subparsers(dest="group_command", required=False)
+    # littlepay groups [-f GROUP] [{create,remove}] [...]
+    groups_parser = _maincmd("groups", help="Interact with groups in the active environment")
+    groups_parser.add_argument("-f", "--filter", help="Filter for groups with matching group ID or label", dest="group_term")
+
+    groups_commands = groups_parser.add_subparsers(dest="group_command", required=False)
+
+    groups_create = _subcmd(groups_commands, "create", help="Create a new concession group")
+    groups_create.add_argument("group_label", help="A unique label associated with the concession group", metavar="LABEL")
+
+    groups_remove = _subcmd(groups_commands, "remove", help="Remove an existing concession group")
+    groups_remove.add_argument("--force", action="store_true", default=False, help="Don't ask for confirmation before removal")
+    groups_remove.add_argument("group_id", help="The ID of the concession group to remove", metavar="ID")
 
     # littlepay switch {env, participant} VALUE
-    switch_parser = _maincmd("switch", help="Switch the active environment or participant.")
+    switch_parser = _maincmd("switch", help="Switch the active environment or participant")
     switch_parser.add_argument("switch_type", choices=CONFIG_TYPES, help="The type of object to switch", metavar="TYPE")
     switch_parser.add_argument("switch_arg", help="The new object value", metavar="VALUE")
 
@@ -63,11 +71,7 @@ def main(argv=None):
     if args.command == "config" or args.config_path:
         return configure(args.config_path)
     elif args.command == "groups":
-        return groups(
-            getattr(args, "group", None),
-            getattr(args, "group_command", None),
-            funding_source_id=getattr(args, "funding_source_id", None),
-        )
+        return groups(args)
     elif args.command == "switch":
         return switch(args.switch_type, args.switch_arg)
 
