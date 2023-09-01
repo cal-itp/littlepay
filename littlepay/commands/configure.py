@@ -2,8 +2,8 @@ import datetime
 from pathlib import Path
 
 from littlepay.api.client import Client
-from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS
-from littlepay.config import ENV_PROD, Config
+from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS, print_active_message
+from littlepay.config import Config
 
 
 def configure(config_path: str | Path = None) -> int:
@@ -23,7 +23,7 @@ def configure(config_path: str | Path = None) -> int:
     print(f"Participants: {', '.join(config.participants.keys())}")
 
     if config.active_participant_id == "":
-        print(f"Active: {config.active_env_name}, [no participant]")
+        print(f"❌ Active: {config.active_env_name}, [no participant]")
         return RESULT_FAILURE
 
     try:
@@ -32,19 +32,18 @@ def configure(config_path: str | Path = None) -> int:
         credentials = None
 
     if credentials is None or not all(credentials.values()):
-        print(f"Active: {config.active_env_name}, {config.active_participant_id} [missing credentials]".strip())
+        print_active_message(config, "❌ Active", "[missing credentials]")
         return RESULT_FAILURE
 
     # save the active token for reuse in later commands
     config.active_token = Client.from_active_config(config).token
 
     if config.active_token is None or config.active_token == {}:
-        print(f"Active: {config.active_env_name}, {config.active_participant_id} [misconfigured credentials]".strip())
+        print_active_message(config, "❌ Active", "[misconfigured credentials]")
         return RESULT_FAILURE
     else:
-        alert = "⚠️  " if config.active_env_name == ENV_PROD else ""
-        print(f"Active: {alert}{config.active_env_name}, {config.active_participant_id}".strip())
+        print_active_message(config, "Active")
         if "expires_at" in config.active_token:
             expiry = datetime.datetime.fromtimestamp(config.active_token["expires_at"])
-            print(f"Token expires: {expiry.isoformat()} UTC")
+            print(f"✅ Token expires: {expiry.isoformat()} UTC")
         return RESULT_SUCCESS
