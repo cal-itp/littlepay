@@ -115,6 +115,11 @@ class Client(ClientProtocol):
             self.oauth.token = self.oauth.fetch_token(headers=self.headers, **self.credentials)
         return self.oauth.token
 
+    def _delete(self, endpoint: str) -> bool:
+        response = self.oauth.delete(endpoint, headers=self.headers)
+        response.raise_for_status()
+        return True
+
     def _get(self, endpoint: str, response_cls: TResponse, **kwargs) -> TResponse:
         response = self.oauth.get(endpoint, headers=self.headers, params=kwargs)
         response.raise_for_status()

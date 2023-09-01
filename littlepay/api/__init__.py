@@ -22,6 +22,19 @@ class ClientProtocol(Protocol):
     headers: dict
     oauth: OAuth2Session
 
+    def _delete(self, endpoint: str) -> bool:
+        """Make a DELETE request to an endpoint.
+
+        Args:
+            self (ClientProtocol): The current ClientProtocol reference.
+
+            endpoint (str): The fully-formed endpoint where the DELETE request should be made.
+
+        Returns (bool):
+            A value indicating that the delete operation succeeded.
+        """
+        pass
+
     def _get(self, endpoint: str, response_cls: TResponse, **kwargs) -> TResponse:
         """Make a GET request to a JSON endpoint.
 

@@ -182,6 +182,28 @@ def test_Client_version(make_client: ClientFunc, version):
     assert client.version == version
 
 
+def test_Client_delete(mocker, make_client: ClientFunc, url):
+    client = make_client()
+    mock_response = mocker.Mock(raise_for_status=mocker.Mock(return_value=False), json=mocker.Mock(return_value=True))
+    req_spy = mocker.patch.object(client.oauth, "delete", return_value=mock_response)
+
+    result = client._delete(url)
+
+    req_spy.assert_called_once_with(url, headers=client.headers)
+    assert result is True
+
+
+def test_Client_delete_error_status(mocker, make_client: ClientFunc, url):
+    client = make_client()
+    mock_response = mocker.Mock(raise_for_status=mocker.Mock(side_effect=HTTPError))
+    req_spy = mocker.patch.object(client.oauth, "delete", return_value=mock_response)
+
+    with pytest.raises(HTTPError):
+        client._delete(url)
+
+    req_spy.assert_called_once_with(url, headers=client.headers)
+
+
 def test_Client_get(mocker, make_client: ClientFunc, url, SampleResponse_json):
     client = make_client()
     mock_response = mocker.Mock(
