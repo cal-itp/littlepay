@@ -52,7 +52,7 @@ class ClientProtocol(Protocol):
         """
         pass
 
-    def _get_list(self, endpoint: str) -> Generator[dict, None, None]:
+    def _get_list(self, endpoint: str, **kwargs: dict) -> Generator[dict, None, None]:
         """Make a GET request to a JSON endpoint returning a ListResponse, yielding items from the resulting list.
 
         Args:
@@ -61,6 +61,8 @@ class ClientProtocol(Protocol):
             endpoint (str): The fully-formed endpoint where the GET request should be made.
 
             response_cls (TResponse): A dataclass representing the JSON response to the GET.
+
+            Extra kwargs are passed as querystring params.
 
         Returns (TResponse):
             A TResponse instance of the JSON response.
