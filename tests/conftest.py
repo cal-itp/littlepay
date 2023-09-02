@@ -118,6 +118,12 @@ def mock_commands_groups(mock_module_name):
 
 
 @pytest.fixture
+def mock_commands_products(mock_module_name):
+    """Fixture returns a function that patches commands.products in a given module."""
+    return mock_module_name("products")
+
+
+@pytest.fixture
 def mock_commands_switch(mock_module_name):
     """Fixture returns a function that patches commands.switch in a given module."""
     return mock_module_name("switch")

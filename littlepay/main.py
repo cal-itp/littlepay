@@ -4,6 +4,7 @@ import sys
 from littlepay import __version__ as version
 from littlepay.commands.configure import configure
 from littlepay.commands.groups import groups
+from littlepay.commands.products import products
 from littlepay.commands.switch import switch
 from littlepay.config import CONFIG_TYPES, Config
 
@@ -60,6 +61,23 @@ def main(argv=None):
     groups_remove.add_argument("--force", action="store_true", default=False, help="Don't ask for confirmation before removal")
     groups_remove.add_argument("group_id", help="The ID of the concession group to remove", metavar="ID")
 
+    # littlepay products [-f PRODUCT] [-s STATUS]
+    products_parser = _maincmd("products", help="Interact with products in the active environment")
+    products_parser.add_argument(
+        "-f",
+        "--filter",
+        help="Filter for products with matching product ID, code, or description",
+        dest="product_terms",
+        action="append",
+    )
+    products_parser.add_argument(
+        "-s",
+        "--status",
+        help="Filter for products with matching status",
+        choices=["ACTIVE", "INACTIVE", "EXPIRED"],
+        dest="product_status",
+    )
+
     # littlepay switch {env, participant} VALUE
     switch_parser = _maincmd("switch", help="Switch the active environment or participant")
     switch_parser.add_argument("switch_type", choices=CONFIG_TYPES, help="The type of object to switch", metavar="TYPE")
@@ -74,6 +92,8 @@ def main(argv=None):
         return configure(args.config_path)
     elif args.command == "groups":
         return groups(args)
+    elif args.command == "products":
+        return products(args)
     elif args.command == "switch":
         return switch(args.switch_type, args.switch_arg)
 

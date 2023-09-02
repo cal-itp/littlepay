@@ -1,4 +1,5 @@
 from argparse import Namespace
+
 import pytest
 from requests import HTTPError
 
@@ -52,8 +53,10 @@ def test_groups_default(mock_client, capfd):
 
 
 @pytest.mark.parametrize("group_response", GROUP_RESPONSES)
-def test_groups_group_terms__group_id(group_response, capfd):
-    args = Namespace(group_terms=[group_response.id])
+@pytest.mark.parametrize("filter_attribute", ["id", "label"])
+def test_groups_group_terms(group_response, filter_attribute, capfd):
+    filter_value = getattr(group_response, filter_attribute)
+    args = Namespace(group_terms=[filter_value])
     res = groups(args)
     capture = capfd.readouterr()
 
@@ -67,23 +70,7 @@ def test_groups_group_terms__group_id(group_response, capfd):
             assert str(response) not in capture.out
 
 
-@pytest.mark.parametrize("group_response", GROUP_RESPONSES)
-def test_groups_group_terms__group_label(group_response, capfd):
-    args = Namespace(group_terms=[group_response.label])
-    res = groups(args)
-    capture = capfd.readouterr()
-
-    assert res == RESULT_SUCCESS
-
-    assert "Matching groups (1)" in capture.out
-    for response in GROUP_RESPONSES:
-        if response == group_response:
-            assert str(response) in capture.out
-        else:
-            assert str(response) not in capture.out
-
-
-def test_groups_group_terms__multiple(capfd):
+def test_groups_group_terms_multiple(capfd):
     terms = [GROUP_RESPONSES[0].id, GROUP_RESPONSES[1].label]
     args = Namespace(group_terms=terms)
     res = groups(args)
