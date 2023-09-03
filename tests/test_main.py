@@ -105,6 +105,15 @@ def test_main_groups_create(mock_commands_groups):
     assert call_args.group_label == "label"
 
 
+def test_main_groups_products(mock_commands_groups):
+    result = main(argv=["groups", "products"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert call_args.group_command == "products"
+
+
 def test_main_groups_remove(mock_commands_groups):
     result = main(argv=["groups", "remove", "1234"])
 

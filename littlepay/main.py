@@ -46,7 +46,7 @@ def main(argv=None):
     config_parser = _maincmd("config", help="Get or set configuration")
     config_parser.add_argument("config_path", nargs="?", default=Config.current_path())
 
-    # littlepay groups [-f GROUP] [{create,remove}] [...]
+    # littlepay groups [-f GROUP] [{create,products,remove}] [...]
     groups_parser = _maincmd("groups", help="Interact with groups in the active environment")
     groups_parser.add_argument(
         "-f", "--filter", help="Filter for groups with matching group ID or label", dest="group_terms", action="append"
@@ -56,6 +56,8 @@ def main(argv=None):
 
     groups_create = _subcmd(groups_commands, "create", help="Create a new concession group")
     groups_create.add_argument("group_label", help="A unique label associated with the concession group", metavar="LABEL")
+
+    _subcmd(groups_commands, "products", help="List products for one or more concession groups")
 
     groups_remove = _subcmd(groups_commands, "remove", help="Remove an existing concession group")
     groups_remove.add_argument("--force", action="store_true", default=False, help="Don't ask for confirmation before removal")

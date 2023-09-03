@@ -38,6 +38,11 @@ def groups(args: Namespace = None) -> int:
 
     for group in groups:
         print(group)
+        if command == "products":
+            products = list(client.get_concession_group_products(group.id))
+            print(f"  🛒 Linked products ({len(products)})")
+            for product in products:
+                print(" ", product)
 
     return RESULT_SUCCESS
 

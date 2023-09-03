@@ -7,6 +7,8 @@ from littlepay.api.groups import GroupResponse
 from littlepay.commands import RESULT_SUCCESS
 from littlepay.commands.groups import groups
 
+from tests.commands.test_products import PRODUCT_RESPONSES
+
 GROUP_RESPONSES = [
     GroupResponse("id0", "zero", "participant123"),
     GroupResponse("id1", "one", "participant123"),
@@ -112,6 +114,25 @@ def test_groups_group_command__create_error(mock_client, capfd):
     assert "Creating group" in capture.out
     assert "Error" in capture.out
     assert "Matching groups" in capture.out
+
+
+def test_groups_group_command__products(mock_client, capfd):
+    # fake a generator for a single item
+    mock_client.get_concession_group_products.return_value = (p for p in PRODUCT_RESPONSES if PRODUCT_RESPONSES.index(p) == 0)
+
+    args = Namespace(group_command="products", group_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    mock_client.get_concession_group_products.call_count == len(GROUP_RESPONSES)
+
+    assert res == RESULT_SUCCESS
+    assert "Linked products (1)" in capture.out
+    for product in PRODUCT_RESPONSES:
+        if PRODUCT_RESPONSES.index(product) == 0:
+            assert str(product) in capture.out
+        else:
+            assert str(product) not in capture.out
 
 
 @pytest.mark.parametrize("sample_input", ["y", "Y", "yes", "Yes", "YES"])
