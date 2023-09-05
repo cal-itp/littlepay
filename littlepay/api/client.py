@@ -142,7 +142,7 @@ class Client(GroupsMixin, ClientProtocol):
                 queue.extend(data.list)
 
     def _make_endpoint(self, *parts: str) -> str:
-        parts = (p.strip("/") for p in parts)
+        parts = (p.strip("/") for p in parts if p)
         return "/".join((self.base_url, "api", self.version, *parts))
 
     def _post(self, endpoint: str, data: dict, response_cls: TResponse = dict, **kwargs) -> TResponse:

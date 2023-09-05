@@ -288,6 +288,15 @@ def test_Client_make_endpoint(make_client: ClientFunc, url):
     assert result == f"{url}/api/v1/{partial}"
 
 
+def test_Client_make_endpoint_None(make_client: ClientFunc, url):
+    client = make_client()
+    partial = ("partial", None, "123.json")
+
+    result = client._make_endpoint(*partial)
+
+    assert result == f"{url}/api/v1/partial/123.json"
+
+
 def test_Client_make_endpoint_version(make_client: ClientFunc, url, version):
     client = make_client(version=version)
     partial = "partial/123.json"
