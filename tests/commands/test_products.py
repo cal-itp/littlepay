@@ -45,6 +45,32 @@ def test_products_default(mock_client, capfd):
         assert str(response) in capture.out
 
 
+def test_products_product_command__link(mock_client, capfd):
+    args = Namespace(product_command="link", group_id="1234")
+    res = products(args)
+    capture = capfd.readouterr()
+
+    for product in PRODUCT_RESPONSES:
+        mock_client.link_concession_group_product.assert_any_call("1234", product.id)
+
+    assert res == RESULT_SUCCESS
+    assert "Linking group <-> product" in capture.out
+    assert "Linked" in capture.out
+
+
+def test_products_product_command__unlink(mock_client, capfd):
+    args = Namespace(product_command="unlink", group_id="1234")
+    res = products(args)
+    capture = capfd.readouterr()
+
+    for product in PRODUCT_RESPONSES:
+        mock_client.unlink_concession_group_product.assert_any_call("1234", product.id)
+
+    assert res == RESULT_SUCCESS
+    assert "Unlinking group <-> product" in capture.out
+    assert "Unlinked" in capture.out
+
+
 @pytest.mark.parametrize("product_response", PRODUCT_RESPONSES)
 def test_products_product_status(mock_client, product_response, capfd):
     args = Namespace(product_status=product_response.status)

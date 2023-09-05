@@ -39,6 +39,12 @@ def mock_ProductsMixin_get_products(mocker):
     )
 
 
+@pytest.fixture
+def mock_ClientProtocol_post(mocker):
+    response = {"status_code": 201}
+    return mocker.patch("littlepay.api.ClientProtocol._post", side_effect=lambda *args, **kwargs: response)
+
+
 def test_ProductsMixin_concession_groups_products_endpoint(url):
     client = ProductsMixin()
 
@@ -89,6 +95,15 @@ def test_ProductsMixin_get_products_product_id(url, mock_ClientProtocol_get_Prod
         mock_ClientProtocol_get_Product.assert_called_once_with(f"{url}/products/1234", ProductResponse)
 
 
+def test_ProductsMixin_link_concession_group_product(mock_ClientProtocol_post):
+    client = ProductsMixin()
+    result = client.link_concession_group_product("group-1234", "product-1234")
+
+    endpoint = client.concession_group_products_endpoint("group-1234")
+    mock_ClientProtocol_post.assert_called_once_with(endpoint, {"id": "product-1234"}, dict)
+    assert result == {"status_code": 201}
+
+
 def test_ProductsMixin_products_endpoint(url):
     client = ProductsMixin()
 
@@ -99,3 +114,12 @@ def test_ProductsMixin_products_endpoint_id(url):
     client = ProductsMixin()
 
     assert client.products_endpoint("1234") == f"{url}/products/1234"
+
+
+def test_ProductsMixin_unlink_concession_group_product(mock_ClientProtocol_delete):
+    client = ProductsMixin()
+    result = client.unlink_concession_group_product("group-1234", "product-1234")
+
+    endpoint = client.concession_group_products_endpoint("group-1234", "product-1234")
+    mock_ClientProtocol_delete.assert_called_once_with(endpoint)
+    assert result is True

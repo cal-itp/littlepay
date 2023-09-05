@@ -101,7 +101,7 @@ def test_groups_group_command__create(mock_client, capfd):
     assert "Matching groups" in capture.out
 
 
-def test_groups_group_command__create_error(mock_client, capfd):
+def test_groups_group_command__create_HTTPError(mock_client, capfd):
     mock_client.create_concession_group.side_effect = HTTPError
 
     args = Namespace(group_command="create", group_label="the-label")
@@ -114,6 +114,32 @@ def test_groups_group_command__create_error(mock_client, capfd):
     assert "Creating group" in capture.out
     assert "Error" in capture.out
     assert "Matching groups" in capture.out
+
+
+def test_groups_group_command__link(mock_client, capfd):
+    args = Namespace(group_command="link", product_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    for group in GROUP_RESPONSES:
+        mock_client.link_concession_group_product.assert_any_call(group.id, "1234")
+
+    assert res == RESULT_SUCCESS
+    assert "Linking group <-> product" in capture.out
+    assert "Linked" in capture.out
+
+
+def test_groups_group_command__link_HTTPError(mock_client, capfd):
+    mock_client.link_concession_group_product.side_effect = HTTPError
+
+    args = Namespace(group_command="link", product_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+    assert "Linking group <-> product" in capture.out
+    assert "Error" in capture.out
+    assert "Linked" not in capture.out
 
 
 def test_groups_group_command__products(mock_client, capfd):
@@ -203,3 +229,29 @@ def test_groups_group_command__remove_HTTPError(capfd, mock_client, mock_input):
     assert "Removing group" in capture.out
     assert "Error" in capture.out
     assert "Matching groups" in capture.out
+
+
+def test_groups_group_command__unlink(mock_client, capfd):
+    args = Namespace(group_command="unlink", product_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    for group in GROUP_RESPONSES:
+        mock_client.unlink_concession_group_product.assert_any_call(group.id, "1234")
+
+    assert res == RESULT_SUCCESS
+    assert "Unlinking group <-> product" in capture.out
+    assert "Unlinked" in capture.out
+
+
+def test_groups_group_command__unlink_HTTPError(mock_client, capfd):
+    mock_client.unlink_concession_group_product.side_effect = HTTPError
+
+    args = Namespace(group_command="unlink", product_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+    assert "Unlinking group <-> product" in capture.out
+    assert "Error" in capture.out
+    assert "Unlinked" not in capture.out

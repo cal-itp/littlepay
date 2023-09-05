@@ -105,6 +105,16 @@ def test_main_groups_create(mock_commands_groups):
     assert call_args.group_label == "label"
 
 
+def test_main_groups_link(mock_commands_groups):
+    result = main(argv=["groups", "link", "1234"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert call_args.group_command == "link"
+    assert call_args.product_id == "1234"
+
+
 def test_main_groups_products(mock_commands_groups):
     result = main(argv=["groups", "products"])
 
@@ -134,6 +144,16 @@ def test_main_groups_remove_force(mock_commands_groups, argv):
     assert call_args.group_command == "remove"
     assert call_args.group_id == "1234"
     assert call_args.force is True
+
+
+def test_main_groups_unlink(mock_commands_groups):
+    result = main(argv=["groups", "unlink", "1234"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert call_args.group_command == "unlink"
+    assert call_args.product_id == "1234"
 
 
 def test_main_products(mock_commands_products):
