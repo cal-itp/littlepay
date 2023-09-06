@@ -77,7 +77,17 @@ def test_main_groups_filter(mock_commands_groups, filter_flag):
     assert result == RESULT_SUCCESS
     mock_commands_groups.assert_called_once()
     call_args = mock_commands_groups.call_args.args[0]
-    assert call_args.group_term == "term"
+    assert call_args.group_terms == ["term"]
+
+
+@pytest.mark.parametrize("filter_flag", ["-f", "--filter"])
+def test_main_groups_filter_multiple(mock_commands_groups, filter_flag):
+    result = main(argv=["groups", filter_flag, "term1", filter_flag, "term2"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert call_args.group_terms == ["term1", "term2"]
 
 
 def test_main_groups_create(mock_commands_groups):

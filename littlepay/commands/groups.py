@@ -26,10 +26,10 @@ def groups(args: Namespace = None) -> int:
 
     groups = client.get_concession_groups()
 
-    if hasattr(args, "group_term") and args.group_term is not None:
-        term = args.group_term.lower()
+    if hasattr(args, "group_terms") and args.group_terms is not None:
+        terms = [t.lower() for t in args.group_terms if t]
         groups = filter(
-            lambda g: term in g.id.lower() or term in g.label.lower(),
+            lambda g: any([term in g.id.lower() or term in g.label.lower() for term in terms]),
             groups,
         )
 

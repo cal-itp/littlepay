@@ -52,8 +52,8 @@ def test_groups_default(mock_client, capfd):
 
 
 @pytest.mark.parametrize("group_response", GROUP_RESPONSES)
-def test_groups_group_term__group_id(group_response, capfd):
-    args = Namespace(group_term=group_response.id)
+def test_groups_group_terms__group_id(group_response, capfd):
+    args = Namespace(group_terms=[group_response.id])
     res = groups(args)
     capture = capfd.readouterr()
 
@@ -68,8 +68,8 @@ def test_groups_group_term__group_id(group_response, capfd):
 
 
 @pytest.mark.parametrize("group_response", GROUP_RESPONSES)
-def test_groups_group_term__group_label(group_response, capfd):
-    args = Namespace(group_term=group_response.label)
+def test_groups_group_terms__group_label(group_response, capfd):
+    args = Namespace(group_terms=[group_response.label])
     res = groups(args)
     capture = capfd.readouterr()
 
@@ -78,6 +78,22 @@ def test_groups_group_term__group_label(group_response, capfd):
     assert "Matching groups (1)" in capture.out
     for response in GROUP_RESPONSES:
         if response == group_response:
+            assert str(response) in capture.out
+        else:
+            assert str(response) not in capture.out
+
+
+def test_groups_group_terms__multiple(capfd):
+    terms = [GROUP_RESPONSES[0].id, GROUP_RESPONSES[1].label]
+    args = Namespace(group_terms=terms)
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+
+    assert "Matching groups (2)" in capture.out
+    for response in GROUP_RESPONSES:
+        if GROUP_RESPONSES.index(response) in [0, 1]:
             assert str(response) in capture.out
         else:
             assert str(response) not in capture.out

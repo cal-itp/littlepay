@@ -47,7 +47,9 @@ def main(argv=None):
 
     # littlepay groups [-f GROUP] [{create,remove}] [...]
     groups_parser = _maincmd("groups", help="Interact with groups in the active environment")
-    groups_parser.add_argument("-f", "--filter", help="Filter for groups with matching group ID or label", dest="group_term")
+    groups_parser.add_argument(
+        "-f", "--filter", help="Filter for groups with matching group ID or label", dest="group_terms", action="append"
+    )
 
     groups_commands = groups_parser.add_subparsers(dest="group_command", required=False)
 
