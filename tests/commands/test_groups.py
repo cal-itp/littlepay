@@ -4,7 +4,7 @@ import pytest
 from requests import HTTPError
 
 from littlepay.api.groups import GroupResponse
-from littlepay.commands import RESULT_SUCCESS
+from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS
 from littlepay.commands.groups import groups
 
 from tests.commands.test_products import PRODUCT_RESPONSES
@@ -110,7 +110,7 @@ def test_groups_group_command__create_HTTPError(mock_client, capfd):
 
     mock_client.create_concession_group.assert_called_once_with("the-label")
 
-    assert res == RESULT_SUCCESS
+    assert res == RESULT_FAILURE
     assert "Creating group" in capture.out
     assert "Error" in capture.out
     assert "Matching groups" in capture.out
@@ -136,7 +136,7 @@ def test_groups_group_command__link_HTTPError(mock_client, capfd):
     res = groups(args)
     capture = capfd.readouterr()
 
-    assert res == RESULT_SUCCESS
+    assert res == RESULT_FAILURE
     assert "Linking group <-> product" in capture.out
     assert "Error" in capture.out
     assert "Linked" not in capture.out
@@ -225,7 +225,7 @@ def test_groups_group_command__remove_HTTPError(capfd, mock_client, mock_input):
     res = groups(args)
     capture = capfd.readouterr()
 
-    assert res == RESULT_SUCCESS
+    assert res == RESULT_FAILURE
     assert "Removing group" in capture.out
     assert "Error" in capture.out
     assert "Matching groups" in capture.out
@@ -251,7 +251,7 @@ def test_groups_group_command__unlink_HTTPError(mock_client, capfd):
     res = groups(args)
     capture = capfd.readouterr()
 
-    assert res == RESULT_SUCCESS
+    assert res == RESULT_FAILURE
     assert "Unlinking group <-> product" in capture.out
     assert "Error" in capture.out
     assert "Unlinked" not in capture.out
