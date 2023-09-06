@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from json import JSONDecodeError
 import time
 from typing import Callable, Generator, TypeAlias
 
@@ -338,6 +339,26 @@ def test_Client_post_default_cls(mocker, make_client: ClientFunc, url, SampleRes
     assert result["one"] == "single"
     assert result["two"] == "double"
     assert result["three"] == 3
+
+
+def test_Client_post_empty_response(mocker, make_client: ClientFunc, url):
+    client = make_client()
+    mock_response = mocker.Mock(
+        # json() throws a JSONDecodeError, simulating an empty response
+        json=mocker.Mock(side_effect=JSONDecodeError("msg", "doc", 0)),
+        # raise_for_status() returns None
+        raise_for_status=mocker.Mock(return_value=False),
+        # fake a 201 status_code
+        status_code=201,
+    )
+    req_spy = mocker.patch.object(client.oauth, "post", return_value=mock_response)
+
+    data = {"data": "123"}
+
+    result = client._post(url, data, dict)
+
+    req_spy.assert_called_once_with(url, headers=client.headers, json=data)
+    assert result == {"status_code": 201}
 
 
 def test_Client_post_error_status(mocker, make_client: ClientFunc, url):

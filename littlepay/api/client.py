@@ -150,4 +150,9 @@ class Client(ProductsMixin, GroupsMixin, ClientProtocol):
     def _post(self, endpoint: str, data: dict, response_cls: TResponse = dict, **kwargs) -> TResponse:
         response = self.oauth.post(endpoint, headers=self.headers, json=data, **kwargs)
         response.raise_for_status()
-        return response_cls(**response.json())
+        try:
+            # response body may be empty, cannot be decoded
+            data = response.json()
+        except json.JSONDecodeError:
+            data = {"status_code": response.status_code}
+        return response_cls(**data)
