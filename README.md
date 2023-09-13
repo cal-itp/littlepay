@@ -6,12 +6,13 @@ APIs and admin tasks for Littlepay.
 
 ```console
 $ littlepay -h
-usage: littlepay [-h] [-v] [-c CONFIG_PATH] {config,switch} ...
+usage: littlepay [-h] [-v] [-c CONFIG_PATH] {config,groups,switch} ...
 
 positional arguments:
-  {config,switch}
-    config              Get or set configuration.
-    switch              Switch the active environment or participant.
+  {config,groups,switch}
+    config              Get or set configuration
+    groups              Interact with groups in the active environment
+    switch              Switch the active environment or participant
 
 options:
   -h, --help            show this help message and exit

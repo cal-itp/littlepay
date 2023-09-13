@@ -1,0 +1,197 @@
+from argparse import Namespace
+import pytest
+from requests import HTTPError
+
+from littlepay.api.groups import GroupResponse
+from littlepay.commands import RESULT_SUCCESS
+from littlepay.commands.groups import groups
+
+GROUP_RESPONSES = [
+    GroupResponse("id0", "zero", "participant123"),
+    GroupResponse("id1", "one", "participant123"),
+    GroupResponse("id2", "two", "participant123"),
+]
+
+
+@pytest.fixture(autouse=True)
+def mock_config(mocker):
+    mocker.patch("littlepay.commands.groups.config")
+
+
+@pytest.fixture
+def mock_client(mocker):
+    client = mocker.Mock()
+    mocker.patch("littlepay.commands.groups.Client.from_active_config", return_value=client)
+    return client
+
+
+@pytest.fixture
+def mock_input(mocker):
+    def _input(return_value):
+        return mocker.patch("littlepay.commands.groups.input", return_value=return_value)
+
+    return _input
+
+
+@pytest.fixture(autouse=True)
+def mock_get_groups(mock_client):
+    mock_client.get_concession_groups.return_value = GROUP_RESPONSES
+
+
+def test_groups_default(mock_client, capfd):
+    res = groups()
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+
+    mock_client.oauth.ensure_active_token.assert_called_once()
+
+    assert "Matching groups (3)" in capture.out
+    for response in GROUP_RESPONSES:
+        assert str(response) in capture.out
+
+
+@pytest.mark.parametrize("group_response", GROUP_RESPONSES)
+def test_groups_group_terms__group_id(group_response, capfd):
+    args = Namespace(group_terms=[group_response.id])
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+
+    assert "Matching groups (1)" in capture.out
+    for response in GROUP_RESPONSES:
+        if response == group_response:
+            assert str(response) in capture.out
+        else:
+            assert str(response) not in capture.out
+
+
+@pytest.mark.parametrize("group_response", GROUP_RESPONSES)
+def test_groups_group_terms__group_label(group_response, capfd):
+    args = Namespace(group_terms=[group_response.label])
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+
+    assert "Matching groups (1)" in capture.out
+    for response in GROUP_RESPONSES:
+        if response == group_response:
+            assert str(response) in capture.out
+        else:
+            assert str(response) not in capture.out
+
+
+def test_groups_group_terms__multiple(capfd):
+    terms = [GROUP_RESPONSES[0].id, GROUP_RESPONSES[1].label]
+    args = Namespace(group_terms=terms)
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+
+    assert "Matching groups (2)" in capture.out
+    for response in GROUP_RESPONSES:
+        if GROUP_RESPONSES.index(response) in [0, 1]:
+            assert str(response) in capture.out
+        else:
+            assert str(response) not in capture.out
+
+
+def test_groups_group_command__create(mock_client, capfd):
+    args = Namespace(group_command="create", group_label="the-label")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    mock_client.create_concession_group.assert_called_once_with("the-label")
+
+    assert res == RESULT_SUCCESS
+    assert "Creating group" in capture.out
+    assert "Created" in capture.out
+    assert "Matching groups" in capture.out
+
+
+def test_groups_group_command__create_error(mock_client, capfd):
+    mock_client.create_concession_group.side_effect = HTTPError
+
+    args = Namespace(group_command="create", group_label="the-label")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    mock_client.create_concession_group.assert_called_once_with("the-label")
+
+    assert res == RESULT_SUCCESS
+    assert "Creating group" in capture.out
+    assert "Error" in capture.out
+    assert "Matching groups" in capture.out
+
+
+@pytest.mark.parametrize("sample_input", ["y", "Y", "yes", "Yes", "YES"])
+def test_groups_group_command__remove_confirm(capfd, mock_input, sample_input):
+    mock_input(sample_input)
+
+    args = Namespace(group_command="remove", group_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+    assert "Removing group" in capture.out
+    assert "Removed" in capture.out
+    assert "Matching groups" in capture.out
+
+
+def test_groups_group_command__remove_confirm_error(capfd, mock_input):
+    _input = mock_input(None)
+    _input.side_effect = EOFError
+
+    args = Namespace(group_command="remove", group_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+    assert "Removing group" in capture.out
+    assert "Canceled" in capture.out
+    assert "Matching groups" in capture.out
+
+
+@pytest.mark.parametrize("sample_input", ["n", "N", "no", "No", "NO"])
+def test_groups_group_command__remove_decline(capfd, mock_input, sample_input):
+    mock_input(sample_input)
+
+    args = Namespace(group_command="remove", group_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+    assert "Removing group" in capture.out
+    assert "Canceled" in capture.out
+    assert "Matching groups" in capture.out
+
+
+def test_groups_group_command__remove_force(capfd, mock_input):
+    _input = mock_input("no")
+
+    args = Namespace(group_command="remove", group_id="1234", force=True)
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+    assert _input.called is False
+    assert "Removing group" in capture.out
+    assert "Removed" in capture.out
+    assert "Matching groups" in capture.out
+
+
+def test_groups_group_command__remove_HTTPError(capfd, mock_client, mock_input):
+    mock_client.remove_concession_group.side_effect = HTTPError
+    mock_input("y")
+
+    args = Namespace(group_command="remove", group_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+    assert "Removing group" in capture.out
+    assert "Error" in capture.out
+    assert "Matching groups" in capture.out

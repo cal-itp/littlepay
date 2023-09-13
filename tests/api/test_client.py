@@ -1,10 +1,13 @@
+from dataclasses import dataclass
 import time
-from typing import Callable, TypeAlias
+from typing import Callable, Generator, TypeAlias
 
 from authlib.integrations.requests_client import OAuth2Session
 from authlib.oauth2.rfc6749 import OAuth2Token
 import pytest
+from requests import HTTPError
 
+from littlepay.api import ListResponse
 from littlepay.api.client import _client_from_active_config, _fix_bearer_token_header, _json_post_credentials, Client
 from littlepay.config import Config
 
@@ -36,6 +39,28 @@ def mock_active_Config(mocker, credentials, token, url):
     config.active_token = token
     config.active_credentials = new_credentials
     return config
+
+
+@dataclass
+class SampleResponse:
+    one: str
+    two: str
+    three: int
+
+
+@pytest.fixture
+def SampleResponse_json():
+    return {"one": "single", "two": "double", "three": 3}
+
+
+@pytest.fixture
+def ListResponse_sample():
+    return ListResponse(list=[{"one": 1}, {"two": 2}, {"three": 3}], total_count=3)
+
+
+@pytest.fixture
+def default_list_params():
+    return dict(page=1, perPage=100)
 
 
 def test_client_from_active_config(
@@ -157,6 +182,103 @@ def test_Client_version(make_client: ClientFunc, version):
     assert client.version == version
 
 
+def test_Client_delete(mocker, make_client: ClientFunc, url):
+    client = make_client()
+    mock_response = mocker.Mock(raise_for_status=mocker.Mock(return_value=False), json=mocker.Mock(return_value=True))
+    req_spy = mocker.patch.object(client.oauth, "delete", return_value=mock_response)
+
+    result = client._delete(url)
+
+    req_spy.assert_called_once_with(url, headers=client.headers)
+    assert result is True
+
+
+def test_Client_delete_error_status(mocker, make_client: ClientFunc, url):
+    client = make_client()
+    mock_response = mocker.Mock(raise_for_status=mocker.Mock(side_effect=HTTPError))
+    req_spy = mocker.patch.object(client.oauth, "delete", return_value=mock_response)
+
+    with pytest.raises(HTTPError):
+        client._delete(url)
+
+    req_spy.assert_called_once_with(url, headers=client.headers)
+
+
+def test_Client_get(mocker, make_client: ClientFunc, url, SampleResponse_json):
+    client = make_client()
+    mock_response = mocker.Mock(
+        raise_for_status=mocker.Mock(return_value=False), json=mocker.Mock(return_value=SampleResponse_json)
+    )
+    req_spy = mocker.patch.object(client.oauth, "get", return_value=mock_response)
+
+    result = client._get(url, SampleResponse)
+
+    req_spy.assert_called_once_with(url, headers=client.headers, params={})
+    assert isinstance(result, SampleResponse)
+    assert result.one == "single"
+    assert result.two == "double"
+    assert result.three == 3
+
+
+def test_Client_get_params(mocker, make_client: ClientFunc, url, SampleResponse_json):
+    client = make_client()
+    mock_response = mocker.Mock(
+        raise_for_status=mocker.Mock(return_value=False), json=mocker.Mock(return_value=SampleResponse_json)
+    )
+    req_spy = mocker.patch.object(client.oauth, "get", return_value=mock_response)
+
+    result = client._get(url, SampleResponse, one=1, two=2, three="three")
+
+    req_spy.assert_called_once_with(url, headers=client.headers, params=dict(one=1, two=2, three="three"))
+    assert isinstance(result, SampleResponse)
+    assert result.one == "single"
+    assert result.two == "double"
+    assert result.three == 3
+
+
+def test_Client_get_error_status(mocker, make_client: ClientFunc, url):
+    client = make_client()
+    mock_response = mocker.Mock(raise_for_status=mocker.Mock(side_effect=HTTPError))
+    req_spy = mocker.patch.object(client.oauth, "get", return_value=mock_response)
+
+    with pytest.raises(HTTPError):
+        client._get(url, SampleResponse)
+
+    req_spy.assert_called_once_with(url, headers=client.headers, params={})
+
+
+def test_Client_get_list(mocker, make_client: ClientFunc, url, default_list_params, ListResponse_sample):
+    client = make_client()
+    req_spy = mocker.patch.object(client, "_get", return_value=ListResponse_sample)
+
+    generator = client._get_list(url)
+    assert isinstance(generator, Generator)
+    assert req_spy.call_count == 0
+
+    result = list(generator)
+
+    req_spy.assert_called_once_with(url, ListResponse, **default_list_params)
+    assert result == ListResponse_sample.list
+
+
+def test_Client_get_list_paging(mocker, make_client: ClientFunc, url, default_list_params):
+    page2_params = dict(default_list_params)
+    page2_params["page"] = 2
+
+    page3_params = dict(default_list_params)
+    page3_params["page"] = 3
+
+    list_response = ListResponse(list=[1, 2, 3], total_count=9)
+    pages = [list_response, list_response, list_response]
+    client = make_client()
+    req_spy = mocker.patch.object(client, "_get", side_effect=pages)
+
+    result = list(client._get_list(url))
+
+    assert req_spy.call_count == 3
+    assert result == [1, 2, 3, 1, 2, 3, 1, 2, 3]
+
+
 def test_Client_make_endpoint(make_client: ClientFunc, url):
     client = make_client()
     partial = "partial/123.json"
@@ -166,6 +288,15 @@ def test_Client_make_endpoint(make_client: ClientFunc, url):
     assert result == f"{url}/api/v1/{partial}"
 
 
+def test_Client_make_endpoint_None(make_client: ClientFunc, url):
+    client = make_client()
+    partial = ("partial", None, "123.json")
+
+    result = client._make_endpoint(*partial)
+
+    assert result == f"{url}/api/v1/partial/123.json"
+
+
 def test_Client_make_endpoint_version(make_client: ClientFunc, url, version):
     client = make_client(version=version)
     partial = "partial/123.json"
@@ -173,3 +304,50 @@ def test_Client_make_endpoint_version(make_client: ClientFunc, url, version):
     result = client._make_endpoint(*partial.split("/"))
 
     assert result == f"{url}/api/{version}/{partial}"
+
+
+def test_Client_post(mocker, make_client: ClientFunc, url, SampleResponse_json):
+    client = make_client()
+    mock_response = mocker.Mock(
+        raise_for_status=mocker.Mock(return_value=False), json=mocker.Mock(return_value=SampleResponse_json)
+    )
+    req_spy = mocker.patch.object(client.oauth, "post", return_value=mock_response)
+
+    data = {"data": "123"}
+    result = client._post(url, data, SampleResponse)
+
+    req_spy.assert_called_once_with(url, headers=client.headers, json=data)
+    assert isinstance(result, SampleResponse)
+    assert result.one == "single"
+    assert result.two == "double"
+    assert result.three == 3
+
+
+def test_Client_post_default_cls(mocker, make_client: ClientFunc, url, SampleResponse_json):
+    client = make_client()
+    mock_response = mocker.Mock(
+        raise_for_status=mocker.Mock(return_value=False), json=mocker.Mock(return_value=SampleResponse_json)
+    )
+    req_spy = mocker.patch.object(client.oauth, "post", return_value=mock_response)
+
+    data = {"data": "123"}
+    result = client._post(url, data)
+
+    req_spy.assert_called_once_with(url, headers=client.headers, json=data)
+    assert isinstance(result, dict)
+    assert result["one"] == "single"
+    assert result["two"] == "double"
+    assert result["three"] == 3
+
+
+def test_Client_post_error_status(mocker, make_client: ClientFunc, url):
+    client = make_client()
+    mock_response = mocker.Mock(raise_for_status=mocker.Mock(side_effect=HTTPError))
+    req_spy = mocker.patch.object(client.oauth, "post", return_value=mock_response)
+
+    data = {"data": "123"}
+
+    with pytest.raises(HTTPError):
+        client._post(url, data, dict)
+
+    req_spy.assert_called_once_with(url, headers=client.headers, json=data)
