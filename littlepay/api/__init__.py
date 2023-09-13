@@ -60,8 +60,6 @@ class ClientProtocol(Protocol):
 
             endpoint (str): The fully-formed endpoint where the GET request should be made.
 
-            response_cls (TResponse): A dataclass representing the JSON response to the GET.
-
             Extra kwargs are passed as querystring params.
 
         Returns (TResponse):
