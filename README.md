@@ -5,14 +5,16 @@
 | Name                               |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |----------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
 | littlepay/\_\_init\_\_.py          |        5 |        2 |        0 |        0 |     60% |       5-7 |
-| littlepay/api/\_\_init\_\_.py      |        0 |        0 |        0 |        0 |    100% |           |
-| littlepay/api/client.py            |       39 |        0 |       12 |        0 |    100% |           |
-| littlepay/commands/\_\_init\_\_.py |        2 |        0 |        0 |        0 |    100% |           |
-| littlepay/commands/configure.py    |       33 |        0 |       10 |        0 |    100% |           |
+| littlepay/api/\_\_init\_\_.py      |       21 |        5 |        2 |        0 |     78% |36, 53, 68, 81, 101 |
+| littlepay/api/client.py            |       67 |        0 |       18 |        0 |    100% |           |
+| littlepay/api/groups.py            |       23 |        0 |        4 |        0 |    100% |           |
+| littlepay/commands/\_\_init\_\_.py |        7 |        0 |        0 |        0 |    100% |           |
+| littlepay/commands/configure.py    |       32 |        0 |       10 |        0 |    100% |           |
+| littlepay/commands/groups.py       |       49 |        0 |       18 |        0 |    100% |           |
 | littlepay/commands/switch.py       |       11 |        0 |        6 |        1 |     94% |    13->16 |
 | littlepay/config.py                |       86 |        0 |       38 |        0 |    100% |           |
-| littlepay/main.py                  |       29 |        1 |        8 |        2 |     92% |53->exit, 58 |
-|                          **TOTAL** |  **205** |    **3** |   **74** |    **3** | **98%** |           |
+| littlepay/main.py                  |       42 |        1 |       10 |        2 |     94% |77->exit, 82 |
+|                          **TOTAL** |  **343** |    **8** |  **106** |    **3** | **98%** |           |
 
 
 ## Setup coverage badge
