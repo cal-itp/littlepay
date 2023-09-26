@@ -3,13 +3,14 @@ from argparse import Namespace
 from requests import HTTPError
 
 from littlepay.api.client import Client
-from littlepay.commands import RESULT_SUCCESS, print_active_message
+from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS, print_active_message
 from littlepay.config import Config
 
 config = Config()
 
 
 def groups(args: Namespace = None) -> int:
+    return_code = RESULT_SUCCESS
     client = Client.from_active_config(config)
     client.oauth.ensure_active_token(client.token)
     config.active_token = client.token
@@ -20,9 +21,9 @@ def groups(args: Namespace = None) -> int:
         command = None
 
     if command == "create":
-        create_group(client, args.group_label)
+        return_code += create_group(client, args.group_label)
     elif command == "remove":
-        remove_group(client, args.group_id, getattr(args, "force", False))
+        return_code += remove_group(client, args.group_id, getattr(args, "force", False))
 
     groups = client.get_concession_groups()
 
@@ -33,26 +34,44 @@ def groups(args: Namespace = None) -> int:
             groups,
         )
 
+    if command == "link":
+        for group in groups:
+            return_code += link_product(client, group.id, args.product_id)
+    elif command == "unlink":
+        for group in groups:
+            return_code += unlink_product(client, group.id, args.product_id)
+
     groups = list(groups)
     print_active_message(config, f"👥 Matching groups ({len(groups)})")
 
     for group in groups:
         print(group)
+        if command == "products":
+            products = list(client.get_concession_group_products(group.id))
+            print(f"  🛒 Linked products ({len(products)})")
+            for product in products:
+                print(" ", product)
 
-    return RESULT_SUCCESS
+    return RESULT_SUCCESS if return_code == RESULT_SUCCESS else RESULT_FAILURE
 
 
-def create_group(client: Client, group_label: str):
+def create_group(client: Client, group_label: str) -> int:
     print_active_message(config, "Creating group", f"[{group_label}]")
+    return_code = RESULT_SUCCESS
+
     try:
         result = client.create_concession_group(group_label)
         print(f"✅ Created: {result}")
     except HTTPError as err:
         print(f"❌ Error: {err}")
+        return_code = RESULT_FAILURE
+
+    return return_code
 
 
-def remove_group(client: Client, group_id: str, force: bool = False):
+def remove_group(client: Client, group_id: str, force: bool = False) -> int:
     print_active_message(config, "Removing group", f"[{group_id}]")
+    return_code = RESULT_SUCCESS
 
     if force is True:
         confirm = "yes"
@@ -69,5 +88,36 @@ def remove_group(client: Client, group_id: str, force: bool = False):
             print("✅ Removed")
         except HTTPError as err:
             print(f"❌ Error: {err}")
+            return_code = RESULT_FAILURE
     else:
         print("Canceled...")
+
+    return return_code
+
+
+def link_product(client: Client, group_id: str, product_id: str) -> int:
+    print_active_message(config, "Linking group <-> product", f"[{group_id}] <-> [{product_id}]")
+    return_code = RESULT_SUCCESS
+
+    try:
+        result = client.link_concession_group_product(group_id, product_id)
+        print(f"✅ Linked: {result}")
+    except HTTPError as err:
+        print(f"❌ Error: {err}")
+        return_code = RESULT_FAILURE
+
+    return return_code
+
+
+def unlink_product(client: Client, group_id: str, product_id: str) -> int:
+    print_active_message(config, "Unlinking group <-> product", f"[{group_id}] <-> [{product_id}]")
+    return_code = RESULT_SUCCESS
+
+    try:
+        client.unlink_concession_group_product(group_id, product_id)
+        print("✅ Unlinked")
+    except HTTPError as err:
+        print(f"❌ Error: {err}")
+        return_code = RESULT_FAILURE
+
+    return return_code

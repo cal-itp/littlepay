@@ -118,6 +118,25 @@ def mock_commands_groups(mock_module_name):
 
 
 @pytest.fixture
+def mock_commands_products(mock_module_name):
+    """Fixture returns a function that patches commands.products in a given module."""
+    return mock_module_name("products")
+
+
+@pytest.fixture
 def mock_commands_switch(mock_module_name):
     """Fixture returns a function that patches commands.switch in a given module."""
     return mock_module_name("switch")
+
+
+@pytest.fixture
+def mock_ClientProtocol_delete(mocker):
+    return mocker.patch("littlepay.api.ClientProtocol._delete", side_effect=lambda *args, **kwargs: True)
+
+
+@pytest.fixture(autouse=True)
+def mock_ClientProtocol_make_endpoint(mocker, url):
+    # patch _make_endpoint to create a endpoint for example.com
+    mocker.patch(
+        "littlepay.api.ClientProtocol._make_endpoint", side_effect=lambda *args: f"{url}/{'/'.join([a for a in args if a])}"
+    )

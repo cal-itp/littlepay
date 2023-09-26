@@ -18,6 +18,11 @@ def mock_commands_groups(mock_commands_groups):
 
 
 @pytest.fixture
+def mock_commands_products(mock_commands_products):
+    return mock_commands_products(MODULE)
+
+
+@pytest.fixture
 def mock_commands_switch(mock_commands_switch):
     return mock_commands_switch(MODULE)
 
@@ -100,6 +105,25 @@ def test_main_groups_create(mock_commands_groups):
     assert call_args.group_label == "label"
 
 
+def test_main_groups_link(mock_commands_groups):
+    result = main(argv=["groups", "link", "1234"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert call_args.group_command == "link"
+    assert call_args.product_id == "1234"
+
+
+def test_main_groups_products(mock_commands_groups):
+    result = main(argv=["groups", "products"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert call_args.group_command == "products"
+
+
 def test_main_groups_remove(mock_commands_groups):
     result = main(argv=["groups", "remove", "1234"])
 
@@ -120,6 +144,65 @@ def test_main_groups_remove_force(mock_commands_groups, argv):
     assert call_args.group_command == "remove"
     assert call_args.group_id == "1234"
     assert call_args.force is True
+
+
+def test_main_groups_unlink(mock_commands_groups):
+    result = main(argv=["groups", "unlink", "1234"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert call_args.group_command == "unlink"
+    assert call_args.product_id == "1234"
+
+
+def test_main_products(mock_commands_products):
+    result = main(argv=["products"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_products.assert_called_once()
+    call_args = mock_commands_products.call_args.args[0]
+    assert isinstance(call_args, Namespace)
+    assert call_args.command == "products"
+
+
+@pytest.mark.parametrize("filter_flag", ["-f", "--filter"])
+def test_main_products_filter(mock_commands_products, filter_flag):
+    result = main(argv=["products", filter_flag, "term"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_products.assert_called_once()
+    call_args = mock_commands_products.call_args.args[0]
+    assert call_args.product_terms == ["term"]
+
+
+@pytest.mark.parametrize("filter_flag", ["-f", "--filter"])
+def test_main_products_filter_multiple(mock_commands_products, filter_flag):
+    result = main(argv=["products", filter_flag, "term1", filter_flag, "term2"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_products.assert_called_once()
+    call_args = mock_commands_products.call_args.args[0]
+    assert call_args.product_terms == ["term1", "term2"]
+
+
+@pytest.mark.parametrize("status_flag", ["-s", "--status"])
+@pytest.mark.parametrize("status_value", ["ACTIVE", "INACTIVE", "EXPIRED"])
+def test_main_products_status(mock_commands_products, status_flag, status_value):
+    result = main(argv=["products", status_flag, status_value])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_products.assert_called_once()
+    call_args = mock_commands_products.call_args.args[0]
+    assert call_args.product_status == status_value
+
+
+@pytest.mark.parametrize("status_flag", ["-s", "--status"])
+def test_main_products_status_unrecognized(mock_commands_products, status_flag):
+    with pytest.raises(SystemExit):
+        main(argv=["products", status_flag, "UNRECOGNIZED"])
+
+    assert mock_commands_products.call_count == 0
 
 
 @pytest.mark.parametrize("switch_type", CONFIG_TYPES)

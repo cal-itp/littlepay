@@ -1,10 +1,13 @@
 from argparse import Namespace
+
 import pytest
 from requests import HTTPError
 
 from littlepay.api.groups import GroupResponse
-from littlepay.commands import RESULT_SUCCESS
+from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS
 from littlepay.commands.groups import groups
+
+from tests.commands.test_products import PRODUCT_RESPONSES
 
 GROUP_RESPONSES = [
     GroupResponse("id0", "zero", "participant123"),
@@ -52,8 +55,10 @@ def test_groups_default(mock_client, capfd):
 
 
 @pytest.mark.parametrize("group_response", GROUP_RESPONSES)
-def test_groups_group_terms__group_id(group_response, capfd):
-    args = Namespace(group_terms=[group_response.id])
+@pytest.mark.parametrize("filter_attribute", ["id", "label"])
+def test_groups_group_terms(group_response, filter_attribute, capfd):
+    filter_value = getattr(group_response, filter_attribute)
+    args = Namespace(group_terms=[filter_value])
     res = groups(args)
     capture = capfd.readouterr()
 
@@ -67,23 +72,7 @@ def test_groups_group_terms__group_id(group_response, capfd):
             assert str(response) not in capture.out
 
 
-@pytest.mark.parametrize("group_response", GROUP_RESPONSES)
-def test_groups_group_terms__group_label(group_response, capfd):
-    args = Namespace(group_terms=[group_response.label])
-    res = groups(args)
-    capture = capfd.readouterr()
-
-    assert res == RESULT_SUCCESS
-
-    assert "Matching groups (1)" in capture.out
-    for response in GROUP_RESPONSES:
-        if response == group_response:
-            assert str(response) in capture.out
-        else:
-            assert str(response) not in capture.out
-
-
-def test_groups_group_terms__multiple(capfd):
+def test_groups_group_terms_multiple(capfd):
     terms = [GROUP_RESPONSES[0].id, GROUP_RESPONSES[1].label]
     args = Namespace(group_terms=terms)
     res = groups(args)
@@ -112,7 +101,7 @@ def test_groups_group_command__create(mock_client, capfd):
     assert "Matching groups" in capture.out
 
 
-def test_groups_group_command__create_error(mock_client, capfd):
+def test_groups_group_command__create_HTTPError(mock_client, capfd):
     mock_client.create_concession_group.side_effect = HTTPError
 
     args = Namespace(group_command="create", group_label="the-label")
@@ -121,10 +110,55 @@ def test_groups_group_command__create_error(mock_client, capfd):
 
     mock_client.create_concession_group.assert_called_once_with("the-label")
 
-    assert res == RESULT_SUCCESS
+    assert res == RESULT_FAILURE
     assert "Creating group" in capture.out
     assert "Error" in capture.out
     assert "Matching groups" in capture.out
+
+
+def test_groups_group_command__link(mock_client, capfd):
+    args = Namespace(group_command="link", product_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    for group in GROUP_RESPONSES:
+        mock_client.link_concession_group_product.assert_any_call(group.id, "1234")
+
+    assert res == RESULT_SUCCESS
+    assert "Linking group <-> product" in capture.out
+    assert "Linked" in capture.out
+
+
+def test_groups_group_command__link_HTTPError(mock_client, capfd):
+    mock_client.link_concession_group_product.side_effect = HTTPError
+
+    args = Namespace(group_command="link", product_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_FAILURE
+    assert "Linking group <-> product" in capture.out
+    assert "Error" in capture.out
+    assert "Linked" not in capture.out
+
+
+def test_groups_group_command__products(mock_client, capfd):
+    # fake a generator for a single item
+    mock_client.get_concession_group_products.return_value = (p for p in PRODUCT_RESPONSES if PRODUCT_RESPONSES.index(p) == 0)
+
+    args = Namespace(group_command="products", group_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    mock_client.get_concession_group_products.call_count == len(GROUP_RESPONSES)
+
+    assert res == RESULT_SUCCESS
+    assert "Linked products (1)" in capture.out
+    for product in PRODUCT_RESPONSES:
+        if PRODUCT_RESPONSES.index(product) == 0:
+            assert str(product) in capture.out
+        else:
+            assert str(product) not in capture.out
 
 
 @pytest.mark.parametrize("sample_input", ["y", "Y", "yes", "Yes", "YES"])
@@ -191,7 +225,33 @@ def test_groups_group_command__remove_HTTPError(capfd, mock_client, mock_input):
     res = groups(args)
     capture = capfd.readouterr()
 
-    assert res == RESULT_SUCCESS
+    assert res == RESULT_FAILURE
     assert "Removing group" in capture.out
     assert "Error" in capture.out
     assert "Matching groups" in capture.out
+
+
+def test_groups_group_command__unlink(mock_client, capfd):
+    args = Namespace(group_command="unlink", product_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    for group in GROUP_RESPONSES:
+        mock_client.unlink_concession_group_product.assert_any_call(group.id, "1234")
+
+    assert res == RESULT_SUCCESS
+    assert "Unlinking group <-> product" in capture.out
+    assert "Unlinked" in capture.out
+
+
+def test_groups_group_command__unlink_HTTPError(mock_client, capfd):
+    mock_client.unlink_concession_group_product.side_effect = HTTPError
+
+    args = Namespace(group_command="unlink", product_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_FAILURE
+    assert "Unlinking group <-> product" in capture.out
+    assert "Error" in capture.out
+    assert "Unlinked" not in capture.out

@@ -1,11 +1,8 @@
 from typing import Generator
+
 import pytest
+
 from littlepay.api.groups import GroupResponse, GroupsMixin
-
-
-@pytest.fixture
-def mock_ClientProtocol_delete(mocker):
-    return mocker.patch("littlepay.api.ClientProtocol._delete", side_effect=lambda *args, **kwargs: True)
 
 
 @pytest.fixture
@@ -16,14 +13,6 @@ def mock_ClientProtocol_get_list_Groups(mocker):
         dict(id="2", label="two", participant_id="two_2"),
     ]
     return mocker.patch("littlepay.api.ClientProtocol._get_list", side_effect=lambda *args, **kwargs: (g for g in items))
-
-
-@pytest.fixture(autouse=True)
-def mock_ClientProtocol_make_endpoint(mocker, url):
-    # patch _make_endpoint to create a endpoint for example.com
-    mocker.patch(
-        "littlepay.api.ClientProtocol._make_endpoint", side_effect=lambda *args: f"{url}/{'/'.join([a for a in args if a])}"
-    )
 
 
 @pytest.fixture

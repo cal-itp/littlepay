@@ -8,6 +8,7 @@ from authlib.oauth2.rfc6749 import OAuth2Token
 from littlepay import __version__
 from littlepay.api import ClientProtocol, ListResponse, TResponse
 from littlepay.api.groups import GroupsMixin
+from littlepay.api.products import ProductsMixin
 from littlepay.config import Config
 
 
@@ -61,7 +62,7 @@ def _json_post_credentials(client, method, uri, headers, body) -> tuple:
     return uri, headers, json_data
 
 
-class Client(GroupsMixin, ClientProtocol):
+class Client(ProductsMixin, GroupsMixin, ClientProtocol):
     """Represents an API connection to an environment."""
 
     from_active_config = staticmethod(_client_from_active_config)
@@ -126,8 +127,9 @@ class Client(GroupsMixin, ClientProtocol):
         response.raise_for_status()
         return response_cls(**response.json())
 
-    def _get_list(self, endpoint: str) -> Generator[dict, None, None]:
+    def _get_list(self, endpoint: str, **kwargs) -> Generator[dict, None, None]:
         params = dict(page=1, perPage=100)
+        params.update(kwargs)
         total = 0
 
         data = self._get(endpoint, ListResponse, **params)
@@ -148,4 +150,9 @@ class Client(GroupsMixin, ClientProtocol):
     def _post(self, endpoint: str, data: dict, response_cls: TResponse = dict, **kwargs) -> TResponse:
         response = self.oauth.post(endpoint, headers=self.headers, json=data, **kwargs)
         response.raise_for_status()
-        return response_cls(**response.json())
+        try:
+            # response body may be empty, cannot be decoded
+            data = response.json()
+        except json.JSONDecodeError:
+            data = {"status_code": response.status_code}
+        return response_cls(**data)
