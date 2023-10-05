@@ -5,6 +5,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     USER=calitp
 
 RUN useradd --create-home --shell /bin/bash $USER && \
+    mkdir /home/$USER/.littlepay && \
     chown -R $USER /home/$USER
 
 USER $USER
