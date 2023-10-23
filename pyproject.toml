@@ -34,7 +34,7 @@ test = [
 littlepay = "littlepay.main:main"
 
 [build-system]
-requires = ["setuptools>=64", "wheel"]
+requires = ["setuptools>=65", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
@@ -58,3 +58,6 @@ norecursedirs = [
     ".pytest_cache",
     ".vscode",
 ]
+
+[tool.setuptools]
+packages = ["littlepay"]
