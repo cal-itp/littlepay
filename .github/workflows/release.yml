@@ -1,0 +1,71 @@
+name: Publish release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "202[3-9].0[1-9].[1-9]" # 2023.02.2
+      - "202[3-9].0[1-9].[1-9]-rc[0-9]+" # 2023.02.2-rc1
+      - "202[3-9].0[1-9].[1-9][0-9]" # 2023.02.22
+      - "202[3-9].0[1-9].[1-9][0-9]-rc[0-9]+" # 2023.02.22-rc1
+      - "202[3-9].1[0-2].[1-9]" # 2023.11.1
+      - "202[3-9].1[0-2].[1-9]-rc[0-9]+" # 2023.11.1-rc1
+      - "202[3-9].1[0-2].[1-9][0-9]" # 2023.11.11
+      - "202[3-9].1[0-2].[1-9][0-9]-rc[0-9]+" # 2023.11.11-rc1
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      # https://github.com/softprops/action-gh-release#permissions
+      contents: write
+      # https://docs.pypi.org/trusted-publishers/using-a-publisher/
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version-file: .github/workflows/.python-version
+          cache: pip
+          cache-dependency-path: "**/pyproject.toml"
+
+      - name: Install package and dependencies
+        run: pip install -e .[dev,test]
+
+      - name: Test
+        run: ./bin/coverage.sh
+
+      - name: Build package
+        run: python -m build
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./dist/*.whl
+            ./dist/*.tar.gz
+          prerelease: ${{ contains(github.ref, '-rc') }}
+          generate_release_notes: ${{ !contains(github.ref, '-rc') }}
+
+      - name: Publish to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1.5
+        if: ${{ contains(github.ref, '-rc') }}
+        with:
+          repository_url: https://test.pypi.org/legacy/
+          print_hash: true
+          skip_existing: true
+          verbose: true
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1.5
+        if: ${{ !contains(github.ref, '-rc') }}
+        with:
+          print_hash: true
