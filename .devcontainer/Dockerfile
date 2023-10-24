@@ -19,11 +19,4 @@ COPY littlepay littlepay
 COPY pyproject.toml pyproject.toml
 RUN pip install -e .[dev,test]
 
-# install pre-commit environments in throwaway Git repository
-# https://stackoverflow.com/a/68758943
-COPY .pre-commit-config.yaml .
-RUN git init . && \
-    pre-commit install-hooks && \
-    rm -rf .git
-
 CMD ["sleep", "infinity"]
