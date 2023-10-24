@@ -14,6 +14,7 @@ WORKDIR /home/$USER/app
 
 RUN python -m pip install --upgrade pip
 
+COPY .git .git
 COPY littlepay littlepay
 COPY pyproject.toml pyproject.toml
 RUN pip install -e .[dev,test]

@@ -1,7 +1,7 @@
 [project]
 name = "calitp-littlepay"
-version = "2023.10.1"
 description = "Cal-ITP API implementations and admin tasks for Littlepay."
+dynamic = ["version"]
 readme = "README.md"
 license = { file = "LICENSE" }
 classifiers = ["Programming Language :: Python :: 3 :: Only"]
@@ -21,7 +21,8 @@ dev = [
     "black",
     "build",
     "flake8",
-    "pre-commit"
+    "pre-commit",
+    "setuptools_scm",
 ]
 test = [
     "coverage",
@@ -34,7 +35,7 @@ test = [
 littlepay = "littlepay.main:main"
 
 [build-system]
-requires = ["setuptools>=65", "wheel"]
+requires = ["setuptools>=65", "setuptools-scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
@@ -61,3 +62,6 @@ norecursedirs = [
 
 [tool.setuptools]
 packages = ["littlepay"]
+
+[tool.setuptools_scm]
+# intentionally left blank, but we need the section header to activate the tool
