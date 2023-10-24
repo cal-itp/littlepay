@@ -50,8 +50,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ./dist/*.whl
             ./dist/*.tar.gz
+            ./dist/*.whl
           prerelease: ${{ contains(github.ref, '-rc') }}
           generate_release_notes: ${{ !contains(github.ref, '-rc') }}
 
