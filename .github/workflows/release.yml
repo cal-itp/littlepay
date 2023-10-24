@@ -18,9 +18,13 @@ defaults:
     shell: bash
 
 jobs:
+  test:
+    uses: ./.github/workflows/pytest.yml
+
   release:
     runs-on: ubuntu-latest
     environment: release
+    needs: test
     permissions:
       # https://github.com/softprops/action-gh-release#permissions
       contents: write
@@ -37,11 +41,8 @@ jobs:
           cache: pip
           cache-dependency-path: "**/pyproject.toml"
 
-      - name: Install package and dependencies
-        run: pip install -e .[dev,test]
-
-      - name: Test
-        run: ./bin/coverage.sh
+      - name: Install build dependencies
+        run: pip install build
 
       - name: Build package
         run: python -m build

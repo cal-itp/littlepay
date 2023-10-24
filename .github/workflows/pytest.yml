@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - "main"
+  workflow_call:
 
 jobs:
   pytest:
@@ -17,13 +18,18 @@ jobs:
       # python-coverage-comment-action branch, and for editing existing
       # comments (to avoid publishing multiple comments in the same PR)
       contents: write
+
+    strategy:
+      matrix:
+        version: ["3.10", "3.11", "3.12"]
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
 
       - uses: actions/setup-python@v4
         with:
-          python-version-file: .github/workflows/.python-version
+          python-version: ${{ matrix.version }}
           cache: pip
           cache-dependency-path: "**/pyproject.toml"
 
@@ -35,6 +41,7 @@ jobs:
 
       - name: Coverage comment
         uses: py-cov-action/python-coverage-comment-action@v3
+        if: github.event_name != 'workflow_call' && matrix.version == '3.11'
         with:
           GITHUB_TOKEN: ${{ github.token }}
           MINIMUM_GREEN: 90
