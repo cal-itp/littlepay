@@ -274,3 +274,40 @@ Unlinking products from a group works the same:
 ```console
 littlepay products -f <product_id> unlink <group_id>
 ```
+
+## Version and release
+
+The package version is derived from git metadata via [`setuptools_scm`](https://setuptools-scm.readthedocs.io/en/latest/).
+
+Pushing a tag with the correct format generates a new GitHub release, which can then be finalized and published.
+
+### Release a new version
+
+1. Ensure you are on the latest commit of `main`:
+
+   ```bash
+   git checkout main
+   git pull
+   ```
+
+1. Create an [_annotated_](https://git-scm.com/book/en/v2/Git-Basics-Tagging#_annotated_tags), [Calver-formatted](https://calver.org/) tag based on the release year, month, and sequence counter:
+
+   ```bash
+   git tag -a YYYY.MM.N
+   ```
+
+   You may also create a _release candidate_, by appending `-rcX` where `X` is the release candidate sequence counter:
+
+   ```bash
+   git tag -a YYYY.MM.N-rcX
+   ```
+
+   In either case, provide a short comment for the tag.
+
+1. Push the tag to GitHub:
+
+   ```bash
+   git push origin YYYY.MM.N
+   ```
+
+1. Observe the [Release workflow](https://github.com/cal-itp/littlepay/actions/workflows/release.yml)
