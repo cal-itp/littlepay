@@ -31,8 +31,10 @@ class FundingSourcesMixin(ClientProtocol):
     FUNDING_SOURCES = "fundingsources"
 
     def funding_source_by_token_endpoint(self, card_token) -> str:
+        """Endpoint for a funding source by card token."""
         return self._make_endpoint(self.FUNDING_SOURCES, "bytoken", card_token)
 
     def get_funding_source_by_token(self, card_token) -> FundingSourceResponse:
+        """Return a FundingSourceResponse object from the funding source by token endpoint."""
         endpoint = self.funding_source_by_token_endpoint(card_token)
         return self._get(endpoint, FundingSourceResponse)
