@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from littlepay.api import ClientProtocol
+from littlepay.api.groups import GroupsMixin
 
 
 @dataclass
@@ -25,7 +26,7 @@ class FundingSourceResponse:
     icc_hash: Optional[str] = None
 
 
-class FundingSourcesMixin(ClientProtocol):
+class FundingSourcesMixin(GroupsMixin, ClientProtocol):
     """Mixin implements APIs for funding sources."""
 
     FUNDING_SOURCES = "fundingsources"
@@ -38,3 +39,13 @@ class FundingSourcesMixin(ClientProtocol):
         """Return a FundingSourceResponse object from the funding source by token endpoint."""
         endpoint = self.funding_source_by_token_endpoint(card_token)
         return self._get(endpoint, FundingSourceResponse)
+
+    def concession_group_funding_source_endpoint(self, group_id: str) -> str:
+        """Endpoint for a concession group's funding sources."""
+        return self.concession_groups_endpoint(group_id, self.FUNDING_SOURCES)
+
+    def link_concession_group_funding_source(self, group_id: str, funding_source_id: str) -> dict:
+        """Link a funding source to a concession group."""
+        endpoint = self.concession_group_funding_source_endpoint(group_id)
+        data = {"id": funding_source_id}
+        return self._post(endpoint, data, dict)
