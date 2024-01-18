@@ -20,10 +20,16 @@ def mock_ClientProtocol_get_FundingResource(mocker):
     return mocker.patch("littlepay.api.ClientProtocol._get", return_value=funding_source)
 
 
-def test_FundingSourcesMixin_concession_groups_fundingsources_endpoint(url):
+def test_FundingSourcesMixin_funding_sources_by_token_endpoint(url):
     client = FundingSourcesMixin()
 
     assert client.funding_source_by_token_endpoint("abc_token") == f"{url}/fundingsources/bytoken/abc_token"
+
+
+def test_FundingSourcesMixin_concession_groups_funding_sources_endpoint(url):
+    client = FundingSourcesMixin()
+
+    assert client.concession_group_funding_source_endpoint("1234") == f"{url}/concession_groups/1234/fundingsources"
 
 
 def test_FundingSourcesMixin_get_funding_source_by_token(mock_ClientProtocol_get_FundingResource):
