@@ -117,19 +117,6 @@ class Client(ProductsMixin, GroupsMixin, ClientProtocol):
             self.oauth.token = self.oauth.fetch_token(headers=self.headers, **self.credentials)
         return self.oauth.token
 
-    @property
-    def card_tokenization_token_endpoint(self) -> str:
-        """Endpoint to acquire a card tokenization access token."""
-        return self._make_endpoint("cardtokenisation", "requestaccess")
-
-    @property
-    def card_tokenization_token(self) -> OAuth2Token:
-        """This client's card tokenization access token."""
-        request_body = {"request_access": "CARD_TOKENISATION"}
-        response_dict = self._post(self.card_tokenization_token_endpoint, request_body)
-
-        return OAuth2Token.from_dict(response_dict)
-
     def _delete(self, endpoint: str) -> bool:
         response = self.oauth.delete(endpoint, headers=self.headers)
         response.raise_for_status()

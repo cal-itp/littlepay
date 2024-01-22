@@ -183,13 +183,6 @@ def test_Client_version(make_client: ClientFunc, version):
     assert client.version == version
 
 
-def test_Client_card_tokenization_token(mocker, make_client: ClientFunc, token):
-    client = make_client()
-    mocker.patch.object(client, "_post", return_value=token)
-
-    assert isinstance(client.card_tokenization_token, OAuth2Token)
-
-
 def test_Client_delete(mocker, make_client: ClientFunc, url):
     client = make_client()
     mock_response = mocker.Mock(raise_for_status=mocker.Mock(return_value=False), json=mocker.Mock(return_value=True))
