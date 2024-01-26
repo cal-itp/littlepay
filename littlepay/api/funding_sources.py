@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 
 from littlepay.api import ClientProtocol
 
@@ -12,17 +12,17 @@ class FundingSourceResponse:
     card_expiry_month: str
     card_expiry_year: str
     card_scheme: str
-    # card_category: str
     form_factor: str
     participant_id: str
     is_fpan: bool
     related_funding_sources: List[dict]
-    # issuer_country_code: str
-    # issuer_country_numeric_code: str
-    # replacement_funding_source: str
-    # token: str
-    # token_key_id: str
-    # icc_hash: str
+    card_category: Optional[str] = None
+    issuer_country_code: Optional[str] = None
+    issuer_country_numeric_code: Optional[str] = None
+    replacement_funding_source: Optional[str] = None
+    token: Optional[str] = None
+    token_key_id: Optional[str] = None
+    icc_hash: Optional[str] = None
 
 
 class FundingSourcesMixin(ClientProtocol):
