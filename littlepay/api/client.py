@@ -64,7 +64,7 @@ def _json_post_credentials(client, method, uri, headers, body) -> tuple:
     return uri, headers, json_data
 
 
-class Client(CardTokenizationMixin, ProductsMixin, GroupsMixin, FundingSourcesMixin, ClientProtocol):
+class Client(FundingSourcesMixin, CardTokenizationMixin, ProductsMixin, GroupsMixin, ClientProtocol):
     """Represents an API connection to an environment."""
 
     from_active_config = staticmethod(_client_from_active_config)

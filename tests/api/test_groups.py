@@ -16,8 +16,14 @@ def mock_ClientProtocol_get_list_Groups(mocker):
 
 
 @pytest.fixture
-def mock_ClientProtocol_post(mocker):
+def mock_ClientProtocol_post_create_concession_group(mocker):
     response = dict(id="0", participant_id="zero_0")
+    return mocker.patch("littlepay.api.ClientProtocol._post", side_effect=lambda *args, **kwargs: response)
+
+
+@pytest.fixture
+def mock_ClientProtocol_post_link_concession_group_funding_source(mocker):
+    response = {"status_code": 201}
     return mocker.patch("littlepay.api.ClientProtocol._post", side_effect=lambda *args, **kwargs: response)
 
 
@@ -39,12 +45,20 @@ def test_GroupsMixin_concession_groups_endpoint_group_id_extras(url):
     assert client.concession_groups_endpoint("1234", "extra", "5678") == f"{url}/concession_groups/1234/extra/5678"
 
 
-def test_GroupsMixin_create_concession_group(mock_ClientProtocol_post):
+def test_GroupsMixin_concession_groups_funding_sources_endpoint(url):
+    client = GroupsMixin()
+
+    assert client.concession_group_funding_source_endpoint("1234") == f"{url}/concession_groups/1234/fundingsources"
+
+
+def test_GroupsMixin_create_concession_group(mock_ClientProtocol_post_create_concession_group):
     client = GroupsMixin()
 
     result = client.create_concession_group("the-label")
 
-    mock_ClientProtocol_post.assert_called_once_with(client.concession_groups_endpoint(), {"label": "the-label"}, dict)
+    mock_ClientProtocol_post_create_concession_group.assert_called_once_with(
+        client.concession_groups_endpoint(), {"label": "the-label"}, dict
+    )
     assert isinstance(result, dict)
     assert result["id"] == "0"
     assert result["participant_id"] == "zero_0"
@@ -79,3 +93,14 @@ def test_GroupsMixin_remove_concession_group(mock_ClientProtocol_delete):
 
     mock_ClientProtocol_delete.assert_called_once_with(client.concession_groups_endpoint("1234"))
     assert result is True
+
+
+def test_GroupsMixin_link_concession_group_funding_source(mock_ClientProtocol_post_link_concession_group_funding_source):
+    client = GroupsMixin()
+    result = client.link_concession_group_funding_source("group-1234", "funding-source-1234")
+
+    endpoint = client.concession_group_funding_source_endpoint("group-1234")
+    mock_ClientProtocol_post_link_concession_group_funding_source.assert_called_once_with(
+        endpoint, {"id": "funding-source-1234"}, dict
+    )
+    assert result == {"status_code": 201}
