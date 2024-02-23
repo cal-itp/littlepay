@@ -75,6 +75,17 @@ def test_main_groups(mock_commands_groups):
     assert call_args.command == "groups"
 
 
+def test_main_groups_csv(mock_commands_groups):
+    result = main(argv=["groups", "--csv"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert isinstance(call_args, Namespace)
+    assert call_args.command == "groups"
+    assert call_args.csv is True
+
+
 @pytest.mark.parametrize("filter_flag", ["-f", "--filter"])
 def test_main_groups_filter(mock_commands_groups, filter_flag):
     result = main(argv=["groups", filter_flag, "term"])
@@ -122,6 +133,16 @@ def test_main_groups_products(mock_commands_groups):
     mock_commands_groups.assert_called_once()
     call_args = mock_commands_groups.call_args.args[0]
     assert call_args.group_command == "products"
+
+
+def test_main_groups_products_csv(mock_commands_groups):
+    result = main(argv=["groups", "products", "--csv"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert call_args.group_command == "products"
+    assert call_args.csv is True
 
 
 def test_main_groups_remove(mock_commands_groups):
