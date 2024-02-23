@@ -40,16 +40,13 @@ def products(args: Namespace = None) -> int:
 
     products = list(products)
     if csv_output:
-        # print the CSV header for products using an empty ProductResponse to get attribute keys
-        product_attrs = vars(ProductResponse("", "", "", "", "", "")).keys()
-        print(",".join(product_attrs))
+        print(ProductResponse.csv_header())
     else:
         print_active_message(config, f"🛒 Matching products ({len(products)})")
 
     for product in products:
         if csv_output:
-            product_vals = vars(product).values()
-            print(",".join(product_vals))
+            print(product.csv())
         else:
             print(product)
 

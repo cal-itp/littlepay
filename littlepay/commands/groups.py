@@ -46,11 +46,9 @@ def groups(args: Namespace = None) -> int:
 
     groups = list(groups)
     if csv_output and command != "products":
-        # print the CSV header for groups using an empty GroupResponse to get attribute keys
-        group_attrs = vars(GroupResponse("", "", "")).keys()
-        print(",".join(group_attrs))
+        print(GroupResponse.csv_header())
     elif csv_output and command == "products":
-        # print the CSV header for group<>product associations
+        # print a custom CSV header for group<>product associations
         print("group_id,product_id,participant_id")
     else:
         print_active_message(config, f"👥 Matching groups ({len(groups)})")
@@ -68,8 +66,7 @@ def groups(args: Namespace = None) -> int:
                 else:
                     print(" ", product)
         elif csv_output:
-            group_vals = vars(group).values()
-            print(",".join(group_vals))
+            print(group.csv())
 
     return RESULT_SUCCESS if return_code == RESULT_SUCCESS else RESULT_FAILURE
 

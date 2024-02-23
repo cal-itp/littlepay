@@ -65,12 +65,10 @@ def test_groups_csv(mock_client, capfd):
 
     assert "Matching groups (3)" not in capture.out
 
-    group_attrs = vars(GroupResponse("", "", "")).keys()
-    assert ",".join(group_attrs) in capture.out
+    assert GroupResponse.csv_header() in capture.out
 
     for response in GROUP_RESPONSES:
-        group_vals = vars(response).values()
-        assert ",".join(group_vals) in capture.out
+        assert response.csv() in capture.out
         assert str(response) not in capture.out
 
 

@@ -45,6 +45,15 @@ def mock_ClientProtocol_post(mocker):
     return mocker.patch("littlepay.api.ClientProtocol._post", side_effect=lambda *args, **kwargs: response)
 
 
+def test_ProductResponse_csv():
+    group = ProductResponse("id", "code", "status", "type", "description", "participant")
+    assert group.csv() == "id,code,status,type,description,participant"
+
+
+def test_ProductResponse_csv_header():
+    assert ProductResponse.csv_header() == "id,code,status,type,description,participant_id"
+
+
 def test_ProductsMixin_concession_groups_products_endpoint(url):
     client = ProductsMixin()
 

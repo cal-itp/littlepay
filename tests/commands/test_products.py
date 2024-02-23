@@ -57,12 +57,10 @@ def test_products_csv(mock_client, capfd):
 
     assert "Matching products (4)" not in capture.out
 
-    product_attrs = vars(ProductResponse("", "", "", "", "", "")).keys()
-    assert ",".join(product_attrs) in capture.out
+    assert ProductResponse.csv_header() in capture.out
 
     for response in PRODUCT_RESPONSES:
-        product_vals = vars(response).values()
-        assert ",".join(product_vals) in capture.out
+        assert response.csv() in capture.out
         assert str(response) not in capture.out
 
 

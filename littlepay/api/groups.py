@@ -11,6 +11,16 @@ class GroupResponse:
     label: str
     participant_id: str
 
+    def csv(self) -> str:
+        """Get a CSV str representation of values for this GroupResponse."""
+        return ",".join(vars(self).values())
+
+    @staticmethod
+    def csv_header() -> str:
+        """Get a CSV str header of attributes for GroupResponse."""
+        instance = GroupResponse("", "", "")
+        return ",".join(vars(instance).keys())
+
 
 class GroupsMixin(ClientProtocol):
     """Mixin implements APIs for concession groups."""
