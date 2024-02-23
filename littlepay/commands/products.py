@@ -1,6 +1,7 @@
 from argparse import Namespace
 
 from littlepay.api.client import Client
+from littlepay.api.products import ProductResponse
 from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS, print_active_message
 from littlepay.commands.groups import link_product, unlink_product
 from littlepay.config import Config
@@ -13,6 +14,8 @@ def products(args: Namespace = None) -> int:
     client = Client.from_active_config(config)
     client.oauth.ensure_active_token(client.token)
     config.active_token = client.token
+
+    csv_output = hasattr(args, "csv") and args.csv
 
     if hasattr(args, "product_command"):
         command = args.product_command
@@ -36,10 +39,19 @@ def products(args: Namespace = None) -> int:
         )
 
     products = list(products)
-    print_active_message(config, f"🛒 Matching products ({len(products)})")
+    if csv_output:
+        # print the CSV header for products using an empty ProductResponse to get attribute keys
+        product_attrs = vars(ProductResponse("", "", "", "", "", "")).keys()
+        print(",".join(product_attrs))
+    else:
+        print_active_message(config, f"🛒 Matching products ({len(products)})")
 
     for product in products:
-        print(product)
+        if csv_output:
+            product_vals = vars(product).values()
+            print(",".join(product_vals))
+        else:
+            print(product)
 
     if command == "link":
         for product in products:

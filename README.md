@@ -175,7 +175,7 @@ littlepay groups remove --force <group_id>
 
 ```console
 $ littlepay products -h
-usage: littlepay products [-h] [-f PRODUCT_TERMS] [-s {ACTIVE,INACTIVE,EXPIRED}] {link,unlink} ...
+usage: littlepay products [-h] [-f PRODUCT_TERMS] [-s {ACTIVE,INACTIVE,EXPIRED}] [--csv] {link,unlink} ...
 
 positional arguments:
   {link,unlink}
@@ -188,6 +188,7 @@ options:
                         Filter for products with matching product ID, code, or description
   -s {ACTIVE,INACTIVE,EXPIRED}, --status {ACTIVE,INACTIVE,EXPIRED}
                         Filter for products with matching status
+  --csv                 Output results in simple CSV format
 ```
 
 ### List existing products

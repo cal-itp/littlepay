@@ -91,6 +91,9 @@ def main(argv=None):
         choices=["ACTIVE", "INACTIVE", "EXPIRED"],
         dest="product_status",
     )
+    products_parser.add_argument(
+        "--csv", action="store_true", default=False, help="Output results in simple CSV format", dest="csv"
+    )
 
     products_commands = products_parser.add_subparsers(dest="product_command", required=False)
 
