@@ -31,6 +31,9 @@ def test_GroupResponse_csv():
     group = GroupResponse("id", "label", "participant")
     assert group.csv() == "id,label,participant"
 
+    group = GroupResponse("id", "label, with, commas", "participant")
+    assert group.csv() == 'id,"label, with, commas",participant'
+
 
 def test_GroupResponse_csv_header():
     assert GroupResponse.csv_header() == "id,label,participant_id"

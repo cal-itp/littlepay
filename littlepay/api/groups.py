@@ -13,7 +13,9 @@ class GroupResponse:
 
     def csv(self) -> str:
         """Get a CSV str representation of values for this GroupResponse."""
-        return ",".join(vars(self).values())
+        # wrap values containing commas in double quotes
+        vals = [f'"{v}"' if "," in v else v for v in vars(self).values()]
+        return ",".join(vals)
 
     @staticmethod
     def csv_header() -> str:

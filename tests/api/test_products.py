@@ -46,8 +46,11 @@ def mock_ClientProtocol_post(mocker):
 
 
 def test_ProductResponse_csv():
-    group = ProductResponse("id", "code", "status", "type", "description", "participant")
-    assert group.csv() == "id,code,status,type,description,participant"
+    product = ProductResponse("id", "code", "status", "type", "description", "participant")
+    assert product.csv() == "id,code,status,type,description,participant"
+
+    product = ProductResponse("id", "code", "status", "type", "description, with, commas", "participant")
+    assert product.csv() == 'id,code,status,type,"description, with, commas",participant'
 
 
 def test_ProductResponse_csv_header():
