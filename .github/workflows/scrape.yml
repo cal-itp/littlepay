@@ -1,0 +1,60 @@
+name: Scape data for active agencies
+
+on:
+  workflow_dispatch:
+  schedule:
+    # every day at 6am UTC, 10-11pm Pacific
+    - cron: "0 6 * * *"
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        participant: [mst, sacrt, sbmtd]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the littlepay library
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Create config file and set participant
+        # the LITTLEPAY_CONFIG secret only contains configuration for the prod env
+        # the prod env is already activated, with no participant yet activated
+        run: |
+          cat > .config/scrape.yaml <<- EOM
+          ${{ secrets.LITTLEPAY_CONFIG }}
+          EOM
+          littlepay config .config/scrape.yaml
+          littlepay switch participant ${{ matrix.participant }}
+
+      - name: Get groups
+        run: littlepay groups --csv > data/${{ matrix.participant }}_groups.csv
+
+      - name: Get products
+        run: littlepay products --csv > data/${{ matrix.participant }}_products.csv
+
+      - name: Get group<>product associations
+        run: littlepay groups products --csv > data/${{ matrix.participant }}_linked_groups_products.csv
+
+      - name: Check for modified data files
+        id: git-modified
+        run: echo modified=$(if [ -n "$(git status --porcelain)" ]; then echo "true"; else echo "false"; fi) >> "$GITHUB_OUTPUT"
+
+      - name: Commit modified data files
+        if: steps.git-modified.outputs.modified == 'true'
+        run: |
+          git config user.name "Cal-ITP Bot"
+          git config user.email "bot@calitp.org"
+          git add data/
+          timestamp=$(date -u)
+          git commit -m "chore(data): update ${{ matrix.participant }} at ${timestamp}" || exit 0
+          git push
