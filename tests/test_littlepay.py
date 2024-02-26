@@ -3,7 +3,7 @@ import subprocess
 
 import pytest
 
-from littlepay.commands import RESULT_FAILURE
+from littlepay.commands import RESULT_SUCCESS
 from littlepay.config import _get_current_path, _update_current_path
 from tests.conftest import CUSTOM_CONFIG_FILE
 
@@ -37,7 +37,7 @@ def test_littlepay(capfd):
     assert "Envs:" in capture.out
     assert "Participants:" in capture.out
     assert "Active:" in capture.out
-    assert res == RESULT_FAILURE
+    assert res == RESULT_SUCCESS
 
 
 def test_config(capfd):
@@ -48,4 +48,4 @@ def test_config(capfd):
     assert "Envs:" in capture.out
     assert "Participants:" in capture.out
     assert "Active:" in capture.out
-    assert res == RESULT_FAILURE
+    assert res == RESULT_SUCCESS
