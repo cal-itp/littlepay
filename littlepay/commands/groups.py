@@ -3,6 +3,7 @@ from argparse import Namespace
 from requests import HTTPError
 
 from littlepay.api.client import Client
+from littlepay.api.groups import GroupResponse
 from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS, print_active_message
 from littlepay.config import Config
 
@@ -14,6 +15,8 @@ def groups(args: Namespace = None) -> int:
     client = Client.from_active_config(config)
     client.oauth.ensure_active_token(client.token)
     config.active_token = client.token
+
+    csv_output = hasattr(args, "csv") and args.csv
 
     if hasattr(args, "group_command"):
         command = args.group_command
@@ -42,15 +45,28 @@ def groups(args: Namespace = None) -> int:
             return_code += unlink_product(client, group.id, args.product_id)
 
     groups = list(groups)
-    print_active_message(config, f"👥 Matching groups ({len(groups)})")
+    if csv_output and command != "products":
+        print(GroupResponse.csv_header())
+    elif csv_output and command == "products":
+        # print a custom CSV header for group<>product associations
+        print("group_id,product_id,participant_id")
+    else:
+        print_active_message(config, f"👥 Matching groups ({len(groups)})")
 
     for group in groups:
-        print(group)
+        if not csv_output:
+            print(group)
         if command == "products":
             products = list(client.get_concession_group_products(group.id))
-            print(f"  🛒 Linked products ({len(products)})")
+            if not csv_output:
+                print(f"  🛒 Linked products ({len(products)})")
             for product in products:
-                print(" ", product)
+                if csv_output:
+                    print(f"{group.id},{product.id},{group.participant_id}")
+                else:
+                    print(" ", product)
+        elif csv_output:
+            print(group.csv())
 
     return RESULT_SUCCESS if return_code == RESULT_SUCCESS else RESULT_FAILURE
 

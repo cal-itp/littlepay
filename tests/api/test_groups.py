@@ -27,6 +27,18 @@ def mock_ClientProtocol_post_link_concession_group_funding_source(mocker):
     return mocker.patch("littlepay.api.ClientProtocol._post", side_effect=lambda *args, **kwargs: response)
 
 
+def test_GroupResponse_csv():
+    group = GroupResponse("id", "label", "participant")
+    assert group.csv() == "id,label,participant"
+
+    group = GroupResponse("id", "label, with, commas", "participant")
+    assert group.csv() == 'id,"label, with, commas",participant'
+
+
+def test_GroupResponse_csv_header():
+    assert GroupResponse.csv_header() == "id,label,participant_id"
+
+
 def test_GroupsMixin_concession_groups_endpoint(url):
     client = GroupsMixin()
 

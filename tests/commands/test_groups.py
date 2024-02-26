@@ -54,6 +54,24 @@ def test_groups_default(mock_client, capfd):
         assert str(response) in capture.out
 
 
+def test_groups_csv(mock_client, capfd):
+    args = Namespace(csv=True)
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+
+    mock_client.oauth.ensure_active_token.assert_called_once()
+
+    assert "Matching groups (3)" not in capture.out
+
+    assert GroupResponse.csv_header() in capture.out
+
+    for response in GROUP_RESPONSES:
+        assert response.csv() in capture.out
+        assert str(response) not in capture.out
+
+
 @pytest.mark.parametrize("group_response", GROUP_RESPONSES)
 @pytest.mark.parametrize("filter_attribute", ["id", "label"])
 def test_groups_group_terms(group_response, filter_attribute, capfd):
@@ -159,6 +177,29 @@ def test_groups_group_command__products(mock_client, capfd):
             assert str(product) in capture.out
         else:
             assert str(product) not in capture.out
+
+
+def test_groups_group_command__products_csv(mock_client, capfd):
+    # fake a generator for a single item
+    mock_client.get_concession_group_products.return_value = (p for p in PRODUCT_RESPONSES if PRODUCT_RESPONSES.index(p) == 0)
+
+    args = Namespace(group_command="products", group_id="1234", csv=True)
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    mock_client.get_concession_group_products.call_count == len(GROUP_RESPONSES)
+
+    assert res == RESULT_SUCCESS
+    assert "Linked products (1)" not in capture.out
+    assert "group_id,product_id,participant_id" in capture.out
+
+    for group in GROUP_RESPONSES:
+        for product in PRODUCT_RESPONSES:
+            assert str(product) not in capture.out
+            if GROUP_RESPONSES.index(group) == 0 and PRODUCT_RESPONSES.index(product) == 0:
+                assert f"{group.id},{product.id},{group.participant_id}" in capture.out
+            else:
+                assert f"{group.id},{product.id},{group.participant_id}" not in capture.out
 
 
 @pytest.mark.parametrize("sample_input", ["y", "Y", "yes", "Yes", "YES"])

@@ -114,7 +114,7 @@ littlepay switch participant <participant_id>
 
 ```console
 $ littlepay groups -h
-usage: littlepay groups [-h] [-f GROUP_TERMS] {create,link,products,remove,unlink} ...
+usage: littlepay groups [-h] [-f GROUP_TERMS] [--csv] {create,link,products,remove,unlink} ...
 
 positional arguments:
   {create,link,products,remove,unlink}
@@ -128,6 +128,7 @@ options:
   -h, --help            show this help message and exit
   -f GROUP_TERMS, --filter GROUP_TERMS
                         Filter for groups with matching group ID or label
+  --csv                 Output results in simple CSV format
 ```
 
 ### List existing groups
@@ -174,7 +175,7 @@ littlepay groups remove --force <group_id>
 
 ```console
 $ littlepay products -h
-usage: littlepay products [-h] [-f PRODUCT_TERMS] [-s {ACTIVE,INACTIVE,EXPIRED}] {link,unlink} ...
+usage: littlepay products [-h] [-f PRODUCT_TERMS] [-s {ACTIVE,INACTIVE,EXPIRED}] [--csv] {link,unlink} ...
 
 positional arguments:
   {link,unlink}
@@ -187,6 +188,7 @@ options:
                         Filter for products with matching product ID, code, or description
   -s {ACTIVE,INACTIVE,EXPIRED}, --status {ACTIVE,INACTIVE,EXPIRED}
                         Filter for products with matching status
+  --csv                 Output results in simple CSV format
 ```
 
 ### List existing products

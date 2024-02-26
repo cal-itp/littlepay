@@ -1,5 +1,5 @@
-from argparse import _SubParsersAction, ArgumentParser
 import sys
+from argparse import ArgumentParser, _SubParsersAction
 
 from littlepay import __version__ as version
 from littlepay.commands.configure import configure
@@ -51,6 +51,9 @@ def main(argv=None):
     groups_parser.add_argument(
         "-f", "--filter", help="Filter for groups with matching group ID or label", dest="group_terms", action="append"
     )
+    groups_parser.add_argument(
+        "--csv", action="store_true", default=False, help="Output results in simple CSV format", dest="csv"
+    )
 
     groups_commands = groups_parser.add_subparsers(dest="group_command", required=False)
 
@@ -60,7 +63,10 @@ def main(argv=None):
     groups_link = _subcmd(groups_commands, "link", help="Link one or more concession groups to a product")
     groups_link.add_argument("product_id", help="The ID of the product to link to")
 
-    _subcmd(groups_commands, "products", help="List products for one or more concession groups")
+    groups_products = _subcmd(groups_commands, "products", help="List products for one or more concession groups")
+    groups_products.add_argument(
+        "--csv", action="store_true", default=False, help="Output results in simple CSV format", dest="csv"
+    )
 
     groups_remove = _subcmd(groups_commands, "remove", help="Remove an existing concession group")
     groups_remove.add_argument("--force", action="store_true", default=False, help="Don't ask for confirmation before removal")
@@ -84,6 +90,9 @@ def main(argv=None):
         help="Filter for products with matching status",
         choices=["ACTIVE", "INACTIVE", "EXPIRED"],
         dest="product_status",
+    )
+    products_parser.add_argument(
+        "--csv", action="store_true", default=False, help="Output results in simple CSV format", dest="csv"
     )
 
     products_commands = products_parser.add_subparsers(dest="product_command", required=False)

@@ -14,6 +14,18 @@ class ProductResponse:
     description: str
     participant_id: str
 
+    def csv(self) -> str:
+        """Get a CSV str representation of values for this ProductResponse."""
+        # wrap values containing commas in double quotes
+        vals = [f'"{v}"' if "," in v else v for v in vars(self).values()]
+        return ",".join(vals)
+
+    @staticmethod
+    def csv_header() -> str:
+        """Get a CSV str header of attributes for ProductResponse."""
+        instance = ProductResponse("", "", "", "", "", "")
+        return ",".join(vars(instance).keys())
+
 
 class ProductsMixin(GroupsMixin, ClientProtocol):
     """Mixin implements APIs for products."""

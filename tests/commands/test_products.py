@@ -45,6 +45,25 @@ def test_products_default(mock_client, capfd):
         assert str(response) in capture.out
 
 
+def test_products_csv(mock_client, capfd):
+    args = Namespace(csv=True)
+    res = products(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+
+    mock_client.oauth.ensure_active_token.assert_called_once()
+    mock_client.get_products.assert_called_with(status=None)
+
+    assert "Matching products (4)" not in capture.out
+
+    assert ProductResponse.csv_header() in capture.out
+
+    for response in PRODUCT_RESPONSES:
+        assert response.csv() in capture.out
+        assert str(response) not in capture.out
+
+
 def test_products_product_command__link(mock_client, capfd):
     args = Namespace(product_command="link", group_id="1234")
     res = products(args)
