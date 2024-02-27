@@ -1,4 +1,4 @@
-name: Scape data for active agencies
+name: Scrape data for active agencies
 
 on:
   workflow_dispatch:
