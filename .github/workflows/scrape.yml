@@ -55,6 +55,7 @@ jobs:
 
   commit:
     runs-on: ubuntu-latest
+    needs: scrape
     env:
       # set the time zone for more readable $(date) output
       TZ: America/Los_Angeles
