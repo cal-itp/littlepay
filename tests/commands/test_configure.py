@@ -27,7 +27,7 @@ def test_configure(mocker, custom_config_file, capfd):
     res = configure(custom_config_file)
     capture = capfd.readouterr()
 
-    assert res == RESULT_FAILURE
+    assert res == RESULT_SUCCESS
     assert custom_config_file.exists()
     assert "Config:" in capture.out
     assert "Envs:" in capture.out
@@ -43,7 +43,7 @@ def test_configure_default(mock_Config, capfd):
     res = configure()
     capture = capfd.readouterr()
 
-    assert res == RESULT_FAILURE
+    assert res == RESULT_SUCCESS
     assert "Config:" in capture.out
     assert "Envs:" in capture.out
     assert "Participants:" in capture.out

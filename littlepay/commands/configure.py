@@ -23,8 +23,8 @@ def configure(config_path: str | Path = None) -> int:
     print(f"Participants: {', '.join(config.participants.keys())}")
 
     if config.active_participant_id == "":
-        print(f"❌ Active: {config.active_env_name}, [no participant]")
-        return RESULT_FAILURE
+        print(f"❓ Active: {config.active_env_name}, [no participant]")
+        return RESULT_SUCCESS
 
     try:
         credentials = config.active_credentials
