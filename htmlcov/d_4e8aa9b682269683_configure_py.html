@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="d_4e8aa9b682269683_groups_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
-            created at 2024-02-27 00:39 +0000
+            created at 2024-03-06 21:46 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -102,12 +102,12 @@
     <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">    <span class="nam">config</span> <span class="op">=</span> <span class="nam">Config</span><span class="op">(</span><span class="nam">config_path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">    <span class="nam">current_config_path</span> <span class="op">=</span> <span class="nam">Config</span><span class="op">.</span><span class="nam">current_path</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">    <span class="nam">print</span><span class="op">(</span><span class="str">f"Config: {current_config_path}"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">    <span class="nam">print</span><span class="op">(</span><span class="str">f"Envs: {', '.join(config.envs.keys())}"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">    <span class="nam">print</span><span class="op">(</span><span class="str">f"Participants: {', '.join(config.participants.keys())}"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">    <span class="nam">print</span><span class="op">(</span><span class="fst">f"</span><span class="fst">Config: </span><span class="op">{</span><span class="nam">current_config_path</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">    <span class="nam">print</span><span class="op">(</span><span class="fst">f"</span><span class="fst">Envs: </span><span class="op">{</span><span class="str">', '</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="nam">config</span><span class="op">.</span><span class="nam">envs</span><span class="op">.</span><span class="nam">keys</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">    <span class="nam">print</span><span class="op">(</span><span class="fst">f"</span><span class="fst">Participants: </span><span class="op">{</span><span class="str">', '</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="nam">config</span><span class="op">.</span><span class="nam">participants</span><span class="op">.</span><span class="nam">keys</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">    <span class="key">if</span> <span class="nam">config</span><span class="op">.</span><span class="nam">active_participant_id</span> <span class="op">==</span> <span class="str">""</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">        <span class="nam">print</span><span class="op">(</span><span class="str">f"&#10067; Active: {config.active_env_name}, [no participant]"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">        <span class="nam">print</span><span class="op">(</span><span class="fst">f"</span><span class="fst">&#10067; Active: </span><span class="op">{</span><span class="nam">config</span><span class="op">.</span><span class="nam">active_env_name</span><span class="op">}</span><span class="fst">, [no participant]</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">        <span class="key">return</span> <span class="nam">RESULT_SUCCESS</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -129,7 +129,7 @@
     <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">        <span class="nam">print_active_message</span><span class="op">(</span><span class="nam">config</span><span class="op">,</span> <span class="str">"Active"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">        <span class="key">if</span> <span class="str">"expires_at"</span> <span class="key">in</span> <span class="nam">config</span><span class="op">.</span><span class="nam">active_token</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">            <span class="nam">expiry</span> <span class="op">=</span> <span class="nam">datetime</span><span class="op">.</span><span class="nam">datetime</span><span class="op">.</span><span class="nam">fromtimestamp</span><span class="op">(</span><span class="nam">config</span><span class="op">.</span><span class="nam">active_token</span><span class="op">[</span><span class="str">"expires_at"</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">            <span class="nam">print</span><span class="op">(</span><span class="str">f"&#9989; Token expires: {expiry.isoformat()} UTC"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">            <span class="nam">print</span><span class="op">(</span><span class="fst">f"</span><span class="fst">&#9989; Token expires: </span><span class="op">{</span><span class="nam">expiry</span><span class="op">.</span><span class="nam">isoformat</span><span class="op">(</span><span class="op">)</span><span class="op">}</span><span class="fst"> UTC</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">        <span class="key">return</span> <span class="nam">RESULT_SUCCESS</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
@@ -140,7 +140,7 @@
             <a id="nextFileLink" class="nav" href="d_4e8aa9b682269683_groups_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
-            created at 2024-02-27 00:39 +0000
+            created at 2024-03-06 21:46 +0000
         </p>
     </div>
 </footer>

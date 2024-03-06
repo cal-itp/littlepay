@@ -9,16 +9,16 @@
 | littlepay/api/card\_tokenization.py |       10 |        0 |        0 |        0 |    100% |           |
 | littlepay/api/client.py             |       75 |        0 |       18 |        0 |    100% |           |
 | littlepay/api/funding\_sources.py   |       29 |        0 |        2 |        0 |    100% |           |
-| littlepay/api/groups.py             |       37 |        0 |        8 |        0 |    100% |           |
-| littlepay/api/products.py           |       43 |        0 |       14 |        0 |    100% |           |
+| littlepay/api/groups.py             |       37 |        0 |        6 |        0 |    100% |           |
+| littlepay/api/products.py           |       43 |        0 |       12 |        0 |    100% |           |
 | littlepay/commands/\_\_init\_\_.py  |        7 |        0 |        0 |        0 |    100% |           |
 | littlepay/commands/configure.py     |       32 |        0 |       10 |        0 |    100% |           |
-| littlepay/commands/groups.py        |       99 |        0 |       42 |        0 |    100% |           |
-| littlepay/commands/products.py      |       38 |        0 |       24 |        0 |    100% |           |
+| littlepay/commands/groups.py        |       99 |        0 |       40 |        0 |    100% |           |
+| littlepay/commands/products.py      |       38 |        0 |       22 |        0 |    100% |           |
 | littlepay/commands/switch.py        |       11 |        0 |        6 |        1 |     94% |    13->16 |
-| littlepay/config.py                 |       86 |        0 |       38 |        0 |    100% |           |
+| littlepay/config.py                 |       89 |        0 |       38 |        0 |    100% |           |
 | littlepay/main.py                   |       61 |        1 |       12 |        2 |     96% |122->exit, 127 |
-|                           **TOTAL** |  **554** |    **8** |  **176** |    **3** | **98%** |           |
+|                           **TOTAL** |  **557** |    **8** |  **168** |    **3** | **98%** |           |
 
 
 ## Setup coverage badge
