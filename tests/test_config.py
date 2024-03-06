@@ -6,7 +6,6 @@ import littlepay.config
 from littlepay.config import (
     DEFAULT_CONFIG,
     DEFAULT_CREDENTIALS,
-    ENV_QA,
     _get_current_path,
     _read_config,
     _write_config,
@@ -124,7 +123,7 @@ def test_Config_active_env_name_default():
     config = Config()
     config.active = {}
 
-    assert config.active_env_name == ENV_QA
+    assert config.active_env_name == ""
 
 
 def test_Config_active_env_name_update():

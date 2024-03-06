@@ -22,8 +22,10 @@ def configure(config_path: str | Path = None) -> int:
     print(f"Envs: {', '.join(config.envs.keys())}")
     print(f"Participants: {', '.join(config.participants.keys())}")
 
-    if config.active_participant_id == "":
-        print(f"❓ Active: {config.active_env_name}, [no participant]")
+    if config.active_env_name == "" or config.active_participant_id == "":
+        env = config.active_env_name if config.active_env_name else "[no env]"
+        participant = config.active_participant_id if config.active_participant_id else "[no participant]"
+        print(f"❓ Active: {env}, {participant}")
         return RESULT_SUCCESS
 
     try:
