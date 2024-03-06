@@ -205,6 +205,15 @@ def test_Config_active_participant():
     assert config.active_participant == "the participant config"
 
 
+def test_Config_active_participant_missing():
+    config = Config()
+    config.active = {"env": "env123"}
+    config.participants = {"participant123": {"env123": "the participant config"}}
+
+    with pytest.raises(ValueError):
+        config.active_participant
+
+
 def test_Config_active_credentials_default(mocker):
     config = Config()
     mocker.patch("littlepay.config.Config.active_participant", new_callable=mocker.PropertyMock, return_value={})

@@ -104,7 +104,10 @@ class Config:
         Returns (dict):
             Configuration data for the active participant.
         """
-        return self.participants[self.active_participant_id][self.active_env_name]
+        active_participant = self.participants.get(self.active_participant_id)
+        if active_participant is None:
+            raise ValueError("Missing an active participant")
+        return active_participant[self.active_env_name]
 
     @property
     def active_credentials(self) -> dict:
