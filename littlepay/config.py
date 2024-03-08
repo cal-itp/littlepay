@@ -97,7 +97,7 @@ class Config:
             Configuration data for the active environment.
         """
         active_env_name = self.active_env_name
-        if active_env_name is None:
+        if not active_env_name:
             raise ValueError("Missing active env")
         return self.envs[active_env_name]
 

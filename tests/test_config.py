@@ -158,6 +158,15 @@ def test_Config_active_env():
     assert config.active_env == "the environment"
 
 
+def test_Config_active_missing():
+    config = Config()
+    config.active = {}
+    config.envs = {"qa": "qa environment"}
+
+    with pytest.raises(ValueError):
+        config.active_env
+
+
 def test_Config_active_participant_id(mocker):
     config = Config()
     config.active = {"participant": "active_participant"}
