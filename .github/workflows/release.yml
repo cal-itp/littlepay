@@ -22,6 +22,8 @@ jobs:
     permissions:
       # https://github.com/softprops/action-gh-release#permissions
       contents: write
+      # https://docs.pypi.org/trusted-publishers/using-a-publisher/
+      id-token: write
 
     steps:
       - name: Checkout
@@ -47,3 +49,18 @@ jobs:
             ./dist/*.whl
           prerelease: ${{ contains(github.ref, '-rc') }}
           generate_release_notes: ${{ !contains(github.ref, '-rc') }}
+
+      - name: Publish to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1.5
+        if: ${{ contains(github.ref, '-rc') }}
+        with:
+          repository_url: https://test.pypi.org/legacy/
+          print_hash: true
+          skip_existing: true
+          verbose: true
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1.5
+        if: ${{ !contains(github.ref, '-rc') }}
+        with:
+          print_hash: true
