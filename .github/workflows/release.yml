@@ -42,7 +42,7 @@ jobs:
         run: python -m build
 
       - name: Publish to Test PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1.5
+        uses: pypa/gh-action-pypi-publish@release/v1
         if: ${{ contains(github.ref, '-rc') }}
         with:
           repository_url: https://test.pypi.org/legacy/
@@ -63,7 +63,7 @@ jobs:
           echo "PYPI_RELEASE_URL=https://test.pypi.org/project/calitp-littlepay/$version" >> "$GITHUB_OUTPUT"
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1.5
+        uses: pypa/gh-action-pypi-publish@release/v1
         if: ${{ !contains(github.ref, '-rc') }}
         with:
           print_hash: true
