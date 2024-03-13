@@ -22,6 +22,8 @@ jobs:
     permissions:
       # https://github.com/softprops/action-gh-release#permissions
       contents: write
+      # https://docs.pypi.org/trusted-publishers/using-a-publisher/
+      id-token: write
 
     steps:
       - name: Checkout
@@ -39,11 +41,54 @@ jobs:
       - name: Build package
         run: python -m build
 
+      - name: Publish to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1.5
+        if: ${{ contains(github.ref, '-rc') }}
+        with:
+          repository_url: https://test.pypi.org/legacy/
+          print_hash: true
+          skip_existing: true
+          verbose: true
+
+      - name: Parse version and output Test PyPI URL
+        id: test-version
+        if: ${{ contains(github.ref, '-rc') }}
+        # run littlepay first, so `littlepay -v` doesn't create the config file (which outputs a message)
+        run: |
+          pip install -e .
+          littlepay
+          output=$(littlepay -v)
+          version=${output/littlepay /}
+          version=${version/.0/.}
+          echo "PYPI_RELEASE_URL=https://test.pypi.org/project/calitp-littlepay/$version" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1.5
+        if: ${{ !contains(github.ref, '-rc') }}
+        with:
+          print_hash: true
+
+      - name: Parse version and output PyPI URL
+        id: version
+        if: ${{ !contains(github.ref, '-rc') }}
+        # run littlepay first, so `littlepay -v` doesn't create the config file (which outputs a message)
+        run: |
+          pip install -e .
+          littlepay
+          output=$(littlepay -v)
+          version=${output/littlepay /}
+          version=${version/.0/.}
+          echo "PYPI_RELEASE_URL=https://pypi.org/project/calitp-littlepay/$version" >> "$GITHUB_OUTPUT"
+
       - name: Release
         uses: softprops/action-gh-release@v2
+        env:
+          # this syntax is the only way to get ternary-operator behavior (see https://mattdood.com/2022/3/github-actions-conditional-environment-variables-20220325012837)
+          PYPI_RELEASE_URL: ${{ !contains(github.ref, '-rc') && steps.version.outputs.PYPI_RELEASE_URL || steps.test-version.outputs.PYPI_RELEASE_URL }}
         with:
           files: |
             ./dist/*.tar.gz
             ./dist/*.whl
           prerelease: ${{ contains(github.ref, '-rc') }}
           generate_release_notes: ${{ !contains(github.ref, '-rc') }}
+          body: $PYPI_RELEASE_URL
