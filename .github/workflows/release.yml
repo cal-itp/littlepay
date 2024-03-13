@@ -56,11 +56,25 @@ jobs:
         with:
           print_hash: true
 
+      - name: Parse version and output PyPI URL
+        id: version
+        # run littlepay first, so `littlepay -v` doesn't create the config file (which outputs a message)
+        run: |
+          littlepay
+          pip install pyproject.toml
+          output=$(littlepay -v)
+          version=${output/littlepay /}
+          version=${version/.0/}
+          echo "PYPI_RELEASE_URL=https://pypi.org/project/calitp-littlepay/$version" >> "$GITHUB_OUTPUT"
+
       - name: Release
         uses: softprops/action-gh-release@v2
+        env:
+          PYPI_RELEASE_URL: ${{ steps.version.outputs.PYPI_RELEASE_URL }}
         with:
           files: |
             ./dist/*.tar.gz
             ./dist/*.whl
           prerelease: ${{ contains(github.ref, '-rc') }}
           generate_release_notes: ${{ !contains(github.ref, '-rc') }}
+          body: $PYPI_RELEASE_URL
