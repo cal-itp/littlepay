@@ -96,7 +96,10 @@ class Config:
         Returns (dict):
             Configuration data for the active environment.
         """
-        return self.envs[self.active_env_name]
+        active_env_name = self.active_env_name
+        if not active_env_name:
+            raise ValueError("Missing active env")
+        return self.envs[active_env_name]
 
     @property
     def active_participant(self) -> dict:
@@ -119,8 +122,8 @@ class Config:
 
     @property
     def active_env_name(self) -> str:
-        """The active environment's name. By default, the QA environment."""
-        return self.active.get("env", ENV_QA)
+        """The active environment's name."""
+        return self.active.get("env", "")
 
     @active_env_name.setter
     def active_env_name(self, value: str):
