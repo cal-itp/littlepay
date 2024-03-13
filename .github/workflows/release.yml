@@ -60,8 +60,8 @@ jobs:
         id: version
         # run littlepay first, so `littlepay -v` doesn't create the config file (which outputs a message)
         run: |
+          pip install -e .
           littlepay
-          pip install pyproject.toml
           output=$(littlepay -v)
           version=${output/littlepay /}
           version=${version/.0/.}
