@@ -91,4 +91,4 @@ jobs:
             ./dist/*.whl
           prerelease: ${{ contains(github.ref, '-rc') }}
           generate_release_notes: ${{ !contains(github.ref, '-rc') }}
-          body: $PYPI_RELEASE_URL
+          body: ${{ env.PYPI_RELEASE_URL }}
