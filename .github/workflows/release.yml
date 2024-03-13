@@ -83,7 +83,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         env:
-          # this syntax is the only way to get ternary-operator behavior (see https://7tonshark.com/posts/github-actions-ternary-operator/)
+          # this syntax is the only way to get ternary-operator behavior (see https://mattdood.com/2022/3/github-actions-conditional-environment-variables-20220325012837)
           PYPI_RELEASE_URL: ${{ !contains(github.ref, '-rc') && steps.version.outputs.PYPI_RELEASE_URL || steps.test-version.outputs.PYPI_RELEASE_URL }}
         with:
           files: |
