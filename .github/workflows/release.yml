@@ -64,7 +64,7 @@ jobs:
           pip install pyproject.toml
           output=$(littlepay -v)
           version=${output/littlepay /}
-          version=${version/.0/}
+          version=${version/.0/.}
           echo "PYPI_RELEASE_URL=https://pypi.org/project/calitp-littlepay/$version" >> "$GITHUB_OUTPUT"
 
       - name: Release
