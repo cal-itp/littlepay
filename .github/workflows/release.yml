@@ -50,6 +50,18 @@ jobs:
           skip_existing: true
           verbose: true
 
+      - name: Parse version and output Test PyPI URL
+        id: test-version
+        if: ${{ contains(github.ref, '-rc') }}
+        # run littlepay first, so `littlepay -v` doesn't create the config file (which outputs a message)
+        run: |
+          pip install -e .
+          littlepay
+          output=$(littlepay -v)
+          version=${output/littlepay /}
+          version=${version/.0/.}
+          echo "PYPI_RELEASE_URL=https://test.pypi.org/project/calitp-littlepay/$version" >> "$GITHUB_OUTPUT"
+
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1.5
         if: ${{ !contains(github.ref, '-rc') }}
@@ -58,6 +70,7 @@ jobs:
 
       - name: Parse version and output PyPI URL
         id: version
+        if: ${{ !contains(github.ref, '-rc') }}
         # run littlepay first, so `littlepay -v` doesn't create the config file (which outputs a message)
         run: |
           pip install -e .
@@ -70,7 +83,8 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         env:
-          PYPI_RELEASE_URL: ${{ steps.version.outputs.PYPI_RELEASE_URL }}
+          # this syntax is the only way to get ternary-operator behavior (see https://7tonshark.com/posts/github-actions-ternary-operator/)
+          PYPI_RELEASE_URL: ${{ !contains(github.ref, '-rc') && steps.version.outputs.PYPI_RELEASE_URL || steps.test-version.outputs.PYPI_RELEASE_URL }}
         with:
           files: |
             ./dist/*.tar.gz
