@@ -3,6 +3,7 @@ from typing import Generator
 
 import pytest
 
+from littlepay.api import ListResponse
 from littlepay.api.groups import GroupResponse, GroupsMixin
 
 
@@ -189,6 +190,6 @@ def test_GroupsMixin_update_concession_group_funding_source_expiry(
 
     endpoint = client.concession_group_funding_source_endpoint("group-1234")
     mock_ClientProtocol_put_update_concession_group_funding_source.assert_called_once_with(
-        endpoint, {"id": "funding-source-1234", "concession_expiry": "formatted concession expiry"}, dict
+        endpoint, {"id": "funding-source-1234", "concession_expiry": "formatted concession expiry"}, ListResponse
     )
     assert result == {"status_code": 200}

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+import dataclasses
 from json import JSONDecodeError
 import time
 from typing import Callable, Generator, TypeAlias
@@ -42,7 +42,7 @@ def mock_active_Config(mocker, credentials, token, url):
     return config
 
 
-@dataclass
+@dataclasses.dataclass
 class SampleResponse:
     one: str
     two: str
@@ -391,10 +391,11 @@ def test_Client_put(mocker, make_client: ClientFunc, url, SampleResponse_json):
     assert result.three == 3
 
 
-def test_Client_put_default_cls(mocker, make_client: ClientFunc, url, SampleResponse_json):
+def test_Client_put_default_cls(mocker, make_client: ClientFunc, url, ListResponse_sample):
     client = make_client()
     mock_response = mocker.Mock(
-        raise_for_status=mocker.Mock(return_value=False), json=mocker.Mock(return_value=SampleResponse_json)
+        raise_for_status=mocker.Mock(return_value=False),
+        json=mocker.Mock(return_value=dataclasses.asdict(ListResponse_sample)),
     )
     req_spy = mocker.patch.object(client.oauth, "put", return_value=mock_response)
 
@@ -402,10 +403,12 @@ def test_Client_put_default_cls(mocker, make_client: ClientFunc, url, SampleResp
     result = client._put(url, data)
 
     req_spy.assert_called_once_with(url, headers=client.headers, json=data)
-    assert isinstance(result, dict)
-    assert result["one"] == "single"
-    assert result["two"] == "double"
-    assert result["three"] == 3
+    assert isinstance(result, ListResponse)
+    assert result.total_count == ListResponse_sample.total_count
+    assert len(result.list) == len(ListResponse_sample.list)
+
+    for list_item in result.list:
+        assert list_item == ListResponse_sample.list[result.list.index(list_item)]
 
 
 def test_Client_put_empty_response(mocker, make_client: ClientFunc, url):

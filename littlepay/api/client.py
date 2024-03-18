@@ -159,7 +159,7 @@ class Client(FundingSourcesMixin, CardTokenizationMixin, ProductsMixin, GroupsMi
             data = {"status_code": response.status_code}
         return response_cls(**data)
 
-    def _put(self, endpoint: str, data: dict, response_cls: TResponse = dict, **kwargs) -> TResponse:
+    def _put(self, endpoint: str, data: dict, response_cls: TResponse = ListResponse, **kwargs) -> TResponse:
         response = self.oauth.put(endpoint, headers=self.headers, json=data, **kwargs)
         response.raise_for_status()
         try:
