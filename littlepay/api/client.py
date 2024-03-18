@@ -158,3 +158,13 @@ class Client(FundingSourcesMixin, CardTokenizationMixin, ProductsMixin, GroupsMi
         except json.JSONDecodeError:
             data = {"status_code": response.status_code}
         return response_cls(**data)
+
+    def _put(self, endpoint: str, data: dict, response_cls: TResponse = dict, **kwargs) -> TResponse:
+        response = self.oauth.put(endpoint, headers=self.headers, json=data, **kwargs)
+        response.raise_for_status()
+        try:
+            # response body may be empty, cannot be decoded
+            data = response.json()
+        except json.JSONDecodeError:
+            data = {"status_code": response.status_code}
+        return response_cls(**data)

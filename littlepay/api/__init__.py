@@ -99,3 +99,23 @@ class ClientProtocol(Protocol):
             A TResponse instance of the JSON response.
         """
         pass
+
+    def _put(self, endpoint: str, data: dict, response_cls: TResponse = dict, **kwargs) -> TResponse:
+        """Make a PUT request to a JSON endpoint.
+
+        Args:
+            self (ClientProtocol): The current ClientProtocol reference.
+
+            endpoint (str): The fully-formed endpoint where the PUT request should be made.
+
+            data (dict): Data to send as JSON in the PUT body.
+
+            response_cls (TResponse): A dataclass representing the JSON response to the PUT. By default, simply returns a
+            boolean indicating success.
+
+            Extra kwargs are passed to requests.put(...)
+
+        Returns (TResponse):
+            A TResponse instance of the PUT response.
+        """
+        pass
