@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from typing import Generator
 
 import pytest
@@ -114,5 +115,62 @@ def test_GroupsMixin_link_concession_group_funding_source(mock_ClientProtocol_po
     endpoint = client.concession_group_funding_source_endpoint("group-1234")
     mock_ClientProtocol_post_link_concession_group_funding_source.assert_called_once_with(
         endpoint, {"id": "funding-source-1234"}, dict
+    )
+    assert result == {"status_code": 201}
+
+
+def test_GroupsMixin_link_concession_group_funding_source_expiry_not_datetime():
+    client = GroupsMixin()
+    with pytest.raises(TypeError, match="concession_expiry must be a Python datetime instance"):
+        client.link_concession_group_funding_source("group-1234", "funding-source-1234", "2024-03-18T01:02:03Z")
+
+
+def test_GroupsMixin_link_concession_group_funding_source_expiry_aware_utc(
+    mock_ClientProtocol_post_link_concession_group_funding_source,
+):
+    # construct a UTC datetime and the expected string formatting
+    concession_expiry = datetime(2024, 3, 18, 1, 2, 3, tzinfo=timezone.utc)
+    expected_body_expiry = "2024-03-18T01:02:03Z"
+
+    client = GroupsMixin()
+    result = client.link_concession_group_funding_source("group-1234", "funding-source-1234", concession_expiry)
+
+    endpoint = client.concession_group_funding_source_endpoint("group-1234")
+    mock_ClientProtocol_post_link_concession_group_funding_source.assert_called_once_with(
+        endpoint, {"id": "funding-source-1234", "concession_expiry": expected_body_expiry}, dict
+    )
+    assert result == {"status_code": 201}
+
+
+def test_GroupsMixin_link_concession_group_funding_source_expiry_aware_not_utc(
+    mock_ClientProtocol_post_link_concession_group_funding_source,
+):
+    # construct a datetime in UTC-7 and the expected string formatting
+    concession_expiry = datetime(2024, 3, 18, 1, 2, 3, tzinfo=timezone(timedelta(hours=-7)))
+    expected_body_expiry = "2024-03-18T08:02:03Z"
+
+    client = GroupsMixin()
+    result = client.link_concession_group_funding_source("group-1234", "funding-source-1234", concession_expiry)
+
+    endpoint = client.concession_group_funding_source_endpoint("group-1234")
+    mock_ClientProtocol_post_link_concession_group_funding_source.assert_called_once_with(
+        endpoint, {"id": "funding-source-1234", "concession_expiry": expected_body_expiry}, dict
+    )
+    assert result == {"status_code": 201}
+
+
+def test_GroupsMixin_link_concession_group_funding_source_expiry_naive(
+    mock_ClientProtocol_post_link_concession_group_funding_source,
+):
+    # construct a naive datetime and the expected string formatting
+    concession_expiry = datetime(2024, 3, 18, 1, 2, 3, tzinfo=None)
+    expected_body_expiry = "2024-03-18T01:02:03Z"
+
+    client = GroupsMixin()
+    result = client.link_concession_group_funding_source("group-1234", "funding-source-1234", concession_expiry)
+
+    endpoint = client.concession_group_funding_source_endpoint("group-1234")
+    mock_ClientProtocol_post_link_concession_group_funding_source.assert_called_once_with(
+        endpoint, {"id": "funding-source-1234", "concession_expiry": expected_body_expiry}, dict
     )
     assert result == {"status_code": 201}

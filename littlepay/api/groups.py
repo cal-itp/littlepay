@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Generator
 
 from littlepay.api import ClientProtocol
@@ -54,8 +55,29 @@ class GroupsMixin(ClientProtocol):
         endpoint = self.concession_groups_endpoint(group_id)
         return self._delete(endpoint)
 
-    def link_concession_group_funding_source(self, group_id: str, funding_source_id: str) -> dict:
+    def link_concession_group_funding_source(
+        self, group_id: str, funding_source_id: str, concession_expiry: datetime = None
+    ) -> dict:
         """Link a funding source to a concession group."""
         endpoint = self.concession_group_funding_source_endpoint(group_id)
         data = {"id": funding_source_id}
+
+        if concession_expiry is not None:
+            if not isinstance(concession_expiry, datetime):
+                raise TypeError("concession_expiry must be a Python datetime instance")
+            # determine if concession_expiry is an "aware" or "naive" datetime instance
+            # https://docs.python.org/3/library/datetime.html#determining-if-an-object-is-aware-or-naive
+            if concession_expiry.tzinfo is not None and concession_expiry.tzinfo.utcoffset(concession_expiry) is not None:
+                # concession_expiry is an "aware" datetime instance, meaning it has associated time zone information
+                # ensure this datetime instance is expressed in UTC
+                concession_expiry = concession_expiry.astimezone(timezone.utc)
+            else:
+                # concession_expiry is a "naive" datetime instance, meaning it has no associated time zone information
+                # assume this datetime instance was provided in UTC
+                concession_expiry = concession_expiry.replace(tzinfo=timezone.utc)
+            # now concession_expiry is an "aware" datetime instance in UTC, format and add to the payload
+            # datetime.isoformat() adds the UTC offset like +00:00
+            # so keep everything but the last 6 characters and add the Z offset character
+            data["concession_expiry"] = f"{concession_expiry.isoformat(timespec='seconds')[:-6]}Z"
+
         return self._post(endpoint, data, dict)
