@@ -30,6 +30,25 @@ class GroupsMixin(ClientProtocol):
 
     CONCESSION_GROUPS = "concession_groups"
 
+    def _format_concession_expiry(self, concession_expiry: datetime):
+        """Formats a concession expiry datetime into a string suitable for using in an API request body."""
+        if not isinstance(concession_expiry, datetime):
+            raise TypeError("concession_expiry must be a Python datetime instance")
+        # determine if concession_expiry is an "aware" or "naive" datetime instance
+        # https://docs.python.org/3/library/datetime.html#determining-if-an-object-is-aware-or-naive
+        if concession_expiry.tzinfo is not None and concession_expiry.tzinfo.utcoffset(concession_expiry) is not None:
+            # concession_expiry is an "aware" datetime instance, meaning it has associated time zone information
+            # ensure this datetime instance is expressed in UTC
+            concession_expiry = concession_expiry.astimezone(timezone.utc)
+        else:
+            # concession_expiry is a "naive" datetime instance, meaning it has no associated time zone information
+            # assume this datetime instance was provided in UTC
+            concession_expiry = concession_expiry.replace(tzinfo=timezone.utc)
+        # now concession_expiry is an "aware" datetime instance in UTC, format and add to the payload
+        # datetime.isoformat() adds the UTC offset like +00:00
+        # so keep everything but the last 6 characters and add the Z offset character
+        return f"{concession_expiry.isoformat(timespec='seconds')[:-6]}Z"
+
     def concession_groups_endpoint(self, group_id: str = None, *parts: str) -> str:
         """Endpoint for concession groups. Optionally provide a group_id for a group-specific endpoint."""
         return self._make_endpoint(self.CONCESSION_GROUPS, group_id, *parts)
@@ -63,21 +82,8 @@ class GroupsMixin(ClientProtocol):
         data = {"id": funding_source_id}
 
         if concession_expiry is not None:
-            if not isinstance(concession_expiry, datetime):
-                raise TypeError("concession_expiry must be a Python datetime instance")
-            # determine if concession_expiry is an "aware" or "naive" datetime instance
-            # https://docs.python.org/3/library/datetime.html#determining-if-an-object-is-aware-or-naive
-            if concession_expiry.tzinfo is not None and concession_expiry.tzinfo.utcoffset(concession_expiry) is not None:
-                # concession_expiry is an "aware" datetime instance, meaning it has associated time zone information
-                # ensure this datetime instance is expressed in UTC
-                concession_expiry = concession_expiry.astimezone(timezone.utc)
-            else:
-                # concession_expiry is a "naive" datetime instance, meaning it has no associated time zone information
-                # assume this datetime instance was provided in UTC
-                concession_expiry = concession_expiry.replace(tzinfo=timezone.utc)
-            # now concession_expiry is an "aware" datetime instance in UTC, format and add to the payload
-            # datetime.isoformat() adds the UTC offset like +00:00
-            # so keep everything but the last 6 characters and add the Z offset character
-            data["concession_expiry"] = f"{concession_expiry.isoformat(timespec='seconds')[:-6]}Z"
+            data["concession_expiry"] = self._format_concession_expiry(concession_expiry)
+
+        return self._post(endpoint, data, dict)
 
         return self._post(endpoint, data, dict)
