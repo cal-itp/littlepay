@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import InitVar, dataclass
 from datetime import datetime, timezone
 from typing import Generator
 
@@ -23,6 +23,29 @@ class GroupResponse:
         """Get a CSV str header of attributes for GroupResponse."""
         instance = GroupResponse("", "", "")
         return ",".join(vars(instance).keys())
+
+
+@dataclass
+class GroupFundingSourceResponse:
+    id: str
+    participant_id: str
+    concession_expiry: InitVar[datetime | None] = None
+    concession_created_at: InitVar[datetime | None] = None
+    concession_updated_at: InitVar[datetime | None] = None
+
+    def __post_init__(self, concession_expiry, concession_created_at, concession_updated_at):
+        if concession_expiry:
+            self.concession_expiry = datetime.fromisoformat(concession_expiry)
+        else:
+            self.concession_expiry = None
+        if concession_created_at:
+            self.concession_created_at = datetime.fromisoformat(concession_created_at)
+        else:
+            self.concession_created_at = None
+        if concession_updated_at:
+            self.concession_updated_at = datetime.fromisoformat(concession_updated_at)
+        else:
+            self.concession_updated_at = None
 
 
 class GroupsMixin(ClientProtocol):

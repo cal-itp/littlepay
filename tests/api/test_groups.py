@@ -4,7 +4,7 @@ from typing import Generator
 import pytest
 
 from littlepay.api import ListResponse
-from littlepay.api.groups import GroupResponse, GroupsMixin
+from littlepay.api.groups import GroupFundingSourceResponse, GroupResponse, GroupsMixin
 
 
 @pytest.fixture
@@ -44,6 +44,39 @@ def test_GroupResponse_csv():
 
 def test_GroupResponse_csv_header():
     assert GroupResponse.csv_header() == "id,label,participant_id"
+
+
+def test_GroupFundingSourceResponse_no_dates():
+    response = GroupFundingSourceResponse("id", "participant_id")
+
+    assert response.id == "id"
+    assert response.participant_id == "participant_id"
+    assert response.concession_expiry is None
+    assert response.concession_created_at is None
+    assert response.concession_updated_at is None
+
+
+def test_GroupFundingSourceResponse_empty_dates():
+    response = GroupFundingSourceResponse("id", "participant_id", "", "", "")
+
+    assert response.id == "id"
+    assert response.participant_id == "participant_id"
+    assert response.concession_expiry is None
+    assert response.concession_created_at is None
+    assert response.concession_updated_at is None
+
+
+def test_GroupFundingSourceResponse_with_dates():
+    str_date = "2024-03-19T20:00:00Z"
+    expected_date = datetime(2024, 3, 19, 20, 0, 0, tzinfo=timezone.utc)
+
+    response = GroupFundingSourceResponse("id", "participant_id", str_date, str_date, str_date)
+
+    assert response.id == "id"
+    assert response.participant_id == "participant_id"
+    assert response.concession_expiry == expected_date
+    assert response.concession_created_at == expected_date
+    assert response.concession_updated_at == expected_date
 
 
 def test_GroupsMixin_concession_groups_endpoint(url):
