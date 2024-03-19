@@ -18,21 +18,21 @@ def expected_expiry_str(expected_expiry):
 
 
 @pytest.fixture
-def ListResponse_GroupFundingSources():
+def ListResponse_GroupFundingSources(expected_expiry_str):
     items = [
         dict(
             id="0",
             participant_id="zero_0",
-            concession_expiry="2024-03-19T20:00:00Z",
-            concession_created_at="2024-03-19T20:00:00Z",
-            concession_updated_at="2024-03-19T20:00:00Z",
+            concession_expiry=expected_expiry_str,
+            concession_created_at=expected_expiry_str,
+            concession_updated_at=expected_expiry_str,
         ),
         dict(
             id="1",
             participant_id="one_1",
-            concession_expiry="2024-03-19T20:00:00Z",
-            concession_created_at="2024-03-19T20:00:00Z",
-            concession_updated_at="2024-03-19T20:00:00Z",
+            concession_expiry=expected_expiry_str,
+            concession_created_at=expected_expiry_str,
+            concession_updated_at=expected_expiry_str,
         ),
         dict(id="2", participant_id="two_2", concession_expiry="", concession_created_at=""),
     ]
@@ -108,19 +108,18 @@ def test_GroupFundingSourceResponse_empty_dates():
     assert response.concession_updated_at is None
 
 
-def test_GroupFundingSourceResponse_with_dates():
-    str_date = "2024-03-19T20:00:00Z"
-    expected_date = datetime(2024, 3, 19, 20, 0, 0, tzinfo=timezone.utc)
-
-    response = GroupFundingSourceResponse("id", "participant_id", str_date, str_date, str_date)
+def test_GroupFundingSourceResponse_with_dates(expected_expiry, expected_expiry_str):
+    response = GroupFundingSourceResponse(
+        "id", "participant_id", expected_expiry_str, expected_expiry_str, expected_expiry_str
+    )
 
     assert response.id == "id"
     assert response.participant_id == "participant_id"
-    assert response.concession_expiry == expected_date
+    assert response.concession_expiry == expected_expiry
     assert response.concession_expiry.tzinfo == timezone.utc
-    assert response.concession_created_at == expected_date
+    assert response.concession_created_at == expected_expiry
     assert response.concession_created_at.tzinfo == timezone.utc
-    assert response.concession_updated_at == expected_date
+    assert response.concession_updated_at == expected_expiry
     assert response.concession_updated_at.tzinfo == timezone.utc
 
 
@@ -242,21 +241,17 @@ def test_GroupsMixin_link_concession_group_funding_source(mock_ClientProtocol_po
     assert result == {"status_code": 201}
 
 
-def test_GroupsMixin_format_concession_expiry_not_datetime():
+def test_GroupsMixin_format_concession_expiry_not_datetime(expected_expiry_str):
     client = GroupsMixin()
     with pytest.raises(TypeError, match="concession_expiry must be a Python datetime instance"):
-        client._format_concession_expiry("2024-03-18T01:02:03Z")
+        client._format_concession_expiry(expected_expiry_str)
 
 
-def test_GroupsMixin_format_concession_expiry_aware_utc():
-    # construct a UTC datetime and the expected string formatting
-    concession_expiry = datetime(2024, 3, 18, 1, 2, 3, tzinfo=timezone.utc)
-    expected_body_expiry = "2024-03-18T01:02:03Z"
-
+def test_GroupsMixin_format_concession_expiry_aware_utc(expected_expiry, expected_expiry_str):
     client = GroupsMixin()
-    result = client._format_concession_expiry(concession_expiry)
+    result = client._format_concession_expiry(expected_expiry)
 
-    assert result == expected_body_expiry
+    assert result == expected_expiry_str
 
 
 def test_GroupsMixin_format_concession_expiry_aware_not_utc():
