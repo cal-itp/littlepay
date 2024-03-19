@@ -8,6 +8,16 @@ from littlepay.api.groups import GroupFundingSourceResponse, GroupResponse, Grou
 
 
 @pytest.fixture
+def expected_expiry():
+    return datetime(2024, 3, 19, 22, 0, 0, tzinfo=timezone.utc)
+
+
+@pytest.fixture
+def expected_expiry_str(expected_expiry):
+    return expected_expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+@pytest.fixture
 def ListResponse_GroupFundingSources():
     items = [
         dict(
@@ -37,6 +47,14 @@ def mock_ClientProtocol_get_list_Groups(mocker):
         dict(id="2", label="two", participant_id="two_2"),
     ]
     return mocker.patch("littlepay.api.ClientProtocol._get_list", side_effect=lambda *args, **kwargs: (g for g in items))
+
+
+@pytest.fixture
+def mock_ClientProtocol_get_list_FundingSources(mocker, ListResponse_GroupFundingSources):
+    return mocker.patch(
+        "littlepay.api.ClientProtocol._get_list",
+        side_effect=lambda *args, **kwargs: (g for g in ListResponse_GroupFundingSources.list),
+    )
 
 
 @pytest.fixture
@@ -172,6 +190,45 @@ def test_GroupsMixin_remove_concession_group(mock_ClientProtocol_delete):
 
     mock_ClientProtocol_delete.assert_called_once_with(client.concession_groups_endpoint("1234"))
     assert result is True
+
+
+def test_GroupsMixin_get_concession_group_linked_funding_sources(
+    ListResponse_GroupFundingSources, mock_ClientProtocol_get_list_FundingSources, expected_expiry, expected_expiry_str
+):
+    client = GroupsMixin()
+
+    result = client.get_concession_group_linked_funding_sources("group-1234")
+    assert isinstance(result, Generator)
+    assert mock_ClientProtocol_get_list_FundingSources.call_count == 0
+
+    result_list = list(result)
+    mock_ClientProtocol_get_list_FundingSources.assert_called_once_with(
+        client.concession_group_funding_source_endpoint("group-1234")
+    )
+
+    expected_list = ListResponse_GroupFundingSources.list
+
+    assert len(result_list) == len(expected_list)
+    assert all([isinstance(i, GroupFundingSourceResponse) for i in result_list])
+
+    for i in range(len(result_list)):
+        assert result_list[i].id == expected_list[i]["id"]
+        assert result_list[i].participant_id == expected_list[i]["participant_id"]
+
+        if expected_list[i].get("concession_expiry") == expected_expiry_str:
+            assert result_list[i].concession_expiry == expected_expiry
+        else:
+            assert result_list[i].concession_expiry is None
+
+        if expected_list[i].get("concession_created_at") == expected_expiry_str:
+            assert result_list[i].concession_created_at == expected_expiry
+        else:
+            assert result_list[i].concession_created_at is None
+
+        if expected_list[i].get("concession_updated_at") == expected_expiry_str:
+            assert result_list[i].concession_updated_at == expected_expiry
+        else:
+            assert result_list[i].concession_updated_at is None
 
 
 def test_GroupsMixin_link_concession_group_funding_source(mock_ClientProtocol_post_link_concession_group_funding_source):
