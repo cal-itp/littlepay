@@ -8,6 +8,28 @@ from littlepay.api.groups import GroupFundingSourceResponse, GroupResponse, Grou
 
 
 @pytest.fixture
+def ListResponse_GroupFundingSources():
+    items = [
+        dict(
+            id="0",
+            participant_id="zero_0",
+            concession_expiry="2024-03-19T20:00:00Z",
+            concession_created_at="2024-03-19T20:00:00Z",
+            concession_updated_at="2024-03-19T20:00:00Z",
+        ),
+        dict(
+            id="1",
+            participant_id="one_1",
+            concession_expiry="2024-03-19T20:00:00Z",
+            concession_created_at="2024-03-19T20:00:00Z",
+            concession_updated_at="2024-03-19T20:00:00Z",
+        ),
+        dict(id="2", participant_id="two_2", concession_expiry="", concession_created_at=""),
+    ]
+    return ListResponse(list=items, total_count=3)
+
+
+@pytest.fixture
 def mock_ClientProtocol_get_list_Groups(mocker):
     items = [
         dict(id="0", label="zero", participant_id="zero_0"),
@@ -30,8 +52,10 @@ def mock_ClientProtocol_post_link_concession_group_funding_source(mocker):
 
 
 @pytest.fixture
-def mock_ClientProtocol_put_update_concession_group_funding_source(mocker, ListResponse_sample):
-    return mocker.patch("littlepay.api.ClientProtocol._put", side_effect=lambda *args, **kwargs: ListResponse_sample)
+def mock_ClientProtocol_put_update_concession_group_funding_source(mocker, ListResponse_GroupFundingSources):
+    return mocker.patch(
+        "littlepay.api.ClientProtocol._put", side_effect=lambda *args, **kwargs: ListResponse_GroupFundingSources
+    )
 
 
 def test_GroupResponse_csv():
@@ -213,7 +237,7 @@ def test_GroupsMixin_link_concession_group_funding_source_expiry(
 
 
 def test_GroupsMixin_update_concession_group_funding_source_expiry(
-    mock_ClientProtocol_put_update_concession_group_funding_source, ListResponse_sample, mocker
+    mock_ClientProtocol_put_update_concession_group_funding_source, ListResponse_GroupFundingSources, mocker
 ):
     client = GroupsMixin()
     mocker.patch.object(client, "_format_concession_expiry", return_value="formatted concession expiry")
@@ -224,4 +248,6 @@ def test_GroupsMixin_update_concession_group_funding_source_expiry(
     mock_ClientProtocol_put_update_concession_group_funding_source.assert_called_once_with(
         endpoint, {"id": "funding-source-1234", "concession_expiry": "formatted concession expiry"}, ListResponse
     )
-    assert result == ListResponse_sample.list[0]
+
+    expected = GroupFundingSourceResponse(**ListResponse_GroupFundingSources.list[0])
+    assert result == expected

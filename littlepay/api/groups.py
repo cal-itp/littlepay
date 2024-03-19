@@ -111,11 +111,11 @@ class GroupsMixin(ClientProtocol):
 
     def update_concession_group_funding_source_expiry(
         self, group_id: str, funding_source_id: str, concession_expiry: datetime
-    ) -> dict:
+    ) -> GroupFundingSourceResponse:
         """Update the expiry of a funding source already linked to a concession group."""
         endpoint = self.concession_group_funding_source_endpoint(group_id)
         data = {"id": funding_source_id, "concession_expiry": self._format_concession_expiry(concession_expiry)}
 
         response = self._put(endpoint, data, ListResponse)
 
-        return response.list[0]
+        return GroupFundingSourceResponse(**response.list[0])
