@@ -1,4 +1,4 @@
-from dataclasses import InitVar, dataclass
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Generator
 
@@ -29,21 +29,29 @@ class GroupResponse:
 class GroupFundingSourceResponse:
     id: str
     participant_id: str
-    concession_expiry: InitVar[datetime | None] = None
-    concession_created_at: InitVar[datetime | None] = None
-    concession_updated_at: InitVar[datetime | None] = None
+    concession_expiry: datetime | None = None
+    concession_created_at: datetime | None = None
+    concession_updated_at: datetime | None = None
 
-    def __post_init__(self, concession_expiry, concession_created_at, concession_updated_at):
-        if concession_expiry:
-            self.concession_expiry = datetime.fromisoformat(concession_expiry)
+    def __post_init__(self):
+        """Parses any date parameters into Python datetime objects.
+
+        Includes a workaround for Python 3.10 where datetime.fromisoformat() can only parse the format output
+        by datetime.isoformat(), i.e. without a trailing 'Z' offset character and with UTC offset expressed
+        as +/-HH:mm
+
+        https://docs.python.org/3.11/library/datetime.html#datetime.datetime.fromisoformat
+        """
+        if self.concession_expiry:
+            self.concession_expiry = datetime.fromisoformat(self.concession_expiry.replace("Z", "+00:00", 1))
         else:
             self.concession_expiry = None
-        if concession_created_at:
-            self.concession_created_at = datetime.fromisoformat(concession_created_at)
+        if self.concession_created_at:
+            self.concession_created_at = datetime.fromisoformat(self.concession_created_at.replace("Z", "+00:00", 1))
         else:
             self.concession_created_at = None
-        if concession_updated_at:
-            self.concession_updated_at = datetime.fromisoformat(concession_updated_at)
+        if self.concession_updated_at:
+            self.concession_updated_at = datetime.fromisoformat(self.concession_updated_at.replace("Z", "+00:00", 1))
         else:
             self.concession_updated_at = None
 

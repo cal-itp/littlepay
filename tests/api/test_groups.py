@@ -99,8 +99,11 @@ def test_GroupFundingSourceResponse_with_dates():
     assert response.id == "id"
     assert response.participant_id == "participant_id"
     assert response.concession_expiry == expected_date
+    assert response.concession_expiry.tzinfo == timezone.utc
     assert response.concession_created_at == expected_date
+    assert response.concession_created_at.tzinfo == timezone.utc
     assert response.concession_updated_at == expected_date
+    assert response.concession_updated_at.tzinfo == timezone.utc
 
 
 def test_GroupsMixin_concession_groups_endpoint(url):
