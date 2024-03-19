@@ -55,11 +55,6 @@ def SampleResponse_json():
 
 
 @pytest.fixture
-def ListResponse_sample():
-    return ListResponse(list=[{"one": 1}, {"two": 2}, {"three": 3}], total_count=3)
-
-
-@pytest.fixture
 def default_list_params():
     return dict(page=1, perPage=100)
 

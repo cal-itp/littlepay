@@ -4,6 +4,7 @@ import pytest
 from pytest_socket import disable_socket
 
 from littlepay import __version__
+from littlepay.api import ListResponse
 import littlepay.config
 from littlepay.commands import RESULT_SUCCESS
 
@@ -140,3 +141,8 @@ def mock_ClientProtocol_make_endpoint(mocker, url):
     mocker.patch(
         "littlepay.api.ClientProtocol._make_endpoint", side_effect=lambda *args: f"{url}/{'/'.join([a for a in args if a])}"
     )
+
+
+@pytest.fixture
+def ListResponse_sample():
+    return ListResponse(list=[{"one": 1}, {"two": 2}, {"three": 3}], total_count=3)

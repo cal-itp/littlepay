@@ -30,9 +30,8 @@ def mock_ClientProtocol_post_link_concession_group_funding_source(mocker):
 
 
 @pytest.fixture
-def mock_ClientProtocol_put_update_concession_group_funding_source(mocker):
-    response = {"status_code": 200}
-    return mocker.patch("littlepay.api.ClientProtocol._put", side_effect=lambda *args, **kwargs: response)
+def mock_ClientProtocol_put_update_concession_group_funding_source(mocker, ListResponse_sample):
+    return mocker.patch("littlepay.api.ClientProtocol._put", side_effect=lambda *args, **kwargs: ListResponse_sample)
 
 
 def test_GroupResponse_csv():
@@ -181,7 +180,7 @@ def test_GroupsMixin_link_concession_group_funding_source_expiry(
 
 
 def test_GroupsMixin_update_concession_group_funding_source_expiry(
-    mock_ClientProtocol_put_update_concession_group_funding_source, mocker
+    mock_ClientProtocol_put_update_concession_group_funding_source, ListResponse_sample, mocker
 ):
     client = GroupsMixin()
     mocker.patch.object(client, "_format_concession_expiry", return_value="formatted concession expiry")
@@ -192,4 +191,4 @@ def test_GroupsMixin_update_concession_group_funding_source_expiry(
     mock_ClientProtocol_put_update_concession_group_funding_source.assert_called_once_with(
         endpoint, {"id": "funding-source-1234", "concession_expiry": "formatted concession expiry"}, ListResponse
     )
-    assert result == {"status_code": 200}
+    assert result == ListResponse_sample.list[0]
