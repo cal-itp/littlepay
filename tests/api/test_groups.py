@@ -8,21 +8,31 @@ from littlepay.api.groups import GroupFundingSourceResponse, GroupResponse, Grou
 
 
 @pytest.fixture
-def ListResponse_GroupFundingSources():
+def expected_expiry():
+    return datetime(2024, 3, 19, 22, 0, 0, tzinfo=timezone.utc)
+
+
+@pytest.fixture
+def expected_expiry_str(expected_expiry):
+    return expected_expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+@pytest.fixture
+def ListResponse_GroupFundingSources(expected_expiry_str):
     items = [
         dict(
             id="0",
             participant_id="zero_0",
-            concession_expiry="2024-03-19T20:00:00Z",
-            concession_created_at="2024-03-19T20:00:00Z",
-            concession_updated_at="2024-03-19T20:00:00Z",
+            concession_expiry=expected_expiry_str,
+            concession_created_at=expected_expiry_str,
+            concession_updated_at=expected_expiry_str,
         ),
         dict(
             id="1",
             participant_id="one_1",
-            concession_expiry="2024-03-19T20:00:00Z",
-            concession_created_at="2024-03-19T20:00:00Z",
-            concession_updated_at="2024-03-19T20:00:00Z",
+            concession_expiry=expected_expiry_str,
+            concession_created_at=expected_expiry_str,
+            concession_updated_at=expected_expiry_str,
         ),
         dict(id="2", participant_id="two_2", concession_expiry="", concession_created_at=""),
     ]
@@ -37,6 +47,14 @@ def mock_ClientProtocol_get_list_Groups(mocker):
         dict(id="2", label="two", participant_id="two_2"),
     ]
     return mocker.patch("littlepay.api.ClientProtocol._get_list", side_effect=lambda *args, **kwargs: (g for g in items))
+
+
+@pytest.fixture
+def mock_ClientProtocol_get_list_FundingSources(mocker, ListResponse_GroupFundingSources):
+    return mocker.patch(
+        "littlepay.api.ClientProtocol._get_list",
+        side_effect=lambda *args, **kwargs: (g for g in ListResponse_GroupFundingSources.list),
+    )
 
 
 @pytest.fixture
@@ -90,19 +108,18 @@ def test_GroupFundingSourceResponse_empty_dates():
     assert response.concession_updated_at is None
 
 
-def test_GroupFundingSourceResponse_with_dates():
-    str_date = "2024-03-19T20:00:00Z"
-    expected_date = datetime(2024, 3, 19, 20, 0, 0, tzinfo=timezone.utc)
-
-    response = GroupFundingSourceResponse("id", "participant_id", str_date, str_date, str_date)
+def test_GroupFundingSourceResponse_with_dates(expected_expiry, expected_expiry_str):
+    response = GroupFundingSourceResponse(
+        "id", "participant_id", expected_expiry_str, expected_expiry_str, expected_expiry_str
+    )
 
     assert response.id == "id"
     assert response.participant_id == "participant_id"
-    assert response.concession_expiry == expected_date
+    assert response.concession_expiry == expected_expiry
     assert response.concession_expiry.tzinfo == timezone.utc
-    assert response.concession_created_at == expected_date
+    assert response.concession_created_at == expected_expiry
     assert response.concession_created_at.tzinfo == timezone.utc
-    assert response.concession_updated_at == expected_date
+    assert response.concession_updated_at == expected_expiry
     assert response.concession_updated_at.tzinfo == timezone.utc
 
 
@@ -174,6 +191,45 @@ def test_GroupsMixin_remove_concession_group(mock_ClientProtocol_delete):
     assert result is True
 
 
+def test_GroupsMixin_get_concession_group_linked_funding_sources(
+    ListResponse_GroupFundingSources, mock_ClientProtocol_get_list_FundingSources, expected_expiry, expected_expiry_str
+):
+    client = GroupsMixin()
+
+    result = client.get_concession_group_linked_funding_sources("group-1234")
+    assert isinstance(result, Generator)
+    assert mock_ClientProtocol_get_list_FundingSources.call_count == 0
+
+    result_list = list(result)
+    mock_ClientProtocol_get_list_FundingSources.assert_called_once_with(
+        client.concession_group_funding_source_endpoint("group-1234")
+    )
+
+    expected_list = ListResponse_GroupFundingSources.list
+
+    assert len(result_list) == len(expected_list)
+    assert all([isinstance(i, GroupFundingSourceResponse) for i in result_list])
+
+    for i in range(len(result_list)):
+        assert result_list[i].id == expected_list[i]["id"]
+        assert result_list[i].participant_id == expected_list[i]["participant_id"]
+
+        if expected_list[i].get("concession_expiry") == expected_expiry_str:
+            assert result_list[i].concession_expiry == expected_expiry
+        else:
+            assert result_list[i].concession_expiry is None
+
+        if expected_list[i].get("concession_created_at") == expected_expiry_str:
+            assert result_list[i].concession_created_at == expected_expiry
+        else:
+            assert result_list[i].concession_created_at is None
+
+        if expected_list[i].get("concession_updated_at") == expected_expiry_str:
+            assert result_list[i].concession_updated_at == expected_expiry
+        else:
+            assert result_list[i].concession_updated_at is None
+
+
 def test_GroupsMixin_link_concession_group_funding_source(mock_ClientProtocol_post_link_concession_group_funding_source):
     client = GroupsMixin()
     result = client.link_concession_group_funding_source("group-1234", "funding-source-1234")
@@ -185,21 +241,17 @@ def test_GroupsMixin_link_concession_group_funding_source(mock_ClientProtocol_po
     assert result == {"status_code": 201}
 
 
-def test_GroupsMixin_format_concession_expiry_not_datetime():
+def test_GroupsMixin_format_concession_expiry_not_datetime(expected_expiry_str):
     client = GroupsMixin()
     with pytest.raises(TypeError, match="concession_expiry must be a Python datetime instance"):
-        client._format_concession_expiry("2024-03-18T01:02:03Z")
+        client._format_concession_expiry(expected_expiry_str)
 
 
-def test_GroupsMixin_format_concession_expiry_aware_utc():
-    # construct a UTC datetime and the expected string formatting
-    concession_expiry = datetime(2024, 3, 18, 1, 2, 3, tzinfo=timezone.utc)
-    expected_body_expiry = "2024-03-18T01:02:03Z"
-
+def test_GroupsMixin_format_concession_expiry_aware_utc(expected_expiry, expected_expiry_str):
     client = GroupsMixin()
-    result = client._format_concession_expiry(concession_expiry)
+    result = client._format_concession_expiry(expected_expiry)
 
-    assert result == expected_body_expiry
+    assert result == expected_expiry_str
 
 
 def test_GroupsMixin_format_concession_expiry_aware_not_utc():

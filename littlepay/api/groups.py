@@ -105,6 +105,12 @@ class GroupsMixin(ClientProtocol):
         endpoint = self.concession_groups_endpoint(group_id)
         return self._delete(endpoint)
 
+    def get_concession_group_linked_funding_sources(self, group_id) -> Generator[GroupFundingSourceResponse, None, None]:
+        """Yield GroupFundingSourceResponse objects representing linked funding sources from the concession_groups endpoint."""
+        endpoint = self.concession_group_funding_source_endpoint(group_id)
+        for item in self._get_list(endpoint):
+            yield GroupFundingSourceResponse(**item)
+
     def link_concession_group_funding_source(
         self, group_id: str, funding_source_id: str, concession_expiry: datetime = None
     ) -> dict:
