@@ -45,7 +45,7 @@ def main(argv=None):
 
     # littlepay config [CONFIG_PATH]
     config_parser = _maincmd("config", help="Get or set configuration")
-    config_parser.add_argument("config_path", nargs="?", default=Config.current_path())
+    config_parser.add_argument("config_path", nargs="?")
 
     # littlepay groups [-f GROUP] [{create,link,products,remove,unlink}] [...]
     groups_parser = _maincmd("groups", help="Interact with groups in the active environment")
@@ -112,7 +112,7 @@ def main(argv=None):
     args = main_parser.parse_args(argv)
 
     if args.command == "config" or args.config_path:
-        return configure(args.config_path)
+        return configure(args.config_path or Config().current_path())
     elif args.command == "groups":
         return groups(args)
     elif args.command == "products":
