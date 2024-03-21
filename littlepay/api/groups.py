@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Generator
 
-from littlepay.api import ClientProtocol
+from littlepay.api import ClientProtocol, ListResponse
 from littlepay.api.funding_sources import FundingSourcesMixin
 
 
@@ -23,6 +23,37 @@ class GroupResponse:
         """Get a CSV str header of attributes for GroupResponse."""
         instance = GroupResponse("", "", "")
         return ",".join(vars(instance).keys())
+
+
+@dataclass
+class GroupFundingSourceResponse:
+    id: str
+    participant_id: str
+    concession_expiry: datetime | None = None
+    concession_created_at: datetime | None = None
+    concession_updated_at: datetime | None = None
+
+    def __post_init__(self):
+        """Parses any date parameters into Python datetime objects.
+
+        Includes a workaround for Python 3.10 where datetime.fromisoformat() can only parse the format output
+        by datetime.isoformat(), i.e. without a trailing 'Z' offset character and with UTC offset expressed
+        as +/-HH:mm
+
+        https://docs.python.org/3.11/library/datetime.html#datetime.datetime.fromisoformat
+        """
+        if self.concession_expiry:
+            self.concession_expiry = datetime.fromisoformat(self.concession_expiry.replace("Z", "+00:00", 1))
+        else:
+            self.concession_expiry = None
+        if self.concession_created_at:
+            self.concession_created_at = datetime.fromisoformat(self.concession_created_at.replace("Z", "+00:00", 1))
+        else:
+            self.concession_created_at = None
+        if self.concession_updated_at:
+            self.concession_updated_at = datetime.fromisoformat(self.concession_updated_at.replace("Z", "+00:00", 1))
+        else:
+            self.concession_updated_at = None
 
 
 class GroupsMixin(ClientProtocol):
@@ -86,4 +117,13 @@ class GroupsMixin(ClientProtocol):
 
         return self._post(endpoint, data, dict)
 
-        return self._post(endpoint, data, dict)
+    def update_concession_group_funding_source_expiry(
+        self, group_id: str, funding_source_id: str, concession_expiry: datetime
+    ) -> GroupFundingSourceResponse:
+        """Update the expiry of a funding source already linked to a concession group."""
+        endpoint = self.concession_group_funding_source_endpoint(group_id)
+        data = {"id": funding_source_id, "concession_expiry": self._format_concession_expiry(concession_expiry)}
+
+        response = self._put(endpoint, data, ListResponse)
+
+        return GroupFundingSourceResponse(**response.list[0])

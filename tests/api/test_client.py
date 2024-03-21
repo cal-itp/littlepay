@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+import dataclasses
 from json import JSONDecodeError
 import time
 from typing import Callable, Generator, TypeAlias
@@ -42,7 +42,7 @@ def mock_active_Config(mocker, credentials, token, url):
     return config
 
 
-@dataclass
+@dataclasses.dataclass
 class SampleResponse:
     one: str
     two: str
@@ -52,11 +52,6 @@ class SampleResponse:
 @pytest.fixture
 def SampleResponse_json():
     return {"one": "single", "two": "double", "three": 3}
-
-
-@pytest.fixture
-def ListResponse_sample():
-    return ListResponse(list=[{"one": 1}, {"two": 2}, {"three": 3}], total_count=3)
 
 
 @pytest.fixture
@@ -370,5 +365,75 @@ def test_Client_post_error_status(mocker, make_client: ClientFunc, url):
 
     with pytest.raises(HTTPError):
         client._post(url, data, dict)
+
+    req_spy.assert_called_once_with(url, headers=client.headers, json=data)
+
+
+def test_Client_put(mocker, make_client: ClientFunc, url, SampleResponse_json):
+    client = make_client()
+    mock_response = mocker.Mock(
+        raise_for_status=mocker.Mock(return_value=False), json=mocker.Mock(return_value=SampleResponse_json)
+    )
+    req_spy = mocker.patch.object(client.oauth, "put", return_value=mock_response)
+
+    data = {"data": "123"}
+    result = client._put(url, data, SampleResponse)
+
+    req_spy.assert_called_once_with(url, headers=client.headers, json=data)
+    assert isinstance(result, SampleResponse)
+    assert result.one == "single"
+    assert result.two == "double"
+    assert result.three == 3
+
+
+def test_Client_put_default_cls(mocker, make_client: ClientFunc, url, ListResponse_sample):
+    client = make_client()
+    mock_response = mocker.Mock(
+        raise_for_status=mocker.Mock(return_value=False),
+        json=mocker.Mock(return_value=dataclasses.asdict(ListResponse_sample)),
+    )
+    req_spy = mocker.patch.object(client.oauth, "put", return_value=mock_response)
+
+    data = {"data": "123"}
+    result = client._put(url, data)
+
+    req_spy.assert_called_once_with(url, headers=client.headers, json=data)
+    assert isinstance(result, ListResponse)
+    assert result.total_count == ListResponse_sample.total_count
+    assert len(result.list) == len(ListResponse_sample.list)
+
+    for list_item in result.list:
+        assert list_item == ListResponse_sample.list[result.list.index(list_item)]
+
+
+def test_Client_put_empty_response(mocker, make_client: ClientFunc, url):
+    client = make_client()
+    mock_response = mocker.Mock(
+        # json() throws a JSONDecodeError, simulating an empty response
+        json=mocker.Mock(side_effect=JSONDecodeError("msg", "doc", 0)),
+        # raise_for_status() returns None
+        raise_for_status=mocker.Mock(return_value=False),
+        # fake a 201 status_code
+        status_code=201,
+    )
+    req_spy = mocker.patch.object(client.oauth, "put", return_value=mock_response)
+
+    data = {"data": "123"}
+
+    result = client._put(url, data, dict)
+
+    req_spy.assert_called_once_with(url, headers=client.headers, json=data)
+    assert result == {"status_code": 201}
+
+
+def test_Client_put_error_status(mocker, make_client: ClientFunc, url):
+    client = make_client()
+    mock_response = mocker.Mock(raise_for_status=mocker.Mock(side_effect=HTTPError))
+    req_spy = mocker.patch.object(client.oauth, "put", return_value=mock_response)
+
+    data = {"data": "123"}
+
+    with pytest.raises(HTTPError):
+        client._put(url, data, dict)
 
     req_spy.assert_called_once_with(url, headers=client.headers, json=data)
