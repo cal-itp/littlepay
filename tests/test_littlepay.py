@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 import subprocess
 
 import pytest
@@ -49,4 +50,15 @@ def test_config(capfd):
     assert "Envs:" in capture.out
     assert "Participants:" in capture.out
     assert "Active:" in capture.out
+    assert res == RESULT_SUCCESS
+
+
+@pytest.mark.parametrize("version_flag", ["-v", "--version"])
+def test_version(capfd, version_flag):
+    res = subprocess.call(["littlepay", version_flag])
+    capture = capfd.readouterr()
+
+    assert "Creating config file:" not in capture.out
+    assert "Config:" not in capture.out
+    assert re.match(r"littlepay \d+\.\d+\.", capture.out)
     assert res == RESULT_SUCCESS
