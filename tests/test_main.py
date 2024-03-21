@@ -2,7 +2,7 @@ from argparse import Namespace
 from pathlib import Path
 import pytest
 
-from littlepay.commands import RESULT_SUCCESS
+from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS
 from littlepay.config import CONFIG_TYPES, Config
 from littlepay.main import main, __name__ as MODULE
 
@@ -27,11 +27,13 @@ def mock_commands_switch(mock_commands_switch):
     return mock_commands_switch(MODULE)
 
 
-def test_main_default(mock_commands_config):
+def test_main_default(capfd, mock_commands_config):
     result = main(argv=[])
+    capture = capfd.readouterr()
 
-    assert result == RESULT_SUCCESS
-    mock_commands_config.assert_called_once_with(Config().current_path())
+    assert result == RESULT_FAILURE
+    assert "usage: littlepay" in capture.out
+    mock_commands_config.assert_not_called()
 
 
 @pytest.mark.parametrize("config_flag", ["-c", "--config"])

@@ -2,6 +2,7 @@ import sys
 from argparse import ArgumentParser, _SubParsersAction
 
 from littlepay import __version__ as version
+from littlepay.commands import RESULT_FAILURE
 from littlepay.commands.configure import configure
 from littlepay.commands.groups import groups
 from littlepay.commands.products import products
@@ -108,9 +109,6 @@ def main(argv=None):
     switch_parser.add_argument("switch_type", choices=CONFIG_TYPES, help="The type of object to switch", metavar="TYPE")
     switch_parser.add_argument("switch_arg", help="The new object value", metavar="VALUE")
 
-    if len(argv) == 0:
-        argv = ["config"]
-
     args = main_parser.parse_args(argv)
 
     if args.command == "config" or args.config_path:
@@ -121,6 +119,9 @@ def main(argv=None):
         return products(args)
     elif args.command == "switch":
         return switch(args.switch_type, args.switch_arg)
+    else:
+        main_parser.print_help()
+        return RESULT_FAILURE
 
 
 if __name__ == "__main__":
