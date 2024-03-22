@@ -56,10 +56,8 @@ jobs:
         # run littlepay first, so `littlepay -v` doesn't create the config file (which outputs a message)
         run: |
           pip install -e .
-          littlepay
           output=$(littlepay -v)
           version=${output/littlepay /}
-          version=${version/.0/.}
           echo "PYPI_RELEASE_URL=https://test.pypi.org/project/calitp-littlepay/$version" >> "$GITHUB_OUTPUT"
 
       - name: Publish to PyPI
@@ -74,10 +72,8 @@ jobs:
         # run littlepay first, so `littlepay -v` doesn't create the config file (which outputs a message)
         run: |
           pip install -e .
-          littlepay
           output=$(littlepay -v)
           version=${output/littlepay /}
-          version=${version/.0/.}
           echo "PYPI_RELEASE_URL=https://pypi.org/project/calitp-littlepay/$version" >> "$GITHUB_OUTPUT"
 
       - name: Release
