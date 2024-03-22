@@ -53,7 +53,6 @@ jobs:
       - name: Parse version and output Test PyPI URL
         id: test-version
         if: ${{ contains(github.ref, '-rc') }}
-        # run littlepay first, so `littlepay -v` doesn't create the config file (which outputs a message)
         run: |
           pip install -e .
           output=$(littlepay -v)
@@ -69,7 +68,6 @@ jobs:
       - name: Parse version and output PyPI URL
         id: version
         if: ${{ !contains(github.ref, '-rc') }}
-        # run littlepay first, so `littlepay -v` doesn't create the config file (which outputs a message)
         run: |
           pip install -e .
           output=$(littlepay -v)
