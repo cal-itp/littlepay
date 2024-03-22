@@ -1,0 +1,30 @@
+id,code,status,type,description,participant_id
+040a6f25-92dd-4dcb-a3fb-649f554ea97e,Time capping,ACTIVE,CAPPING,Time capping,sbmtd
+09fd2982-7ff9-4f42-b4b5-9a7829921696,Daily Cap,ACTIVE,CAPPING,Daily Cap,sbmtd
+0d671a2c-2f72-447c-97f6-481a0a44e4ed,Disabled 30 Day,ACTIVE,CAPPING,SBMTD Disabled Fare 30 Day,sbmtd
+128f994f-0af3-4535-af1e-654264982fd5,UCSB TAP Employee Discount,INACTIVE,CAPPING,31dollar cap,sbmtd
+1392c409-1e4d-48ea-8856-6b68fc577bb8,UCSB TAP Employee Discount,ACTIVE,CAPPING,31dollar cap,sbmtd
+2807ba97-ae0a-4c14-9835-ff25081ca9eb,Disabled 30 Day,INACTIVE,CAPPING,SBMTD Disabled Fare 30 Day,sbmtd
+3bc7b9b0-e69f-4e8a-ac15-caa3cdf0a85e,UCSB TAP Employee Discount,ACTIVE,CAPPING,31dollar cap,sbmtd
+3d9cb34c-c94c-491e-b9bd-e4e2362cd278,Discount Time capping,ACTIVE,CAPPING,Discount Time capping,sbmtd
+574ce184-591c-406f-aaed-dfe34c8dfc2e,Daily Cap,ACTIVE,CAPPING,Daily Cap,sbmtd
+5e659c14-b7ad-4983-80eb-2cc63fc67439,Senior 65+ 30 Day,INACTIVE,CAPPING,SBMTD Senior 65+ Fare 30 Day,sbmtd
+65d2b799-f41b-4b4d-8f12-a6bd413a645f,Senior 65+ 30 Day,ACTIVE,CAPPING,SBMTD Senior 65+ Fare 30 Day,sbmtd
+66c87198-f0d0-416a-b866-0ed1ded33f65,Multi Day,ACTIVE,CAPPING,Multi Day,sbmtd
+70e7d5fc-43c7-40c1-8113-88c47da4f025,Multi Day,ACTIVE,CAPPING,Multi Day,sbmtd
+8c5747c8-f95b-4994-ba7b-d06db7a8e5b5,Multi Day Test,ACTIVE,CAPPING,Multi Day Test,sbmtd
+accea115-a910-49a3-93dd-65a8b2a12822,Time capping,ACTIVE,CAPPING,Time capping,sbmtd
+b56a7d42-63de-4dd9-91b6-64dc7ffefbbd,Time capping,ACTIVE,CAPPING,Time capping,sbmtd
+ccba6d11-a618-4a57-a043-bd380805eadd,Time capping test,ACTIVE,CAPPING,Time capping test,sbmtd
+ce306980-9a29-4396-9869-bfeaeb82ba04,Time capping,ACTIVE,CAPPING,Time capping,sbmtd
+d55b68e1-0d7e-4b77-a512-15aa71a2db27,UCSB TAP Employee Discount,ACTIVE,CAPPING,31dollar cap,sbmtd
+e520f25b-c815-4b2b-b569-3ca7bff3ce1f,Disabled 30 Day,ACTIVE,CAPPING,SBMTD Disabled Fare 30 Day,sbmtd
+ed0f4f0a-3d86-4a65-84bc-2af62f20ef94,Time capping discount,ACTIVE,CAPPING,Time capping discount,sbmtd
+f1bc214d-7230-44a2-9041-d546cbbb88aa,Daily Cap Test,ACTIVE,CAPPING,Daily Cap Test,sbmtd
+fcc1b976-f55f-4aa4-b660-8ce81cdd9262,Senior 65+ 30 Day,ACTIVE,CAPPING,SBMTD Senior 65+ Fare 30 Day,sbmtd
+05e4daf0-7bec-420f-9460-1704ac263d86,SBCCStudent,ACTIVE,DISCOUNT,SBCCStudentTap,sbmtd
+0eabf1bb-8a77-4cdc-a9a0-8bdc37746837,Person with Disabilities,ACTIVE,DISCOUNT,SBMTD Disabled Fare,sbmtd
+3e82b935-4d45-4207-9b6a-e6999ae1caea,Senior 65+,ACTIVE,DISCOUNT,SBMTD Senior 65+ Fare,sbmtd
+5c9e2890-af63-4faf-adb0-71dfd949882a,Senior 65+,ACTIVE,DISCOUNT,SBMTD Senior 65+ Fare,sbmtd
+6ed395ba-7fb0-484d-ae20-70f6e544e749,Person with Disabilities,ACTIVE,DISCOUNT,SBMTD Disabled Fare,sbmtd
+ca0f94e8-166d-44c3-ac91-efda8ae552f6,Senior 65+,ACTIVE,DISCOUNT,SBMTD Senior 65+ Fare,sbmtd
