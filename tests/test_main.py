@@ -1,9 +1,12 @@
 from argparse import Namespace
 from pathlib import Path
+import re
+
 import pytest
 
-from littlepay.commands import RESULT_SUCCESS
+from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS
 from littlepay.config import CONFIG_TYPES, Config
+import littlepay.main
 from littlepay.main import main, __name__ as MODULE
 
 
@@ -27,11 +30,13 @@ def mock_commands_switch(mock_commands_switch):
     return mock_commands_switch(MODULE)
 
 
-def test_main_default(mock_commands_config):
+def test_main_default(capfd, mock_commands_config):
     result = main(argv=[])
+    capture = capfd.readouterr()
 
-    assert result == RESULT_SUCCESS
-    mock_commands_config.assert_called_once_with(Config().current_path())
+    assert result == RESULT_FAILURE
+    assert "usage: littlepay" in capture.out
+    mock_commands_config.assert_not_called()
 
 
 @pytest.mark.parametrize("config_flag", ["-c", "--config"])
@@ -266,3 +271,21 @@ def test_main_unrecognized(capfd):
     capture = capfd.readouterr()
     assert err.value.code != RESULT_SUCCESS
     assert "usage: littlepay" in capture.err
+
+
+@pytest.mark.parametrize("version_flag", ["-v", "--version"])
+def test_main_version_flag(version_flag, mocker, capfd, mock_commands_config):
+    # littlepay.main.Config (the class)
+    config_cls = mocker.patch.object(littlepay.main, "Config")
+    # littlepay.main.Config() (an instance)
+    config = config_cls.return_value
+
+    with pytest.raises(SystemExit) as err:
+        main(argv=[version_flag])
+    capture = capfd.readouterr()
+
+    assert err.value.code == RESULT_SUCCESS
+    assert re.match(r"littlepay \d+\.\d+\.", capture.out)
+    mock_commands_config.assert_not_called()
+    # there should have been no calls to any method on littlepay.main.Config()
+    assert len(config.mock_calls) == 0

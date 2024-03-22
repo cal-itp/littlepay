@@ -2,6 +2,7 @@ import sys
 from argparse import ArgumentParser, _SubParsersAction
 
 from littlepay import __version__ as version
+from littlepay.commands import RESULT_FAILURE
 from littlepay.commands.configure import configure
 from littlepay.commands.groups import groups
 from littlepay.commands.products import products
@@ -44,7 +45,7 @@ def main(argv=None):
 
     # littlepay config [CONFIG_PATH]
     config_parser = _maincmd("config", help="Get or set configuration")
-    config_parser.add_argument("config_path", nargs="?", default=Config.current_path())
+    config_parser.add_argument("config_path", nargs="?")
 
     # littlepay groups [-f GROUP] [{create,link,products,remove,unlink}] [...]
     groups_parser = _maincmd("groups", help="Interact with groups in the active environment")
@@ -108,19 +109,19 @@ def main(argv=None):
     switch_parser.add_argument("switch_type", choices=CONFIG_TYPES, help="The type of object to switch", metavar="TYPE")
     switch_parser.add_argument("switch_arg", help="The new object value", metavar="VALUE")
 
-    if len(argv) == 0:
-        argv = ["config"]
-
     args = main_parser.parse_args(argv)
 
     if args.command == "config" or args.config_path:
-        return configure(args.config_path)
+        return configure(args.config_path or Config().current_path())
     elif args.command == "groups":
         return groups(args)
     elif args.command == "products":
         return products(args)
     elif args.command == "switch":
         return switch(args.switch_type, args.switch_arg)
+    else:
+        main_parser.print_help()
+        return RESULT_FAILURE
 
 
 if __name__ == "__main__":

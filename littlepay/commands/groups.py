@@ -7,12 +7,12 @@ from littlepay.api.groups import GroupResponse
 from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS, print_active_message
 from littlepay.config import Config
 
-config = Config()
-
 
 def groups(args: Namespace = None) -> int:
     return_code = RESULT_SUCCESS
+    config = Config()
     client = Client.from_active_config(config)
+
     client.oauth.ensure_active_token(client.token)
     config.active_token = client.token
 
@@ -72,6 +72,7 @@ def groups(args: Namespace = None) -> int:
 
 
 def create_group(client: Client, group_label: str) -> int:
+    config = Config()
     print_active_message(config, "Creating group", f"[{group_label}]")
     return_code = RESULT_SUCCESS
 
@@ -86,6 +87,7 @@ def create_group(client: Client, group_label: str) -> int:
 
 
 def remove_group(client: Client, group_id: str, force: bool = False) -> int:
+    config = Config()
     print_active_message(config, "Removing group", f"[{group_id}]")
     return_code = RESULT_SUCCESS
 
@@ -112,6 +114,7 @@ def remove_group(client: Client, group_id: str, force: bool = False) -> int:
 
 
 def link_product(client: Client, group_id: str, product_id: str) -> int:
+    config = Config()
     print_active_message(config, "Linking group <-> product", f"[{group_id}] <-> [{product_id}]")
     return_code = RESULT_SUCCESS
 
@@ -126,6 +129,7 @@ def link_product(client: Client, group_id: str, product_id: str) -> int:
 
 
 def unlink_product(client: Client, group_id: str, product_id: str) -> int:
+    config = Config()
     print_active_message(config, "Unlinking group <-> product", f"[{group_id}] <-> [{product_id}]")
     return_code = RESULT_SUCCESS
 

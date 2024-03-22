@@ -18,7 +18,7 @@ GROUP_RESPONSES = [
 
 @pytest.fixture(autouse=True)
 def mock_config(mocker):
-    mocker.patch("littlepay.commands.groups.config")
+    mocker.patch("littlepay.commands.groups.Config")
 
 
 @pytest.fixture

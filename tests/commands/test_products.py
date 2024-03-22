@@ -16,7 +16,7 @@ PRODUCT_RESPONSES = [
 
 @pytest.fixture(autouse=True)
 def mock_config(mocker):
-    mocker.patch("littlepay.commands.products.config")
+    mocker.patch("littlepay.commands.products.Config")
 
 
 @pytest.fixture
