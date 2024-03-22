@@ -6,6 +6,7 @@ import littlepay.config
 from littlepay.config import (
     DEFAULT_CONFIG,
     DEFAULT_CREDENTIALS,
+    _ensure_current_exists,
     _get_current_path,
     _read_config,
     _write_config,
@@ -15,45 +16,69 @@ from littlepay.config import (
 from tests.conftest import CUSTOM_CONFIG_FILE
 
 
-def test_get_current_path_default(custom_config_file: Path):
+@pytest.fixture
+def spy_ensure_current_exists(mocker):
+    return mocker.spy(littlepay.config, "_ensure_current_exists")
+
+
+def test_ensure_current_exists():
+    # reminder: the module-level variable littlepay.config.CONFIG_FILE_CURRENT
+    # is overwritten by the autouse fixture custom_current_file
+
+    # the .current file should not exist to begin with
+    assert not littlepay.config.CONFIG_FILE_CURRENT.exists()
+    assert _ensure_current_exists() is False
+
+    # now having ensured, the current file should exist
+    assert littlepay.config.CONFIG_FILE_CURRENT.exists()
+    # subsequent calls to ensure should indicate that it already exists
+    assert _ensure_current_exists()
+
+
+def test_get_current_path_default(custom_config_file: Path, spy_ensure_current_exists):
     result = _get_current_path()
 
     assert isinstance(result, Path)
     assert result.absolute() == custom_config_file.absolute()
+    assert spy_ensure_current_exists.call_count > 0
 
 
-def test_get_current_path_custom(custom_current_file: Path):
+def test_get_current_path_custom(custom_current_file: Path, spy_ensure_current_exists):
     expected = "."
     custom_current_file.write_text(expected)
 
     result = _get_current_path()
 
     assert result == Path(expected)
+    assert spy_ensure_current_exists.call_count > 0
 
 
-def test_get_current_path_newline(custom_current_file: Path):
+def test_get_current_path_newline(custom_current_file: Path, spy_ensure_current_exists):
     expected = "."
     custom_current_file.write_text(".\n")
 
     result = _get_current_path()
 
     assert result == Path(expected)
+    assert spy_ensure_current_exists.call_count > 0
 
 
-def test_update_current_path_str(custom_current_file: Path):
+def test_update_current_path_str(custom_current_file: Path, spy_ensure_current_exists):
     assert not custom_current_file.exists()
 
     _update_current_path("/the/path")
 
     assert custom_current_file.read_text() == "/the/path"
+    assert spy_ensure_current_exists.call_count > 0
 
 
-def test_update_current_path_Path(custom_current_file: Path):
+def test_update_current_path_Path(custom_current_file: Path, spy_ensure_current_exists):
     assert not custom_current_file.exists()
 
     _update_current_path(Path("/the/path"))
 
     assert custom_current_file.read_text() == "/the/path"
+    assert spy_ensure_current_exists.call_count > 0
 
 
 def test_read_config(custom_config_file: Path):

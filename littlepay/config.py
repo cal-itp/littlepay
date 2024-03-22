@@ -21,14 +21,26 @@ DEFAULT_CONFIG = {
 CONFIG_TYPES = list(DEFAULT_ACTIVE.keys())
 
 
+def _ensure_current_exists() -> bool:
+    """
+    Creates the CONFIG_FILE_CURRENT file if it doesn't already exist.
+
+    Returns (bool):
+        A flag indicating if the file existed or not.
+    """
+    exists = CONFIG_FILE_CURRENT.exists()
+    if not exists:
+        CONFIG_FILE_CURRENT.parent.mkdir(parents=True, exist_ok=True)
+        CONFIG_FILE_CURRENT.touch()
+    return exists
+
+
 def _get_current_path() -> Path:
     """
     Returns (Path):
         The path to the config file currently in-use, or the default.
     """
-    CONFIG_FILE_CURRENT.parent.mkdir(parents=True, exist_ok=True)
-    if not CONFIG_FILE_CURRENT.exists():
-        CONFIG_FILE_CURRENT.touch()
+    if not _ensure_current_exists():
         _update_current_path(DEFAULT_CONFIG_FILE)
     current = CONFIG_FILE_CURRENT.read_text().strip()
     return Path(current)
@@ -38,6 +50,7 @@ def _update_current_path(new_path: str | Path):
     """Saves new_path as the path to the current config file."""
     if isinstance(new_path, Path):
         new_path = str(new_path.expanduser().absolute())
+    _ensure_current_exists()
     CONFIG_FILE_CURRENT.write_text(new_path)
 
 
