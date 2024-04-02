@@ -28,10 +28,9 @@ class GroupResponse:
 @dataclass
 class GroupFundingSourceResponse:
     id: str
-    participant_id: str
-    concession_expiry: datetime | None = None
-    concession_created_at: datetime | None = None
-    concession_updated_at: datetime | None = None
+    created_date: datetime | None = None
+    updated_date: datetime | None = None
+    expiry_date: datetime | None = None
 
     def __post_init__(self):
         """Parses any date parameters into Python datetime objects.
@@ -42,18 +41,18 @@ class GroupFundingSourceResponse:
 
         https://docs.python.org/3.11/library/datetime.html#datetime.datetime.fromisoformat
         """
-        if self.concession_expiry:
-            self.concession_expiry = datetime.fromisoformat(self.concession_expiry.replace("Z", "+00:00", 1))
+        if self.created_date:
+            self.created_date = datetime.fromisoformat(self.created_date.replace("Z", "+00:00", 1))
         else:
-            self.concession_expiry = None
-        if self.concession_created_at:
-            self.concession_created_at = datetime.fromisoformat(self.concession_created_at.replace("Z", "+00:00", 1))
+            self.created_date = None
+        if self.updated_date:
+            self.updated_date = datetime.fromisoformat(self.updated_date.replace("Z", "+00:00", 1))
         else:
-            self.concession_created_at = None
-        if self.concession_updated_at:
-            self.concession_updated_at = datetime.fromisoformat(self.concession_updated_at.replace("Z", "+00:00", 1))
+            self.updated_date = None
+        if self.expiry_date:
+            self.expiry_date = datetime.fromisoformat(self.expiry_date.replace("Z", "+00:00", 1))
         else:
-            self.concession_updated_at = None
+            self.expiry_date = None
 
 
 class GroupsMixin(ClientProtocol):

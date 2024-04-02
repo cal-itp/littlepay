@@ -22,19 +22,17 @@ def ListResponse_GroupFundingSources(expected_expiry_str):
     items = [
         dict(
             id="0",
-            participant_id="zero_0",
-            concession_expiry=expected_expiry_str,
-            concession_created_at=expected_expiry_str,
-            concession_updated_at=expected_expiry_str,
+            expiry_date=expected_expiry_str,
+            created_date=expected_expiry_str,
+            updated_date=expected_expiry_str,
         ),
         dict(
             id="1",
-            participant_id="one_1",
-            concession_expiry=expected_expiry_str,
-            concession_created_at=expected_expiry_str,
-            concession_updated_at=expected_expiry_str,
+            expiry_date=expected_expiry_str,
+            created_date=expected_expiry_str,
+            updated_date=expected_expiry_str,
         ),
-        dict(id="2", participant_id="two_2", concession_expiry="", concession_created_at=""),
+        dict(id="2", expiry_date="", created_date=""),
     ]
     return ListResponse(list=items, total_count=3)
 
@@ -89,38 +87,33 @@ def test_GroupResponse_csv_header():
 
 
 def test_GroupFundingSourceResponse_no_dates():
-    response = GroupFundingSourceResponse("id", "participant_id")
+    response = GroupFundingSourceResponse("id")
 
     assert response.id == "id"
-    assert response.participant_id == "participant_id"
-    assert response.concession_expiry is None
-    assert response.concession_created_at is None
-    assert response.concession_updated_at is None
+    assert response.expiry_date is None
+    assert response.created_date is None
+    assert response.updated_date is None
 
 
 def test_GroupFundingSourceResponse_empty_dates():
-    response = GroupFundingSourceResponse("id", "participant_id", "", "", "")
+    response = GroupFundingSourceResponse("id", "", "", "")
 
     assert response.id == "id"
-    assert response.participant_id == "participant_id"
-    assert response.concession_expiry is None
-    assert response.concession_created_at is None
-    assert response.concession_updated_at is None
+    assert response.expiry_date is None
+    assert response.created_date is None
+    assert response.updated_date is None
 
 
 def test_GroupFundingSourceResponse_with_dates(expected_expiry, expected_expiry_str):
-    response = GroupFundingSourceResponse(
-        "id", "participant_id", expected_expiry_str, expected_expiry_str, expected_expiry_str
-    )
+    response = GroupFundingSourceResponse("id", expected_expiry_str, expected_expiry_str, expected_expiry_str)
 
     assert response.id == "id"
-    assert response.participant_id == "participant_id"
-    assert response.concession_expiry == expected_expiry
-    assert response.concession_expiry.tzinfo == timezone.utc
-    assert response.concession_created_at == expected_expiry
-    assert response.concession_created_at.tzinfo == timezone.utc
-    assert response.concession_updated_at == expected_expiry
-    assert response.concession_updated_at.tzinfo == timezone.utc
+    assert response.expiry_date == expected_expiry
+    assert response.expiry_date.tzinfo == timezone.utc
+    assert response.created_date == expected_expiry
+    assert response.created_date.tzinfo == timezone.utc
+    assert response.updated_date == expected_expiry
+    assert response.updated_date.tzinfo == timezone.utc
 
 
 def test_GroupsMixin_concession_groups_endpoint(url):
@@ -212,22 +205,21 @@ def test_GroupsMixin_get_concession_group_linked_funding_sources(
 
     for i in range(len(result_list)):
         assert result_list[i].id == expected_list[i]["id"]
-        assert result_list[i].participant_id == expected_list[i]["participant_id"]
 
-        if expected_list[i].get("concession_expiry") == expected_expiry_str:
-            assert result_list[i].concession_expiry == expected_expiry
+        if expected_list[i].get("expiry_date") == expected_expiry_str:
+            assert result_list[i].expiry_date == expected_expiry
         else:
-            assert result_list[i].concession_expiry is None
+            assert result_list[i].expiry_date is None
 
-        if expected_list[i].get("concession_created_at") == expected_expiry_str:
-            assert result_list[i].concession_created_at == expected_expiry
+        if expected_list[i].get("created_date") == expected_expiry_str:
+            assert result_list[i].created_date == expected_expiry
         else:
-            assert result_list[i].concession_created_at is None
+            assert result_list[i].created_date is None
 
-        if expected_list[i].get("concession_updated_at") == expected_expiry_str:
-            assert result_list[i].concession_updated_at == expected_expiry
+        if expected_list[i].get("updated_date") == expected_expiry_str:
+            assert result_list[i].updated_date == expected_expiry
         else:
-            assert result_list[i].concession_updated_at is None
+            assert result_list[i].updated_date is None
 
 
 def test_GroupsMixin_link_concession_group_funding_source(mock_ClientProtocol_post_link_concession_group_funding_source):
