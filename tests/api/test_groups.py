@@ -301,7 +301,7 @@ def test_GroupsMixin_update_concession_group_funding_source_expiry(
 
     endpoint = client.concession_group_funding_source_endpoint("group-1234", "funding-source-1234")
     mock_ClientProtocol_put_update_concession_group_funding_source.assert_called_once_with(
-        endpoint, {"concession_expiry": "formatted concession expiry"}, ListResponse
+        endpoint, {"expiry": "formatted concession expiry"}, ListResponse
     )
 
     expected = GroupFundingSourceResponse(**ListResponse_GroupFundingSources.list[0])
