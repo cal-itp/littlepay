@@ -140,6 +140,14 @@ def test_GroupsMixin_concession_groups_funding_sources_endpoint(url):
     assert client.concession_group_funding_source_endpoint("1234") == f"{url}/concession_groups/1234/fundingsources"
 
 
+def test_GroupsMixin_concession_groups_funding_sources_funding_source_id(url):
+    client = GroupsMixin()
+
+    assert (
+        client.concession_group_funding_source_endpoint("1234", "4567") == f"{url}/concession_groups/1234/fundingsources/4567"
+    )
+
+
 def test_GroupsMixin_create_concession_group(mock_ClientProtocol_post_create_concession_group):
     client = GroupsMixin()
 
@@ -291,9 +299,9 @@ def test_GroupsMixin_update_concession_group_funding_source_expiry(
 
     result = client.update_concession_group_funding_source_expiry("group-1234", "funding-source-1234", datetime.now())
 
-    endpoint = client.concession_group_funding_source_endpoint("group-1234")
+    endpoint = client.concession_group_funding_source_endpoint("group-1234", "funding-source-1234")
     mock_ClientProtocol_put_update_concession_group_funding_source.assert_called_once_with(
-        endpoint, {"id": "funding-source-1234", "concession_expiry": "formatted concession expiry"}, ListResponse
+        endpoint, {"concession_expiry": "formatted concession expiry"}, ListResponse
     )
 
     expected = GroupFundingSourceResponse(**ListResponse_GroupFundingSources.list[0])

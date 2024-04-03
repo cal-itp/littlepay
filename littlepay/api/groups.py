@@ -83,9 +83,9 @@ class GroupsMixin(ClientProtocol):
         """Endpoint for concession groups. Optionally provide a group_id for a group-specific endpoint."""
         return self._make_endpoint(self.CONCESSION_GROUPS, group_id, *parts)
 
-    def concession_group_funding_source_endpoint(self, group_id: str) -> str:
+    def concession_group_funding_source_endpoint(self, group_id: str, funding_source_id: str = None) -> str:
         """Endpoint for a concession group's funding sources."""
-        return self.concession_groups_endpoint(group_id, FundingSourcesMixin.FUNDING_SOURCES)
+        return self.concession_groups_endpoint(group_id, FundingSourcesMixin.FUNDING_SOURCES, funding_source_id)
 
     def create_concession_group(self, group_label: str) -> dict:
         """Create a new concession group."""
@@ -124,8 +124,8 @@ class GroupsMixin(ClientProtocol):
         self, group_id: str, funding_source_id: str, concession_expiry: datetime
     ) -> GroupFundingSourceResponse:
         """Update the expiry of a funding source already linked to a concession group."""
-        endpoint = self.concession_group_funding_source_endpoint(group_id)
-        data = {"id": funding_source_id, "concession_expiry": self._format_expiry(concession_expiry)}
+        endpoint = self.concession_group_funding_source_endpoint(group_id, funding_source_id)
+        data = {"concession_expiry": self._format_expiry(concession_expiry)}
 
         response = self._put(endpoint, data, ListResponse)
 
