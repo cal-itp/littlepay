@@ -104,6 +104,11 @@ class GroupsMixin(ClientProtocol):
         endpoint = self.concession_groups_endpoint(group_id)
         return self._delete(endpoint)
 
+    def migrate_concession_group(self, group_id) -> dict:
+        """Migrates a group from the old Customer Group format to current format."""
+        endpoint = self.concession_groups_endpoint(group_id, "migrate")
+        return self._post(endpoint, None, dict)
+
     def get_concession_group_linked_funding_sources(self, group_id) -> Generator[GroupFundingSourceResponse, None, None]:
         """Yield GroupFundingSourceResponse objects representing linked funding sources from the concession_groups endpoint."""
         endpoint = self.concession_group_funding_source_endpoint(group_id)
