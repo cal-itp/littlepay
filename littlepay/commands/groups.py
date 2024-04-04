@@ -43,6 +43,9 @@ def groups(args: Namespace = None) -> int:
     elif command == "unlink":
         for group in groups:
             return_code += unlink_product(client, group.id, args.product_id)
+    elif command == "migrate":
+        for group in groups:
+            return_code += migrate_group(client, group.id)
 
     groups = list(groups)
     if csv_output and command != "products":
@@ -136,6 +139,21 @@ def unlink_product(client: Client, group_id: str, product_id: str) -> int:
     try:
         client.unlink_concession_group_product(group_id, product_id)
         print("✅ Unlinked")
+    except HTTPError as err:
+        print(f"❌ Error: {err}")
+        return_code = RESULT_FAILURE
+
+    return return_code
+
+
+def migrate_group(client: Client, group_id: str) -> int:
+    config = Config()
+    print_active_message(config, "Migrating group", f"[{group_id}]")
+    return_code = RESULT_SUCCESS
+
+    try:
+        client.migrate_concession_group(group_id)
+        print("✅ Migrated")
     except HTTPError as err:
         print(f"❌ Error: {err}")
         return_code = RESULT_FAILURE

@@ -296,3 +296,29 @@ def test_groups_group_command__unlink_HTTPError(mock_client, capfd):
     assert "Unlinking group <-> product" in capture.out
     assert "Error" in capture.out
     assert "Unlinked" not in capture.out
+
+
+def test_groups_group_command__migrate(mock_client, capfd):
+    args = Namespace(group_command="migrate")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    for group in GROUP_RESPONSES:
+        mock_client.migrate_concession_group.assert_any_call(group.id)
+
+    assert res == RESULT_SUCCESS
+    assert "Migrating group" in capture.out
+    assert "Migrated" in capture.out
+
+
+def test_groups_group_command__migrate_HTTPError(mock_client, capfd):
+    mock_client.migrate_concession_group.side_effect = HTTPError
+
+    args = Namespace(group_command="migrate")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_FAILURE
+    assert "Migrating group" in capture.out
+    assert "Error" in capture.out
+    assert "Migrated" not in capture.out

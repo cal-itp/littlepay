@@ -64,6 +64,8 @@ def main(argv=None):
     groups_link = _subcmd(groups_commands, "link", help="Link one or more concession groups to a product")
     groups_link.add_argument("product_id", help="The ID of the product to link to")
 
+    _subcmd(groups_commands, "migrate", help="Migrate a group from the old Customer Group format to the current format")
+
     groups_products = _subcmd(groups_commands, "products", help="List products for one or more concession groups")
     groups_products.add_argument(
         "--csv", action="store_true", default=False, help="Output results in simple CSV format", dest="csv"
