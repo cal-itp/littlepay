@@ -56,6 +56,12 @@ def mock_ClientProtocol_get_list_FundingSources(mocker, ListResponse_GroupFundin
 
 
 @pytest.fixture
+def mock_ClientProtocol_post_migrate_concession_group(mocker):
+    response = {"status_code": 204}
+    return mocker.patch("littlepay.api.ClientProtocol._post", side_effect=lambda *args, **kwargs: response)
+
+
+@pytest.fixture
 def mock_ClientProtocol_post_create_concession_group(mocker):
     response = dict(id="0", participant_id="zero_0")
     return mocker.patch("littlepay.api.ClientProtocol._post", side_effect=lambda *args, **kwargs: response)
@@ -190,6 +196,18 @@ def test_GroupsMixin_remove_concession_group(mock_ClientProtocol_delete):
 
     mock_ClientProtocol_delete.assert_called_once_with(client.concession_groups_endpoint("1234"))
     assert result is True
+
+
+def test_GroupMixin_migrate_concession_group(mock_ClientProtocol_post_migrate_concession_group):
+    client = GroupsMixin()
+
+    result = client.migrate_concession_group("1234")
+
+    mock_ClientProtocol_post_migrate_concession_group.assert_called_once_with(
+        client.concession_groups_endpoint("1234", "migrate"), None, dict
+    )
+    assert isinstance(result, dict)
+    assert result["status_code"] == 204
 
 
 def test_GroupsMixin_get_concession_group_linked_funding_sources(
