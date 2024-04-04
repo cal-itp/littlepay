@@ -9,7 +9,7 @@
 | littlepay/api/card\_tokenization.py |       10 |        0 |        0 |        0 |    100% |           |
 | littlepay/api/client.py             |       83 |        0 |       18 |        0 |    100% |           |
 | littlepay/api/funding\_sources.py   |       29 |        0 |        2 |        0 |    100% |           |
-| littlepay/api/groups.py             |       72 |        0 |       22 |        0 |    100% |           |
+| littlepay/api/groups.py             |       75 |        0 |       22 |        0 |    100% |           |
 | littlepay/api/products.py           |       43 |        0 |       12 |        0 |    100% |           |
 | littlepay/commands/\_\_init\_\_.py  |        7 |        0 |        0 |        0 |    100% |           |
 | littlepay/commands/configure.py     |       34 |        0 |       10 |        0 |    100% |           |
@@ -18,7 +18,7 @@
 | littlepay/commands/switch.py        |       11 |        0 |        6 |        1 |     94% |    13->16 |
 | littlepay/config.py                 |       97 |        0 |       42 |        0 |    100% |           |
 | littlepay/main.py                   |       62 |        1 |       10 |        1 |     97% |       128 |
-|                           **TOTAL** |  **617** |    **9** |  **186** |    **2** | **99%** |           |
+|                           **TOTAL** |  **620** |    **9** |  **186** |    **2** | **99%** |           |
 
 
 ## Setup coverage badge
