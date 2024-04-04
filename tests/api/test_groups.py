@@ -140,6 +140,14 @@ def test_GroupsMixin_concession_groups_funding_sources_endpoint(url):
     assert client.concession_group_funding_source_endpoint("1234") == f"{url}/concession_groups/1234/fundingsources"
 
 
+def test_GroupsMixin_concession_groups_funding_sources_funding_source_id(url):
+    client = GroupsMixin()
+
+    assert (
+        client.concession_group_funding_source_endpoint("1234", "4567") == f"{url}/concession_groups/1234/fundingsources/4567"
+    )
+
+
 def test_GroupsMixin_create_concession_group(mock_ClientProtocol_post_create_concession_group):
     client = GroupsMixin()
 
@@ -233,37 +241,37 @@ def test_GroupsMixin_link_concession_group_funding_source(mock_ClientProtocol_po
     assert result == {"status_code": 201}
 
 
-def test_GroupsMixin_format_concession_expiry_not_datetime(expected_expiry_str):
+def test_GroupsMixin_format_expiry_not_datetime(expected_expiry_str):
     client = GroupsMixin()
-    with pytest.raises(TypeError, match="concession_expiry must be a Python datetime instance"):
-        client._format_concession_expiry(expected_expiry_str)
+    with pytest.raises(TypeError, match="expiry must be a Python datetime instance"):
+        client._format_expiry(expected_expiry_str)
 
 
-def test_GroupsMixin_format_concession_expiry_aware_utc(expected_expiry, expected_expiry_str):
+def test_GroupsMixin_format_expiry_aware_utc(expected_expiry, expected_expiry_str):
     client = GroupsMixin()
-    result = client._format_concession_expiry(expected_expiry)
+    result = client._format_expiry(expected_expiry)
 
     assert result == expected_expiry_str
 
 
-def test_GroupsMixin_format_concession_expiry_aware_not_utc():
+def test_GroupsMixin_format_expiry_aware_not_utc():
     # construct a datetime in UTC-7 and the expected string formatting
-    concession_expiry = datetime(2024, 3, 18, 1, 2, 3, tzinfo=timezone(timedelta(hours=-7)))
+    expiry = datetime(2024, 3, 18, 1, 2, 3, tzinfo=timezone(timedelta(hours=-7)))
     expected_body_expiry = "2024-03-18T08:02:03Z"
 
     client = GroupsMixin()
-    result = client._format_concession_expiry(concession_expiry)
+    result = client._format_expiry(expiry)
 
     assert result == expected_body_expiry
 
 
-def test_GroupsMixin_format_concession_expiry_naive():
+def test_GroupsMixin_format_expiry_naive():
     # construct a naive datetime and the expected string formatting
-    concession_expiry = datetime(2024, 3, 18, 1, 2, 3, tzinfo=None)
+    expiry = datetime(2024, 3, 18, 1, 2, 3, tzinfo=None)
     expected_body_expiry = "2024-03-18T01:02:03Z"
 
     client = GroupsMixin()
-    result = client._format_concession_expiry(concession_expiry)
+    result = client._format_expiry(expiry)
 
     assert result == expected_body_expiry
 
@@ -272,13 +280,13 @@ def test_GroupsMixin_link_concession_group_funding_source_expiry(
     mock_ClientProtocol_post_link_concession_group_funding_source, mocker
 ):
     client = GroupsMixin()
-    mocker.patch.object(client, "_format_concession_expiry", return_value="formatted concession expiry")
+    mocker.patch.object(client, "_format_expiry", return_value="formatted expiry")
 
     result = client.link_concession_group_funding_source("group-1234", "funding-source-1234", datetime.now())
 
     endpoint = client.concession_group_funding_source_endpoint("group-1234")
     mock_ClientProtocol_post_link_concession_group_funding_source.assert_called_once_with(
-        endpoint, {"id": "funding-source-1234", "concession_expiry": "formatted concession expiry"}, dict
+        endpoint, {"id": "funding-source-1234", "expiry": "formatted expiry"}, dict
     )
     assert result == {"status_code": 201}
 
@@ -287,13 +295,13 @@ def test_GroupsMixin_update_concession_group_funding_source_expiry(
     mock_ClientProtocol_put_update_concession_group_funding_source, ListResponse_GroupFundingSources, mocker
 ):
     client = GroupsMixin()
-    mocker.patch.object(client, "_format_concession_expiry", return_value="formatted concession expiry")
+    mocker.patch.object(client, "_format_expiry", return_value="formatted expiry")
 
     result = client.update_concession_group_funding_source_expiry("group-1234", "funding-source-1234", datetime.now())
 
-    endpoint = client.concession_group_funding_source_endpoint("group-1234")
+    endpoint = client.concession_group_funding_source_endpoint("group-1234", "funding-source-1234")
     mock_ClientProtocol_put_update_concession_group_funding_source.assert_called_once_with(
-        endpoint, {"id": "funding-source-1234", "concession_expiry": "formatted concession expiry"}, ListResponse
+        endpoint, {"expiry": "formatted expiry"}, ListResponse
     )
 
     expected = GroupFundingSourceResponse(**ListResponse_GroupFundingSources.list[0])

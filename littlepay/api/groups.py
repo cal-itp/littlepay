@@ -60,32 +60,32 @@ class GroupsMixin(ClientProtocol):
 
     CONCESSION_GROUPS = "concession_groups"
 
-    def _format_concession_expiry(self, concession_expiry: datetime):
-        """Formats a concession expiry datetime into a string suitable for using in an API request body."""
-        if not isinstance(concession_expiry, datetime):
-            raise TypeError("concession_expiry must be a Python datetime instance")
-        # determine if concession_expiry is an "aware" or "naive" datetime instance
+    def _format_expiry(self, expiry: datetime):
+        """Formats an expiry datetime into a string suitable for using in an API request body."""
+        if not isinstance(expiry, datetime):
+            raise TypeError("expiry must be a Python datetime instance")
+        # determine if expiry is an "aware" or "naive" datetime instance
         # https://docs.python.org/3/library/datetime.html#determining-if-an-object-is-aware-or-naive
-        if concession_expiry.tzinfo is not None and concession_expiry.tzinfo.utcoffset(concession_expiry) is not None:
-            # concession_expiry is an "aware" datetime instance, meaning it has associated time zone information
+        if expiry.tzinfo is not None and expiry.tzinfo.utcoffset(expiry) is not None:
+            # expiry is an "aware" datetime instance, meaning it has associated time zone information
             # ensure this datetime instance is expressed in UTC
-            concession_expiry = concession_expiry.astimezone(timezone.utc)
+            expiry = expiry.astimezone(timezone.utc)
         else:
-            # concession_expiry is a "naive" datetime instance, meaning it has no associated time zone information
+            # expiry is a "naive" datetime instance, meaning it has no associated time zone information
             # assume this datetime instance was provided in UTC
-            concession_expiry = concession_expiry.replace(tzinfo=timezone.utc)
-        # now concession_expiry is an "aware" datetime instance in UTC, format and add to the payload
+            expiry = expiry.replace(tzinfo=timezone.utc)
+        # now expiry is an "aware" datetime instance in UTC, format and add to the payload
         # datetime.isoformat() adds the UTC offset like +00:00
         # so keep everything but the last 6 characters and add the Z offset character
-        return f"{concession_expiry.isoformat(timespec='seconds')[:-6]}Z"
+        return f"{expiry.isoformat(timespec='seconds')[:-6]}Z"
 
     def concession_groups_endpoint(self, group_id: str = None, *parts: str) -> str:
         """Endpoint for concession groups. Optionally provide a group_id for a group-specific endpoint."""
         return self._make_endpoint(self.CONCESSION_GROUPS, group_id, *parts)
 
-    def concession_group_funding_source_endpoint(self, group_id: str) -> str:
+    def concession_group_funding_source_endpoint(self, group_id: str, funding_source_id: str = None) -> str:
         """Endpoint for a concession group's funding sources."""
-        return self.concession_groups_endpoint(group_id, FundingSourcesMixin.FUNDING_SOURCES)
+        return self.concession_groups_endpoint(group_id, FundingSourcesMixin.FUNDING_SOURCES, funding_source_id)
 
     def create_concession_group(self, group_label: str) -> dict:
         """Create a new concession group."""
@@ -110,24 +110,22 @@ class GroupsMixin(ClientProtocol):
         for item in self._get_list(endpoint):
             yield GroupFundingSourceResponse(**item)
 
-    def link_concession_group_funding_source(
-        self, group_id: str, funding_source_id: str, concession_expiry: datetime = None
-    ) -> dict:
+    def link_concession_group_funding_source(self, group_id: str, funding_source_id: str, expiry: datetime = None) -> dict:
         """Link a funding source to a concession group."""
         endpoint = self.concession_group_funding_source_endpoint(group_id)
         data = {"id": funding_source_id}
 
-        if concession_expiry is not None:
-            data["concession_expiry"] = self._format_concession_expiry(concession_expiry)
+        if expiry is not None:
+            data["expiry"] = self._format_expiry(expiry)
 
         return self._post(endpoint, data, dict)
 
     def update_concession_group_funding_source_expiry(
-        self, group_id: str, funding_source_id: str, concession_expiry: datetime
+        self, group_id: str, funding_source_id: str, expiry: datetime
     ) -> GroupFundingSourceResponse:
         """Update the expiry of a funding source already linked to a concession group."""
-        endpoint = self.concession_group_funding_source_endpoint(group_id)
-        data = {"id": funding_source_id, "concession_expiry": self._format_concession_expiry(concession_expiry)}
+        endpoint = self.concession_group_funding_source_endpoint(group_id, funding_source_id)
+        data = {"expiry": self._format_expiry(expiry)}
 
         response = self._put(endpoint, data, ListResponse)
 
