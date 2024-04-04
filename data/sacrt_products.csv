@@ -1,0 +1,21 @@
+id,code,status,type,description,participant_id
+11c14bb6-2469-42f6-867c-52b83752b03d,DISC001,ACTIVE,CAPPING,Senior Discount 90 min Cap,sacrt
+1fd44d59-08d1-44b2-bc36-c613055b8da4,DISC001,INACTIVE,CAPPING,Senior Discount Single Ride,sacrt
+331b2ae2-126b-48a8-9944-3089c1ccc631,DISC001,ACTIVE,CAPPING,Senior Discount Single Ride,sacrt
+3a2159d0-2893-4a8b-a71d-80de36dc8137,SacRT-90MIN,ACTIVE,CAPPING,SacRT-90MIN,sacrt
+65bafff9-600b-463f-968a-57ff34ca5f9d,SacRT-90MIN,ACTIVE,CAPPING,SacRT-90MIN,sacrt
+6815918c-b680-4a7d-a058-68f41849138f,DISC001,ACTIVE,CAPPING,Senior Discount Daily Cap,sacrt
+68fc6210-7338-400a-9b00-ad4ddddac71e,SacRT-90MIN,INACTIVE,CAPPING,SacRT-90MIN,sacrt
+a4ff0cd8-4073-472e-ae41-e32ca419b022,DISC001,ACTIVE,CAPPING,Senior Discount Single Ride,sacrt
+aafa92ee-1c93-489d-ab24-5b3db786ef12,SACRT-Daily cap,ACTIVE,CAPPING,SACRT-Daily cap,sacrt
+c0581fff-5365-4aa0-a2bd-c452b11a9cd6,DISC001,ACTIVE,CAPPING,Senior Discount 90 min Cap,sacrt
+cc724bb1-a2e0-4be9-b3d3-8a6630e13516,SACRT-Daily cap,ACTIVE,CAPPING,SACRT-Daily cap,sacrt
+d4d18eba-5d1c-416a-ae3e-bf18b04596cf,SacRT-90MIN,ACTIVE,CAPPING,SacRT-90MIN,sacrt
+d6c36d07-7793-42c8-8c42-86a8785dc0b9,SACRT-Daily cap,INACTIVE,CAPPING,SACRT-Daily cap,sacrt
+d8b39674-831e-4737-8033-4ba514a8c21f,DISC001,ACTIVE,CAPPING,Senior Discount 90 min Cap,sacrt
+ddaad296-8e75-46c2-af26-1b4207a930f9,DISC001,ACTIVE,CAPPING,Senior Discount Daily Cap,sacrt
+f083ca1c-3d41-4eb5-8a4f-a025b9774dcd,DISC001,INACTIVE,CAPPING,Senior Discount Single Ride,sacrt
+f49b4192-2c0a-432d-9dc5-fd9784491989,SACRT-Daily cap,ACTIVE,CAPPING,SACRT-Daily cap,sacrt
+3d42cb33-9de7-4784-b59b-7f8109573a8d,DISC001,ACTIVE,DISCOUNT,Senior Discount Single Ride,sacrt
+44c5e773-e064-4609-88df-4437291c2266,DISC001,INACTIVE,DISCOUNT,Senior Discount Single Ride,sacrt
+bb2eebbb-8dc1-476f-9f8d-481817fdee3d,DISC001,ACTIVE,DISCOUNT,Senior Discount Single Ride,sacrt
