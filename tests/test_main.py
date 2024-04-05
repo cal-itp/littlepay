@@ -131,6 +131,15 @@ def test_main_groups_link(mock_commands_groups):
     assert call_args.product_id == "1234"
 
 
+def test_main_groups_migrate(mock_commands_groups):
+    result = main(argv=["groups", "migrate"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert call_args.group_command == "migrate"
+
+
 def test_main_groups_products(mock_commands_groups):
     result = main(argv=["groups", "products"])
 
