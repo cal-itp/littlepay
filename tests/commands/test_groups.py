@@ -296,3 +296,79 @@ def test_groups_group_command__unlink_HTTPError(mock_client, capfd):
     assert "Unlinking group <-> product" in capture.out
     assert "Error" in capture.out
     assert "Unlinked" not in capture.out
+
+
+@pytest.mark.parametrize("sample_input", ["y", "Y", "yes", "Yes", "YES"])
+def test_groups_group_command__migrate_confirm(mock_client, capfd, mock_input, sample_input):
+    mock_input(sample_input)
+
+    args = Namespace(group_command="migrate")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    for group in GROUP_RESPONSES:
+        mock_client.migrate_concession_group.assert_any_call(group.id)
+
+    assert res == RESULT_SUCCESS
+    assert "Migrating group" in capture.out
+    assert "Migrated" in capture.out
+    assert "Matching groups" in capture.out
+
+
+def test_groups_group_command__migrate_confirm_error(capfd, mock_input):
+    _input = mock_input(None)
+    _input.side_effect = EOFError
+
+    args = Namespace(group_command="migrate")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+    assert "Migrating group" in capture.out
+    assert "Canceled" in capture.out
+    assert "Matching groups" in capture.out
+
+
+@pytest.mark.parametrize("sample_input", ["n", "N", "no", "No", "NO"])
+def test_groups_group_command__migrate_decline(capfd, mock_input, sample_input):
+    mock_input(sample_input)
+
+    args = Namespace(group_command="migrate")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+    assert "Migrating group" in capture.out
+    assert "Canceled" in capture.out
+    assert "Matching groups" in capture.out
+
+
+def test_groups_group_command__migrate_force(mock_client, capfd, mock_input):
+    _input = mock_input("no")
+
+    args = Namespace(group_command="migrate", force=True)
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    for group in GROUP_RESPONSES:
+        mock_client.migrate_concession_group.assert_any_call(group.id)
+
+    assert res == RESULT_SUCCESS
+    assert _input.called is False
+    assert "Migrating group" in capture.out
+    assert "Migrated" in capture.out
+    assert "Matching groups" in capture.out
+
+
+def test_groups_group_command__migrate_HTTPError(mock_client, capfd, mock_input):
+    mock_client.migrate_concession_group.side_effect = HTTPError
+    mock_input("y")
+
+    args = Namespace(group_command="migrate", group_id="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_FAILURE
+    assert "Migrating group" in capture.out
+    assert "Error" in capture.out
+    assert "Matching groups" in capture.out
