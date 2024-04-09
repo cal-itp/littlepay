@@ -38,7 +38,8 @@ def mock_input(mocker):
 
 @pytest.fixture(autouse=True)
 def mock_get_groups(mock_client):
-    mock_client.get_concession_groups.return_value = GROUP_RESPONSES
+    # return a generator comprehension to mimic how the real function returns a Generator
+    mock_client.get_concession_groups.return_value = (r for r in GROUP_RESPONSES)
 
 
 def test_groups_default(mock_client, capfd):
