@@ -1,0 +1,11 @@
+recursive-exclude .config *
+recursive-exclude .devcontainer *
+recursive-exclude .github *
+recursive-exclude .vscode *
+recursive-exclude bin *
+recursive-exclude data *
+
+exclude .flake8
+exclude .gitignore
+exclude .pre-commit-config.yaml
+exclude compose.yaml
