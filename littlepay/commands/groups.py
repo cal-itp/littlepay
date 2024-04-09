@@ -37,6 +37,8 @@ def groups(args: Namespace = None) -> int:
             groups,
         )
 
+    groups = list(groups)
+
     if command == "link":
         for group in groups:
             return_code += link_product(client, group.id, args.product_id)
@@ -47,7 +49,6 @@ def groups(args: Namespace = None) -> int:
         for group in groups:
             return_code += migrate_group(client, group.id, getattr(args, "force", False))
 
-    groups = list(groups)
     if csv_output and command != "products":
         print(GroupResponse.csv_header())
     elif csv_output and command == "products":

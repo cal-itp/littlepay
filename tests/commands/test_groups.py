@@ -38,7 +38,8 @@ def mock_input(mocker):
 
 @pytest.fixture(autouse=True)
 def mock_get_groups(mock_client):
-    mock_client.get_concession_groups.return_value = GROUP_RESPONSES
+    # return a generator comprehension to mimic how the real function returns a Generator
+    mock_client.get_concession_groups.return_value = (r for r in GROUP_RESPONSES)
 
 
 def test_groups_default(mock_client, capfd):
@@ -116,7 +117,7 @@ def test_groups_group_command__create(mock_client, capfd):
     assert res == RESULT_SUCCESS
     assert "Creating group" in capture.out
     assert "Created" in capture.out
-    assert "Matching groups" in capture.out
+    assert "Matching groups (3)" in capture.out
 
 
 def test_groups_group_command__create_HTTPError(mock_client, capfd):
@@ -131,7 +132,7 @@ def test_groups_group_command__create_HTTPError(mock_client, capfd):
     assert res == RESULT_FAILURE
     assert "Creating group" in capture.out
     assert "Error" in capture.out
-    assert "Matching groups" in capture.out
+    assert "Matching groups (3)" in capture.out
 
 
 def test_groups_group_command__link(mock_client, capfd):
@@ -213,7 +214,7 @@ def test_groups_group_command__remove_confirm(capfd, mock_input, sample_input):
     assert res == RESULT_SUCCESS
     assert "Removing group" in capture.out
     assert "Removed" in capture.out
-    assert "Matching groups" in capture.out
+    assert "Matching groups (3)" in capture.out
 
 
 def test_groups_group_command__remove_confirm_error(capfd, mock_input):
@@ -227,7 +228,7 @@ def test_groups_group_command__remove_confirm_error(capfd, mock_input):
     assert res == RESULT_SUCCESS
     assert "Removing group" in capture.out
     assert "Canceled" in capture.out
-    assert "Matching groups" in capture.out
+    assert "Matching groups (3)" in capture.out
 
 
 @pytest.mark.parametrize("sample_input", ["n", "N", "no", "No", "NO"])
@@ -241,7 +242,7 @@ def test_groups_group_command__remove_decline(capfd, mock_input, sample_input):
     assert res == RESULT_SUCCESS
     assert "Removing group" in capture.out
     assert "Canceled" in capture.out
-    assert "Matching groups" in capture.out
+    assert "Matching groups (3)" in capture.out
 
 
 def test_groups_group_command__remove_force(capfd, mock_input):
@@ -255,7 +256,7 @@ def test_groups_group_command__remove_force(capfd, mock_input):
     assert _input.called is False
     assert "Removing group" in capture.out
     assert "Removed" in capture.out
-    assert "Matching groups" in capture.out
+    assert "Matching groups (3)" in capture.out
 
 
 def test_groups_group_command__remove_HTTPError(capfd, mock_client, mock_input):
@@ -269,7 +270,7 @@ def test_groups_group_command__remove_HTTPError(capfd, mock_client, mock_input):
     assert res == RESULT_FAILURE
     assert "Removing group" in capture.out
     assert "Error" in capture.out
-    assert "Matching groups" in capture.out
+    assert "Matching groups (3)" in capture.out
 
 
 def test_groups_group_command__unlink(mock_client, capfd):
@@ -283,6 +284,7 @@ def test_groups_group_command__unlink(mock_client, capfd):
     assert res == RESULT_SUCCESS
     assert "Unlinking group <-> product" in capture.out
     assert "Unlinked" in capture.out
+    assert "Matching groups (3)" in capture.out
 
 
 def test_groups_group_command__unlink_HTTPError(mock_client, capfd):
@@ -312,7 +314,7 @@ def test_groups_group_command__migrate_confirm(mock_client, capfd, mock_input, s
     assert res == RESULT_SUCCESS
     assert "Migrating group" in capture.out
     assert "Migrated" in capture.out
-    assert "Matching groups" in capture.out
+    assert "Matching groups (3)" in capture.out
 
 
 def test_groups_group_command__migrate_confirm_error(capfd, mock_input):
@@ -326,7 +328,7 @@ def test_groups_group_command__migrate_confirm_error(capfd, mock_input):
     assert res == RESULT_SUCCESS
     assert "Migrating group" in capture.out
     assert "Canceled" in capture.out
-    assert "Matching groups" in capture.out
+    assert "Matching groups (3)" in capture.out
 
 
 @pytest.mark.parametrize("sample_input", ["n", "N", "no", "No", "NO"])
@@ -340,7 +342,7 @@ def test_groups_group_command__migrate_decline(capfd, mock_input, sample_input):
     assert res == RESULT_SUCCESS
     assert "Migrating group" in capture.out
     assert "Canceled" in capture.out
-    assert "Matching groups" in capture.out
+    assert "Matching groups (3)" in capture.out
 
 
 def test_groups_group_command__migrate_force(mock_client, capfd, mock_input):
@@ -357,7 +359,7 @@ def test_groups_group_command__migrate_force(mock_client, capfd, mock_input):
     assert _input.called is False
     assert "Migrating group" in capture.out
     assert "Migrated" in capture.out
-    assert "Matching groups" in capture.out
+    assert "Matching groups (3)" in capture.out
 
 
 def test_groups_group_command__migrate_HTTPError(mock_client, capfd, mock_input):
@@ -371,4 +373,4 @@ def test_groups_group_command__migrate_HTTPError(mock_client, capfd, mock_input)
     assert res == RESULT_FAILURE
     assert "Migrating group" in capture.out
     assert "Error" in capture.out
-    assert "Matching groups" in capture.out
+    assert "Matching groups (3)" in capture.out
