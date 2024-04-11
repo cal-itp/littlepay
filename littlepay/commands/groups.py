@@ -69,6 +69,8 @@ def groups(args: Namespace = None) -> int:
                     print(f"{group.id},{product.id},{group.participant_id}")
                 else:
                     print(" ", product)
+        elif command == "funding_sources":
+            return_code += funding_sources(client, group.id)
         elif csv_output:
             print(group.csv())
 
@@ -170,5 +172,21 @@ def migrate_group(client: Client, group_id: str, force: bool = False) -> int:
             return_code = RESULT_FAILURE
     else:
         print("Canceled...")
+
+    return return_code
+
+
+def funding_sources(client: Client, group_id: str) -> int:
+    return_code = RESULT_SUCCESS
+
+    try:
+        funding_sources = client.get_concession_group_linked_funding_sources(group_id)
+        funding_sources = list(funding_sources)
+        print(f"  💵 Linked funding sources ({len(funding_sources)})")
+        for funding_source in funding_sources:
+            print(" ", funding_source)
+    except HTTPError as err:
+        print(f"❌ Error: {err}")
+        return_code = RESULT_FAILURE
 
     return return_code
