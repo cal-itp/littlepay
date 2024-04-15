@@ -3,7 +3,7 @@ from argparse import Namespace
 import pytest
 from requests import HTTPError
 
-from littlepay.api.groups import GroupResponse
+from littlepay.api.groups import GroupResponse, GroupFundingSourceResponse
 from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS
 from littlepay.commands.groups import groups
 
@@ -13,6 +13,12 @@ GROUP_RESPONSES = [
     GroupResponse("id0", "zero", "participant123"),
     GroupResponse("id1", "one", "participant123"),
     GroupResponse("id2", "two", "participant123"),
+]
+
+GROUP_FUND_RESPONSES = [
+    GroupFundingSourceResponse("group_funding_id0", "2024-04-01T00:05:23Z", "2024-04-02T00:05:23Z", "2024-04-03T00:05:23Z"),
+    GroupFundingSourceResponse("group_funding_id1", "2024-04-04T00:05:23Z", "2024-04-05T00:05:23Z", "2024-04-06T00:05:23Z"),
+    GroupFundingSourceResponse("group_funding_id2", "2024-04-07T00:05:23Z", "2024-04-08T00:05:23Z", "2024-04-09T00:05:23Z"),
 ]
 
 
@@ -133,6 +139,30 @@ def test_groups_group_command__create_HTTPError(mock_client, capfd):
     assert "Creating group" in capture.out
     assert "Error" in capture.out
     assert "Matching groups (3)" in capture.out
+
+
+def test_groups_group_command__funding_sources(mock_client, capfd):
+    mock_client.get_concession_group_linked_funding_sources.return_value = (r for r in GROUP_FUND_RESPONSES)
+
+    args = Namespace(group_command="funding_sources")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_SUCCESS
+    assert "Matching groups (3)" in capture.out
+    assert "  💵 Linked funding sources (3)" in capture.out
+
+
+def test_groups_group_command__funding_sources_HTTPError(mock_client, capfd):
+    mock_client.get_concession_group_linked_funding_sources.side_effect = HTTPError
+
+    args = Namespace(group_command="funding_sources")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_FAILURE
+    assert "Matching groups (3)" in capture.out
+    assert "Error:" in capture.out
 
 
 def test_groups_group_command__link(mock_client, capfd):
