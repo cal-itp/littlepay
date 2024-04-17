@@ -13,12 +13,12 @@
 | littlepay/api/products.py           |       43 |        0 |       12 |        0 |    100% |           |
 | littlepay/commands/\_\_init\_\_.py  |        7 |        0 |        0 |        0 |    100% |           |
 | littlepay/commands/configure.py     |       34 |        0 |       10 |        0 |    100% |           |
-| littlepay/commands/groups.py        |      126 |        0 |       48 |        0 |    100% |           |
+| littlepay/commands/groups.py        |      140 |        0 |       52 |        0 |    100% |           |
 | littlepay/commands/products.py      |       38 |        0 |       22 |        0 |    100% |           |
 | littlepay/commands/switch.py        |       11 |        0 |        6 |        1 |     94% |    13->16 |
 | littlepay/config.py                 |       97 |        0 |       42 |        0 |    100% |           |
-| littlepay/main.py                   |       64 |        1 |       10 |        1 |     97% |       135 |
-|                           **TOTAL** |  **645** |    **9** |  **194** |    **2** | **99%** |           |
+| littlepay/main.py                   |       65 |        1 |       10 |        1 |     97% |       137 |
+|                           **TOTAL** |  **660** |    **9** |  **198** |    **2** | **99%** |           |
 
 
 ## Setup coverage badge
