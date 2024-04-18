@@ -114,12 +114,14 @@ littlepay switch participant <participant_id>
 
 ```console
 $ littlepay groups -h
-usage: littlepay groups [-h] [-f GROUP_TERMS] [--csv] {create,link,products,remove,unlink} ...
+usage: littlepay groups [-h] [-f GROUP_TERMS] [--csv] {create,funding_sources,link,migrate,products,remove,unlink} ...
 
 positional arguments:
-  {create,link,products,remove,unlink}
+  {create,funding_sources,link,migrate,products,remove,unlink}
     create              Create a new concession group
+    funding_sources     List funding sources for one or more concession groups
     link                Link one or more concession groups to a product
+    migrate             Migrate a group from the old Customer Group format to the current format
     products            List products for one or more concession groups
     remove              Remove an existing concession group
     unlink              Unlink a product from one or more concession groups
