@@ -59,6 +59,13 @@ class FundingSourceDateFields:
             self.expiry_date = None
 
 
+@dataclass(kw_only=True)
+class FundingSourceGroupResponse(FundingSourceDateFields):
+    id: str
+    group_id: str
+    label: str
+
+
 class FundingSourcesMixin(ClientProtocol):
     """Mixin implements APIs for funding sources."""
 
