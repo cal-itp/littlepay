@@ -1,6 +1,6 @@
 import pytest
 
-from littlepay.api.funding_sources import FundingSourceResponse, FundingSourcesMixin
+from littlepay.api.funding_sources import FundingSourceDateFields, FundingSourceResponse, FundingSourcesMixin
 
 
 @pytest.fixture
@@ -18,6 +18,16 @@ def mock_ClientProtocol_get_FundingResource(mocker):
         related_funding_sources=[],
     )
     return mocker.patch("littlepay.api.ClientProtocol._get", return_value=funding_source)
+
+
+def test_FundingSourceDateFields(expected_expiry_str, expected_expiry):
+    fields = FundingSourceDateFields(
+        created_date=expected_expiry_str, updated_date=expected_expiry_str, expiry_date=expected_expiry_str
+    )
+
+    assert fields.created_date == expected_expiry
+    assert fields.updated_date == expected_expiry
+    assert fields.expiry_date == expected_expiry
 
 
 def test_FundingSourcesMixin_funding_sources_by_token_endpoint(url):

@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -146,3 +147,13 @@ def mock_ClientProtocol_make_endpoint(mocker, url):
 @pytest.fixture
 def ListResponse_sample():
     return ListResponse(list=[{"one": 1}, {"two": 2}, {"three": 3}], total_count=3)
+
+
+@pytest.fixture
+def expected_expiry():
+    return datetime(2024, 3, 19, 22, 0, 0, tzinfo=timezone.utc)
+
+
+@pytest.fixture
+def expected_expiry_str(expected_expiry):
+    return expected_expiry.strftime("%Y-%m-%dT%H:%M:%SZ")

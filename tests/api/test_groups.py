@@ -8,16 +8,6 @@ from littlepay.api.groups import GroupFundingSourceResponse, GroupResponse, Grou
 
 
 @pytest.fixture
-def expected_expiry():
-    return datetime(2024, 3, 19, 22, 0, 0, tzinfo=timezone.utc)
-
-
-@pytest.fixture
-def expected_expiry_str(expected_expiry):
-    return expected_expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-@pytest.fixture
 def ListResponse_GroupFundingSources(expected_expiry_str):
     items = [
         dict(
