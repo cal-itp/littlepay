@@ -16,9 +16,24 @@ GROUP_RESPONSES = [
 ]
 
 GROUP_FUND_RESPONSES = [
-    GroupFundingSourceResponse("group_funding_id0", "2024-04-01T00:05:23Z", "2024-04-02T00:05:23Z", "2024-04-03T00:05:23Z"),
-    GroupFundingSourceResponse("group_funding_id1", "2024-04-04T00:05:23Z", "2024-04-05T00:05:23Z", "2024-04-06T00:05:23Z"),
-    GroupFundingSourceResponse("group_funding_id2", "2024-04-07T00:05:23Z", "2024-04-08T00:05:23Z", "2024-04-09T00:05:23Z"),
+    GroupFundingSourceResponse(
+        id="group_funding_id0",
+        created_date="2024-04-01T00:05:23Z",
+        updated_date="2024-04-02T00:05:23Z",
+        expiry_date="2024-04-03T00:05:23Z",
+    ),
+    GroupFundingSourceResponse(
+        id="group_funding_id1",
+        created_date="2024-04-04T00:05:23Z",
+        updated_date="2024-04-05T00:05:23Z",
+        expiry_date="2024-04-06T00:05:23Z",
+    ),
+    GroupFundingSourceResponse(
+        id="group_funding_id2",
+        created_date="2024-04-07T00:05:23Z",
+        updated_date="2024-04-08T00:05:23Z",
+        expiry_date="2024-04-09T00:05:23Z",
+    ),
 ]
 
 

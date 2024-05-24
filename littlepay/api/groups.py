@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from typing import Generator
 
 from littlepay.api import ClientProtocol, ListResponse
-from littlepay.api.funding_sources import FundingSourcesMixin
+from littlepay.api.funding_sources import FundingSourceDateFields, FundingSourcesMixin
 
 
 @dataclass
@@ -25,34 +25,9 @@ class GroupResponse:
         return ",".join(vars(instance).keys())
 
 
-@dataclass
-class GroupFundingSourceResponse:
+@dataclass(kw_only=True)
+class GroupFundingSourceResponse(FundingSourceDateFields):
     id: str
-    created_date: datetime | None = None
-    updated_date: datetime | None = None
-    expiry_date: datetime | None = None
-
-    def __post_init__(self):
-        """Parses any date parameters into Python datetime objects.
-
-        Includes a workaround for Python 3.10 where datetime.fromisoformat() can only parse the format output
-        by datetime.isoformat(), i.e. without a trailing 'Z' offset character and with UTC offset expressed
-        as +/-HH:mm
-
-        https://docs.python.org/3.11/library/datetime.html#datetime.datetime.fromisoformat
-        """
-        if self.created_date:
-            self.created_date = datetime.fromisoformat(self.created_date.replace("Z", "+00:00", 1))
-        else:
-            self.created_date = None
-        if self.updated_date:
-            self.updated_date = datetime.fromisoformat(self.updated_date.replace("Z", "+00:00", 1))
-        else:
-            self.updated_date = None
-        if self.expiry_date:
-            self.expiry_date = datetime.fromisoformat(self.expiry_date.replace("Z", "+00:00", 1))
-        else:
-            self.expiry_date = None
 
 
 class GroupsMixin(ClientProtocol):
