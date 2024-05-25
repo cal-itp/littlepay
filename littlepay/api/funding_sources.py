@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional
+from typing import Generator, List, Optional
 
 from littlepay.api import ClientProtocol
 
@@ -75,7 +75,19 @@ class FundingSourcesMixin(ClientProtocol):
         """Endpoint for a funding source by card token."""
         return self._make_endpoint(self.FUNDING_SOURCES, "bytoken", card_token)
 
+    def funding_source_concession_groups_endpoint(self, funding_source_id) -> str:
+        """Endpoint for a funding source's concession groups."""
+        return self._make_endpoint(self.FUNDING_SOURCES, funding_source_id, "concession_groups")
+
     def get_funding_source_by_token(self, card_token) -> FundingSourceResponse:
         """Return a FundingSourceResponse object from the funding source by token endpoint."""
         endpoint = self.funding_source_by_token_endpoint(card_token)
         return self._get(endpoint, FundingSourceResponse)
+
+    def get_funding_source_linked_concession_groups(
+        self, funding_source_id: str
+    ) -> Generator[FundingSourceGroupResponse, None, None]:
+        """Yield FundingSourceGroupResponse objects representing linked concession groups."""
+        endpoint = self.funding_source_concession_groups_endpoint(funding_source_id)
+        for item in self._get_list(endpoint, per_page=100):
+            yield FundingSourceGroupResponse(**item)
