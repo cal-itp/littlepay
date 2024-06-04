@@ -56,7 +56,7 @@ def SampleResponse_json():
 
 @pytest.fixture
 def default_list_params():
-    return dict(page=1, perPage=100)
+    return dict(page=1, per_page=100)
 
 
 def test_client_from_active_config(

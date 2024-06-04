@@ -47,7 +47,7 @@ class ProductsMixin(GroupsMixin, ClientProtocol):
         """Yield ProductResponse objects from the products endpoint."""
         endpoint = self.products_endpoint(product_id)
         if product_id is None:
-            for item in self._get_list(endpoint, status=status):
+            for item in self._get_list(endpoint, status=status, perPage=100):
                 yield ProductResponse(**item)
         else:
             yield self._get(endpoint, ProductResponse)

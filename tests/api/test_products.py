@@ -92,7 +92,7 @@ def test_ProductsMixin_get_products(mock_ClientProtocol_get_list):
     assert mock_ClientProtocol_get_list.call_count == 0
 
     result_list = list(result)
-    mock_ClientProtocol_get_list.assert_called_once_with(client.products_endpoint(), status=None)
+    mock_ClientProtocol_get_list.assert_called_once_with(client.products_endpoint(), status=None, perPage=100)
     assert len(result_list) == len(PRODUCTS)
     assert all([isinstance(item, ProductResponse) for item in result_list])
 
