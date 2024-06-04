@@ -8,16 +8,6 @@ from littlepay.api.groups import GroupFundingSourceResponse, GroupResponse, Grou
 
 
 @pytest.fixture
-def expected_expiry():
-    return datetime(2024, 3, 19, 22, 0, 0, tzinfo=timezone.utc)
-
-
-@pytest.fixture
-def expected_expiry_str(expected_expiry):
-    return expected_expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-@pytest.fixture
 def ListResponse_GroupFundingSources(expected_expiry_str):
     items = [
         dict(
@@ -93,7 +83,7 @@ def test_GroupResponse_csv_header():
 
 
 def test_GroupFundingSourceResponse_no_dates():
-    response = GroupFundingSourceResponse("id")
+    response = GroupFundingSourceResponse(id="id")
 
     assert response.id == "id"
     assert response.expiry_date is None
@@ -102,7 +92,7 @@ def test_GroupFundingSourceResponse_no_dates():
 
 
 def test_GroupFundingSourceResponse_empty_dates():
-    response = GroupFundingSourceResponse("id", "", "", "")
+    response = GroupFundingSourceResponse(id="id", created_date="", updated_date="", expiry_date="")
 
     assert response.id == "id"
     assert response.expiry_date is None
@@ -111,7 +101,9 @@ def test_GroupFundingSourceResponse_empty_dates():
 
 
 def test_GroupFundingSourceResponse_with_dates(expected_expiry, expected_expiry_str):
-    response = GroupFundingSourceResponse("id", expected_expiry_str, expected_expiry_str, expected_expiry_str)
+    response = GroupFundingSourceResponse(
+        id="id", created_date=expected_expiry_str, updated_date=expected_expiry_str, expiry_date=expected_expiry_str
+    )
 
     assert response.id == "id"
     assert response.expiry_date == expected_expiry
