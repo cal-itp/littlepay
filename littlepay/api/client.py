@@ -130,7 +130,7 @@ class Client(FundingSourcesMixin, CardTokenizationMixin, ProductsMixin, GroupsMi
         return response_cls(**response.json())
 
     def _get_list(self, endpoint: str, **kwargs) -> Generator[dict, None, None]:
-        params = dict(page=1, perPage=100)
+        params = dict(page=1, per_page=100)
         params.update(kwargs)
         total = 0
 
