@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Generator
 
-from littlepay.api import ClientProtocol, ListResponse
+from littlepay.api import ClientProtocol
 from littlepay.api.funding_sources import FundingSourceDateFields, FundingSourcesMixin
 
 
@@ -100,13 +100,9 @@ class GroupsMixin(ClientProtocol):
 
         return self._post(endpoint, data, dict)
 
-    def update_concession_group_funding_source_expiry(
-        self, group_id: str, funding_source_id: str, expiry: datetime
-    ) -> GroupFundingSourceResponse:
+    def update_concession_group_funding_source_expiry(self, group_id: str, funding_source_id: str, expiry: datetime) -> dict:
         """Update the expiry of a funding source already linked to a concession group."""
         endpoint = self.concession_group_funding_source_endpoint(group_id, funding_source_id)
         data = {"expiry": self._format_expiry(expiry)}
 
-        response = self._put(endpoint, data, ListResponse)
-
-        return GroupFundingSourceResponse(**response.list[0])
+        return self._put(endpoint, data, dict)

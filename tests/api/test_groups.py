@@ -64,10 +64,9 @@ def mock_ClientProtocol_post_link_concession_group_funding_source(mocker):
 
 
 @pytest.fixture
-def mock_ClientProtocol_put_update_concession_group_funding_source(mocker, ListResponse_GroupFundingSources):
-    return mocker.patch(
-        "littlepay.api.ClientProtocol._put", side_effect=lambda *args, **kwargs: ListResponse_GroupFundingSources
-    )
+def mock_ClientProtocol_put_update_concession_group_funding_source(mocker):
+    response = {"status_code": 204}
+    return mocker.patch("littlepay.api.ClientProtocol._put", side_effect=lambda *args, **kwargs: response)
 
 
 def test_GroupResponse_csv():
@@ -302,7 +301,7 @@ def test_GroupsMixin_link_concession_group_funding_source_expiry(
 
 
 def test_GroupsMixin_update_concession_group_funding_source_expiry(
-    mock_ClientProtocol_put_update_concession_group_funding_source, ListResponse_GroupFundingSources, mocker
+    mock_ClientProtocol_put_update_concession_group_funding_source, mocker
 ):
     client = GroupsMixin()
     mocker.patch.object(client, "_format_expiry", return_value="formatted expiry")
@@ -311,8 +310,7 @@ def test_GroupsMixin_update_concession_group_funding_source_expiry(
 
     endpoint = client.concession_group_funding_source_endpoint("group-1234", "funding-source-1234")
     mock_ClientProtocol_put_update_concession_group_funding_source.assert_called_once_with(
-        endpoint, {"expiry": "formatted expiry"}, ListResponse
+        endpoint, {"expiry": "formatted expiry"}, dict
     )
 
-    expected = GroupFundingSourceResponse(**ListResponse_GroupFundingSources.list[0])
-    assert result == expected
+    assert result == {"status_code": 204}
