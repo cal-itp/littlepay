@@ -69,6 +69,11 @@ def mock_ClientProtocol_put_update_concession_group_funding_source(mocker):
     return mocker.patch("littlepay.api.ClientProtocol._put", side_effect=lambda *args, **kwargs: response)
 
 
+def test_GroupResponse_unexpected_fields():
+    # this test will fail if any error occurs from instantiating the class
+    GroupResponse(id="id", label="label", participant_id="participant", unexpected_field="test value")
+
+
 def test_GroupResponse_csv():
     group = GroupResponse("id", "label", "participant")
     assert group.csv() == "id,label,participant"
@@ -79,6 +84,11 @@ def test_GroupResponse_csv():
 
 def test_GroupResponse_csv_header():
     assert GroupResponse.csv_header() == "id,label,participant_id"
+
+
+def test_GroupFundingSourceResponse_unexpected_fields():
+    # this test will fail if any error occurs from instantiating the class
+    GroupFundingSourceResponse(id="id", unexpected_field="test value")
 
 
 def test_GroupFundingSourceResponse_no_dates():

@@ -275,6 +275,11 @@ def test_Client_get_list_paging(mocker, make_client: ClientFunc, url, default_li
     assert result == [1, 2, 3, 1, 2, 3, 1, 2, 3]
 
 
+def test_ListResponse_unexpected_fields():
+    # this test will fail if any error occurs from instantiating the class
+    ListResponse(list=[1, 2, 3], total_count=3, unexpected_field="test value")
+
+
 def test_Client_make_endpoint(make_client: ClientFunc, url):
     client = make_client()
     partial = "partial/123.json"

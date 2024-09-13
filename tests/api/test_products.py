@@ -45,6 +45,19 @@ def mock_ClientProtocol_post(mocker):
     return mocker.patch("littlepay.api.ClientProtocol._post", side_effect=lambda *args, **kwargs: response)
 
 
+def test_ProductResponse_unexpected_fields():
+    # this test will fail if any error occurs from instantiating the class
+    ProductResponse(
+        id="id",
+        code="code",
+        status="status",
+        type="type",
+        description="description",
+        participant_id="participant",
+        unexpected_field="test value",
+    )
+
+
 def test_ProductResponse_csv():
     product = ProductResponse("id", "code", "status", "type", "description", "participant")
     assert product.csv() == "id,code,status,type,description,participant"
