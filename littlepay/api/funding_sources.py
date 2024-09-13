@@ -1,29 +1,49 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Generator, List, Optional
+from typing import Generator, List
 
 from littlepay.api import ClientProtocol
 
 
-@dataclass
 class FundingSourceResponse:
-    id: str
-    card_first_digits: str
-    card_last_digits: str
-    card_expiry_month: str
-    card_expiry_year: str
-    card_scheme: str
-    form_factor: str
-    participant_id: str
-    is_fpan: bool
-    related_funding_sources: List[dict]
-    card_category: Optional[str] = None
-    issuer_country_code: Optional[str] = None
-    issuer_country_numeric_code: Optional[str] = None
-    replacement_funding_source: Optional[str] = None
-    token: Optional[str] = None
-    token_key_id: Optional[str] = None
-    icc_hash: Optional[str] = None
+    def __init__(
+        self,
+        id: str,
+        card_first_digits: str,
+        card_last_digits: str,
+        card_expiry_month: str,
+        card_expiry_year: str,
+        card_scheme: str,
+        form_factor: str,
+        participant_id: str,
+        is_fpan: bool,
+        related_funding_sources: List[dict],
+        card_category: str = None,
+        issuer_country_code: str = None,
+        issuer_country_numeric_code: str = None,
+        replacement_funding_source: str = None,
+        token: str = None,
+        token_key_id: str = None,
+        icc_hash: str = None,
+        **kwargs,
+    ):
+        self.id = id
+        self.card_first_digits = card_first_digits
+        self.card_last_digits = card_last_digits
+        self.card_expiry_month = card_expiry_month
+        self.card_expiry_year = card_expiry_year
+        self.card_scheme = card_scheme
+        self.form_factor = form_factor
+        self.participant_id = participant_id
+        self.is_fpan = is_fpan
+        self.related_funding_sources = related_funding_sources
+        self.card_category = card_category
+        self.issuer_country_code = issuer_country_code
+        self.issuer_country_numeric_code = issuer_country_numeric_code
+        self.replacement_funding_source = replacement_funding_source
+        self.token = token
+        self.token_key_id = token_key_id
+        self.icc_hash = icc_hash
 
 
 @dataclass
