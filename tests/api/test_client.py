@@ -395,7 +395,7 @@ def test_Client_put_default_cls(mocker, make_client: ClientFunc, url, ListRespon
     client = make_client()
     mock_response = mocker.Mock(
         raise_for_status=mocker.Mock(return_value=False),
-        json=mocker.Mock(return_value=dataclasses.asdict(ListResponse_sample)),
+        json=mocker.Mock(return_value=ListResponse_sample.__dict__),
     )
     req_spy = mocker.patch.object(client.oauth, "put", return_value=mock_response)
 

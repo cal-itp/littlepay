@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Generator, Protocol, TypeVar
 
 from authlib.integrations.requests_client import OAuth2Session
@@ -8,12 +7,12 @@ from authlib.integrations.requests_client import OAuth2Session
 TResponse = TypeVar("TResponse")
 
 
-@dataclass
 class ListResponse:
     """An API response with list and total_count attributes."""
 
-    list: list
-    total_count: int
+    def __init__(self, list: list, total_count: int, **kwargs):
+        self.list = list
+        self.total_count = total_count
 
 
 class ClientProtocol(Protocol):

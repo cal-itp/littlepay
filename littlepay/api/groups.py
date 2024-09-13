@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Generator
 
@@ -6,11 +5,11 @@ from littlepay.api import ClientProtocol
 from littlepay.api.funding_sources import FundingSourceDateFields, FundingSourcesMixin
 
 
-@dataclass
 class GroupResponse:
-    id: str
-    label: str
-    participant_id: str
+    def __init__(self, id: str, label: str, participant_id: str, **kwargs):
+        self.id = id
+        self.label = label
+        self.participant_id = participant_id
 
     def csv(self) -> str:
         """Get a CSV str representation of values for this GroupResponse."""

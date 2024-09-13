@@ -1,18 +1,17 @@
-from dataclasses import dataclass
 from typing import Generator
 
 from littlepay.api import ClientProtocol
 from littlepay.api.groups import GroupsMixin
 
 
-@dataclass
 class ProductResponse:
-    id: str
-    code: str
-    status: str
-    type: str
-    description: str
-    participant_id: str
+    def __init__(self, id: str, code: str, status: str, type: str, description: str, participant_id: str, **kwargs):
+        self.id = id
+        self.code = code
+        self.status = status
+        self.type = type
+        self.description = description
+        self.participant_id = participant_id
 
     def csv(self) -> str:
         """Get a CSV str representation of values for this ProductResponse."""
