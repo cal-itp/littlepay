@@ -25,9 +25,12 @@ class GroupResponse:
         return ",".join(vars(instance).keys())
 
 
-@dataclass(kw_only=True)
 class GroupFundingSourceResponse(FundingSourceDateFields):
-    id: str
+    def __init__(
+        self, id: str, created_date: datetime = None, updated_date: datetime = None, expiry_date: datetime = None, **kwargs
+    ):
+        super().__init__(created_date, updated_date, expiry_date)
+        self.id = id
 
 
 class GroupsMixin(ClientProtocol):

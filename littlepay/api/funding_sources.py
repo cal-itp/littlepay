@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Generator, List
 
@@ -46,15 +45,10 @@ class FundingSourceResponse:
         self.icc_hash = icc_hash
 
 
-@dataclass
 class FundingSourceDateFields:
     """Implements parsing of datetime strings to Python datetime objects for funding source fields."""
 
-    created_date: datetime | None = None
-    updated_date: datetime | None = None
-    expiry_date: datetime | None = None
-
-    def __post_init__(self):
+    def __init__(self, created_date: datetime = None, updated_date: datetime = None, expiry_date: datetime = None):
         """Parses any date parameters into Python datetime objects.
 
         For @dataclasses with a generated __init__ function, this function is called automatically.
@@ -65,25 +59,37 @@ class FundingSourceDateFields:
 
         https://docs.python.org/3.11/library/datetime.html#datetime.datetime.fromisoformat
         """
-        if self.created_date:
-            self.created_date = datetime.fromisoformat(self.created_date.replace("Z", "+00:00", 1))
+        if created_date:
+            self.created_date = datetime.fromisoformat(created_date.replace("Z", "+00:00", 1))
         else:
             self.created_date = None
-        if self.updated_date:
-            self.updated_date = datetime.fromisoformat(self.updated_date.replace("Z", "+00:00", 1))
+
+        if updated_date:
+            self.updated_date = datetime.fromisoformat(updated_date.replace("Z", "+00:00", 1))
         else:
             self.updated_date = None
-        if self.expiry_date:
-            self.expiry_date = datetime.fromisoformat(self.expiry_date.replace("Z", "+00:00", 1))
+
+        if expiry_date:
+            self.expiry_date = datetime.fromisoformat(expiry_date.replace("Z", "+00:00", 1))
         else:
             self.expiry_date = None
 
 
-@dataclass(kw_only=True)
 class FundingSourceGroupResponse(FundingSourceDateFields):
-    id: str
-    group_id: str
-    label: str
+    def __init__(
+        self,
+        id: str,
+        group_id: str,
+        label: str,
+        created_date: datetime = None,
+        updated_date: datetime = None,
+        expiry_date: datetime = None,
+        **kwargs,
+    ):
+        super().__init__(created_date, updated_date, expiry_date)
+        self.id = id
+        self.group_id = group_id
+        self.label = label
 
 
 class FundingSourcesMixin(ClientProtocol):
