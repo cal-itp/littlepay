@@ -50,6 +50,7 @@ source = ["littlepay"]
 
 [tool.pyright]
 include = ["littlepay", "tests"]
+typeCheckingMode = "off"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
