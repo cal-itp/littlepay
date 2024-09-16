@@ -75,7 +75,7 @@ def test_FundingSourceResponse_unexpected_fields():
     }
 
     # this test will fail if any error occurs from instantiating the class
-    FundingSourceResponse(**response_json)
+    FundingSourceResponse.from_kwargs(**response_json)
 
 
 def test_FundingSourceDateFields(expected_expiry_str, expected_expiry):
@@ -92,7 +92,7 @@ def test_FundingSourceGroupResponse_unexpected_fields():
     response_json = {"id": "id", "group_id": "group_id", "label": "label", "unexpected_field": "test value"}
 
     # this test will fail if any error occurs from instantiating the class
-    FundingSourceGroupResponse(**response_json)
+    FundingSourceGroupResponse.from_kwargs(**response_json)
 
 
 def test_FundingSourceGroupResponse_no_dates():

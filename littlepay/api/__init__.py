@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from inspect import signature
 from typing import Generator, Protocol, TypeVar
 
 from authlib.integrations.requests_client import OAuth2Session
@@ -8,12 +9,44 @@ from authlib.integrations.requests_client import OAuth2Session
 TResponse = TypeVar("TResponse")
 
 
+def from_kwargs(cls, **kwargs):
+    """
+    Helper function meant to be used as a @classmethod
+    for instantiating a dataclass and allowing unexpected fields
+
+    See https://stackoverflow.com/a/55101438
+    """
+    # fetch the constructor's signature
+    class_fields = {field for field in signature(cls).parameters}
+
+    # split the kwargs into native ones and new ones
+    native_args, new_args = {}, {}
+    for name, val in kwargs.items():
+        if name in class_fields:
+            native_args[name] = val
+        else:
+            new_args[name] = val
+
+    # use the native ones to create the class ...
+    instance = cls(**native_args)
+
+    # ... and add the new ones by hand
+    for new_name, new_val in new_args.items():
+        setattr(instance, new_name, new_val)
+
+    return instance
+
+
 @dataclass
 class ListResponse:
     """An API response with list and total_count attributes."""
 
     list: list
     total_count: int
+
+    @classmethod
+    def from_kwargs(cls, **kwargs):
+        return from_kwargs(cls, **kwargs)
 
 
 class ClientProtocol(Protocol):

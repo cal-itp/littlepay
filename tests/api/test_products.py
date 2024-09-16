@@ -57,7 +57,7 @@ def test_ProductResponse_unexpected_fields():
     }
 
     # this test will fail if any error occurs from instantiating the class
-    ProductResponse(**response_json)
+    ProductResponse.from_kwargs(**response_json)
 
 
 def test_ProductResponse_csv():

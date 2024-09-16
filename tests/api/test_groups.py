@@ -73,7 +73,7 @@ def test_GroupResponse_unexpected_fields():
     response_json = {"id": "id", "label": "label", "participant_id": "participant", "unexpected_field": "test value"}
 
     # this test will fail if any error occurs from instantiating the class
-    GroupResponse(**response_json)
+    GroupResponse.from_kwargs(**response_json)
 
 
 def test_GroupResponse_csv():
@@ -92,7 +92,7 @@ def test_GroupFundingSourceResponse_unexpected_fields():
     response_json = {"id": "id", "unexpected_field": "test value"}
 
     # this test will fail if any error occurs from instantiating the class
-    GroupFundingSourceResponse(**response_json)
+    GroupFundingSourceResponse.from_kwargs(**response_json)
 
 
 def test_GroupFundingSourceResponse_no_dates():

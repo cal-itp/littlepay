@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Generator
 
-from littlepay.api import ClientProtocol
+from littlepay.api import ClientProtocol, from_kwargs
 from littlepay.api.funding_sources import FundingSourceDateFields, FundingSourcesMixin
 
 
@@ -24,10 +24,18 @@ class GroupResponse:
         instance = GroupResponse("", "", "")
         return ",".join(vars(instance).keys())
 
+    @classmethod
+    def from_kwargs(cls, **kwargs):
+        return from_kwargs(cls, **kwargs)
+
 
 @dataclass(kw_only=True)
 class GroupFundingSourceResponse(FundingSourceDateFields):
     id: str
+
+    @classmethod
+    def from_kwargs(cls, **kwargs):
+        return from_kwargs(cls, **kwargs)
 
 
 class GroupsMixin(ClientProtocol):

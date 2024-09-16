@@ -4,6 +4,8 @@ from typing import Generator, List, Optional
 
 from littlepay.api import ClientProtocol
 
+from . import from_kwargs
+
 
 @dataclass
 class FundingSourceResponse:
@@ -24,6 +26,10 @@ class FundingSourceResponse:
     token: Optional[str] = None
     token_key_id: Optional[str] = None
     icc_hash: Optional[str] = None
+
+    @classmethod
+    def from_kwargs(cls, **kwargs):
+        return from_kwargs(cls, **kwargs)
 
 
 @dataclass
@@ -64,6 +70,10 @@ class FundingSourceGroupResponse(FundingSourceDateFields):
     id: str
     group_id: str
     label: str
+
+    @classmethod
+    def from_kwargs(cls, **kwargs):
+        return from_kwargs(cls, **kwargs)
 
 
 class FundingSourcesMixin(ClientProtocol):
