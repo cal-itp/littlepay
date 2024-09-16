@@ -59,6 +59,25 @@ def mock_ClientProtocol_get_list_FundingSourceGroup(mocker, ListResponse_Funding
     )
 
 
+def test_FundingSourceResponse_unexpected_fields():
+    response_json = {
+        "id": "0",
+        "card_first_digits": "0000",
+        "card_last_digits": "0000",
+        "card_expiry_month": "11",
+        "card_expiry_year": "24",
+        "card_scheme": "Visa",
+        "form_factor": "unknown",
+        "participant_id": "cst",
+        "is_fpan": True,
+        "related_funding_sources": [],
+        "unexpected_field": "test value",
+    }
+
+    # this test will fail if any error occurs from instantiating the class
+    FundingSourceResponse(**response_json)
+
+
 def test_FundingSourceDateFields(expected_expiry_str, expected_expiry):
     fields = FundingSourceDateFields(
         created_date=expected_expiry_str, updated_date=expected_expiry_str, expiry_date=expected_expiry_str
@@ -67,6 +86,13 @@ def test_FundingSourceDateFields(expected_expiry_str, expected_expiry):
     assert fields.created_date == expected_expiry
     assert fields.updated_date == expected_expiry
     assert fields.expiry_date == expected_expiry
+
+
+def test_FundingSourceGroupResponse_unexpected_fields():
+    response_json = {"id": "id", "group_id": "group_id", "label": "label", "unexpected_field": "test value"}
+
+    # this test will fail if any error occurs from instantiating the class
+    FundingSourceGroupResponse(**response_json)
 
 
 def test_FundingSourceGroupResponse_no_dates():
