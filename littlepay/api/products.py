@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Generator
 
-from littlepay.api import ClientProtocol
+from littlepay.api import ClientProtocol, from_kwargs
 from littlepay.api.groups import GroupsMixin
 
 
@@ -25,6 +25,10 @@ class ProductResponse:
         """Get a CSV str header of attributes for ProductResponse."""
         instance = ProductResponse("", "", "", "", "", "")
         return ",".join(vars(instance).keys())
+
+    @classmethod
+    def from_kwargs(cls, **kwargs):
+        return from_kwargs(cls, **kwargs)
 
 
 class ProductsMixin(GroupsMixin, ClientProtocol):

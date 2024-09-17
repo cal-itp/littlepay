@@ -4,6 +4,8 @@ from typing import Generator, List, Optional
 
 from littlepay.api import ClientProtocol
 
+from . import from_kwargs
+
 
 @dataclass
 class FundingSourceResponse:
@@ -17,6 +19,7 @@ class FundingSourceResponse:
     participant_id: str
     is_fpan: bool
     related_funding_sources: List[dict]
+    created_date: datetime | None = None
     card_category: Optional[str] = None
     issuer_country_code: Optional[str] = None
     issuer_country_numeric_code: Optional[str] = None
@@ -24,6 +27,26 @@ class FundingSourceResponse:
     token: Optional[str] = None
     token_key_id: Optional[str] = None
     icc_hash: Optional[str] = None
+
+    @classmethod
+    def from_kwargs(cls, **kwargs):
+        return from_kwargs(cls, **kwargs)
+
+    def __post_init__(self):
+        """Parses any date parameters into Python datetime objects.
+
+        For @dataclasses with a generated __init__ function, this function is called automatically.
+
+        Includes a workaround for Python 3.10 where datetime.fromisoformat() can only parse the format output
+        by datetime.isoformat(), i.e. without a trailing 'Z' offset character and with UTC offset expressed
+        as +/-HH:mm
+
+        https://docs.python.org/3.11/library/datetime.html#datetime.datetime.fromisoformat
+        """
+        if self.created_date:
+            self.created_date = datetime.fromisoformat(self.created_date.replace("Z", "+00:00", 1))
+        else:
+            self.created_date = None
 
 
 @dataclass
@@ -64,6 +87,10 @@ class FundingSourceGroupResponse(FundingSourceDateFields):
     id: str
     group_id: str
     label: str
+
+    @classmethod
+    def from_kwargs(cls, **kwargs):
+        return from_kwargs(cls, **kwargs)
 
 
 class FundingSourcesMixin(ClientProtocol):

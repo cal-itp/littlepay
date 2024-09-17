@@ -127,7 +127,8 @@ class Client(FundingSourcesMixin, CardTokenizationMixin, ProductsMixin, GroupsMi
     def _get(self, endpoint: str, response_cls: TResponse, **kwargs) -> TResponse:
         response = self.oauth.get(endpoint, headers=self.headers, params=kwargs)
         response.raise_for_status()
-        return response_cls(**response.json())
+
+        return response_cls.from_kwargs(**response.json())
 
     def _get_list(self, endpoint: str, **kwargs) -> Generator[dict, None, None]:
         params = dict(page=1, per_page=100)

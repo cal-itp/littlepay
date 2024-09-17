@@ -8,7 +8,7 @@ from authlib.oauth2.rfc6749 import OAuth2Token
 import pytest
 from requests import HTTPError
 
-from littlepay.api import ListResponse
+from littlepay.api import ListResponse, from_kwargs
 from littlepay.api.client import _client_from_active_config, _fix_bearer_token_header, _json_post_credentials, Client
 from littlepay.config import Config
 
@@ -48,10 +48,19 @@ class SampleResponse:
     two: str
     three: int
 
+    @classmethod
+    def from_kwargs(cls, **kwargs):
+        return from_kwargs(cls, **kwargs)
+
 
 @pytest.fixture
 def SampleResponse_json():
     return {"one": "single", "two": "double", "three": 3}
+
+
+@pytest.fixture
+def SampleResponse_json_with_unexpected_field():
+    return {"one": "single", "two": "double", "three": 3, "four": "4"}
 
 
 @pytest.fixture
@@ -232,6 +241,26 @@ def test_Client_get_params(mocker, make_client: ClientFunc, url, SampleResponse_
     assert result.three == 3
 
 
+def test_Client_get_response_has_unexpected_fields(
+    mocker, make_client: ClientFunc, url, SampleResponse_json_with_unexpected_field
+):
+    client = make_client()
+    mock_response = mocker.Mock(
+        raise_for_status=mocker.Mock(return_value=False),
+        json=mocker.Mock(return_value=SampleResponse_json_with_unexpected_field),
+    )
+    req_spy = mocker.patch.object(client.oauth, "get", return_value=mock_response)
+
+    result = client._get(url, SampleResponse)
+
+    req_spy.assert_called_once_with(url, headers=client.headers, params={})
+    assert isinstance(result, SampleResponse)
+    assert result.one == "single"
+    assert result.two == "double"
+    assert result.three == 3
+    assert not hasattr(result, "four")
+
+
 def test_Client_get_error_status(mocker, make_client: ClientFunc, url):
     client = make_client()
     mock_response = mocker.Mock(raise_for_status=mocker.Mock(side_effect=HTTPError))
@@ -241,6 +270,13 @@ def test_Client_get_error_status(mocker, make_client: ClientFunc, url):
         client._get(url, SampleResponse)
 
     req_spy.assert_called_once_with(url, headers=client.headers, params={})
+
+
+def test_ListResponse_unexpected_fields():
+    response_json = {"list": [1, 2, 3], "total_count": 3, "unexpected_field": "test value"}
+
+    # this test will fail if any error occurs from instantiating the class
+    ListResponse.from_kwargs(**response_json)
 
 
 def test_Client_get_list(mocker, make_client: ClientFunc, url, default_list_params, ListResponse_sample):
