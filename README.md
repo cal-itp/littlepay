@@ -5,12 +5,12 @@
 | Name                                |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |------------------------------------ | -------: | -------: | -------: | -------: | ------: | --------: |
 | littlepay/\_\_init\_\_.py           |        5 |        2 |        0 |        0 |     60% |       5-7 |
-| littlepay/api/\_\_init\_\_.py       |       23 |        6 |        2 |        0 |     76% |36, 53, 68, 81, 101, 120 |
+| littlepay/api/\_\_init\_\_.py       |       40 |        6 |       10 |        0 |     88% |73, 90, 105, 118, 138, 157 |
 | littlepay/api/card\_tokenization.py |       10 |        0 |        0 |        0 |    100% |           |
 | littlepay/api/client.py             |       83 |        0 |       18 |        0 |    100% |           |
-| littlepay/api/funding\_sources.py   |       56 |        0 |       14 |        0 |    100% |           |
-| littlepay/api/groups.py             |       61 |        0 |       16 |        0 |    100% |           |
-| littlepay/api/products.py           |       43 |        0 |       12 |        0 |    100% |           |
+| littlepay/api/funding\_sources.py   |       68 |        0 |       20 |        0 |    100% |           |
+| littlepay/api/groups.py             |       67 |        0 |       20 |        0 |    100% |           |
+| littlepay/api/products.py           |       46 |        0 |       14 |        0 |    100% |           |
 | littlepay/commands/\_\_init\_\_.py  |        7 |        0 |        0 |        0 |    100% |           |
 | littlepay/commands/configure.py     |       34 |        0 |       10 |        0 |    100% |           |
 | littlepay/commands/groups.py        |      140 |        0 |       52 |        0 |    100% |           |
@@ -18,7 +18,7 @@
 | littlepay/commands/switch.py        |       11 |        0 |        6 |        1 |     94% |    13->16 |
 | littlepay/config.py                 |       97 |        0 |       42 |        0 |    100% |           |
 | littlepay/main.py                   |       65 |        1 |       10 |        1 |     97% |       137 |
-|                           **TOTAL** |  **673** |    **9** |  **204** |    **2** | **99%** |           |
+|                           **TOTAL** |  **711** |    **9** |  **224** |    **2** | **99%** |           |
 
 
 ## Setup coverage badge
