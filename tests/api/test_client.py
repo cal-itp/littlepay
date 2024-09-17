@@ -258,7 +258,7 @@ def test_Client_get_response_has_unexpected_fields(
     assert result.one == "single"
     assert result.two == "double"
     assert result.three == 3
-    assert result.four == "4"
+    assert not hasattr(result, "four")
 
 
 def test_Client_get_error_status(mocker, make_client: ClientFunc, url):

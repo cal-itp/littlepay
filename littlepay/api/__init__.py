@@ -1,8 +1,12 @@
 from dataclasses import dataclass
 from inspect import signature
+import logging
 from typing import Generator, Protocol, TypeVar
 
 from authlib.integrations.requests_client import OAuth2Session
+
+
+logger = logging.getLogger(__name__)
 
 
 # Generic type parameter, used to represent the result of an API call.
@@ -30,9 +34,9 @@ def from_kwargs(cls, **kwargs):
     # use the native ones to create the class ...
     instance = cls(**native_args)
 
-    # ... and add the new ones by hand
+    # ... and log any unexpected args
     for new_name, new_val in new_args.items():
-        setattr(instance, new_name, new_val)
+        logger.info(f"Ran into an unexpected arg: {new_name} = {new_val}")
 
     return instance
 
