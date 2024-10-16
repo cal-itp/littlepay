@@ -2,6 +2,8 @@
 
 Cal-ITP API implementations and admin tasks for Littlepay.
 
+This library is open-source software that is designed, developed, and maintained by <a href="https://compiler.la" target="_blank">Compiler LLC</a> on behalf of Caltrans, Cal-ITP, and our agency partners.
+
 ## Usage
 
 ```console
