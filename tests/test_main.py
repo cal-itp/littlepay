@@ -5,7 +5,7 @@ import re
 import pytest
 
 from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS
-from littlepay.config import CONFIG_TYPES, Config
+from littlepay.config import Config
 import littlepay.main
 from littlepay.main import main, __name__ as MODULE
 
@@ -270,24 +270,38 @@ def test_main_products_status_unrecognized(mock_commands_products, status_flag):
     assert mock_commands_products.call_count == 0
 
 
-@pytest.mark.parametrize("switch_type", CONFIG_TYPES)
-def test_main_switch_recognized_type(mock_commands_switch, switch_type):
-    result = main(argv=["switch", switch_type, "new_value"])
+@pytest.mark.parametrize("switch_arg", ["-e", "--env"])
+def test_main_switch_env(mock_commands_switch, switch_arg):
+    result = main(argv=["switch", switch_arg, "new_value"])
 
     assert result == RESULT_SUCCESS
-    mock_commands_switch.assert_called_once_with(switch_type, "new_value")
+    mock_commands_switch.assert_called_once_with("new_value", None)
 
 
-def test_main_switch_missing_value(mock_commands_switch):
+@pytest.mark.parametrize("switch_arg", ["-p", "--participant"])
+def test_main_switch_participant(mock_commands_switch, switch_arg):
+    result = main(argv=["switch", switch_arg, "new_value"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_switch.assert_called_once_with(None, "new_value")
+
+
+@pytest.mark.parametrize(
+    "switch_args",
+    [["-e", "env", "-p", "participant"], ["--env", "env", "--participant", "participant"]],
+)
+def test_main_switch_both(mock_commands_switch, switch_args):
+    argv = ["switch"] + switch_args
+    result = main(argv=argv)
+
+    assert result == RESULT_SUCCESS
+    mock_commands_switch.assert_called_once_with("env", "participant")
+
+
+@pytest.mark.parametrize("switch_type", ["-e", "--env", "-p", "--participant"])
+def test_main_switch_missing_value(mock_commands_switch, switch_type):
     with pytest.raises(SystemExit):
-        main(argv=["switch", "env"])
-
-    assert mock_commands_switch.call_count == 0
-
-
-def test_main_switch_unrecognized_type(mock_commands_switch):
-    with pytest.raises(SystemExit):
-        main(argv=["switch", "unrecognized", "new_value"])
+        main(argv=["switch", switch_type])
 
     assert mock_commands_switch.call_count == 0
 
