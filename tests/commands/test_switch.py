@@ -56,3 +56,8 @@ def test_switch_both(mock_commands_config):
     mock_commands_config.assert_called_once_with()
     assert Config().active_env_name == "e2"
     assert Config().active_participant_id == "p2"
+
+
+def test_switch_none():
+    with pytest.raises(ValueError):
+        switch()
