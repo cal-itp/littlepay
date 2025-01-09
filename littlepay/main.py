@@ -7,7 +7,7 @@ from littlepay.commands.configure import configure
 from littlepay.commands.groups import groups
 from littlepay.commands.products import products
 from littlepay.commands.switch import switch
-from littlepay.config import CONFIG_TYPES, Config
+from littlepay.config import Config
 
 
 def _subcmd(subparsers: _SubParsersAction, name: str, help: str) -> ArgumentParser:
@@ -113,10 +113,10 @@ def main(argv=None):
     products_unlink = _subcmd(products_commands, "unlink", help="Unlink a concession group from one or more products")
     products_unlink.add_argument("group_id", help="The ID of the concession group to unlink")
 
-    # littlepay switch {env, participant} VALUE
+    # littlepay switch [[--env VALUE], [--participant VALUE]]
     switch_parser = _maincmd("switch", help="Switch the active environment or participant")
-    switch_parser.add_argument("switch_type", choices=CONFIG_TYPES, help="The type of object to switch", metavar="TYPE")
-    switch_parser.add_argument("switch_arg", help="The new object value", metavar="VALUE")
+    switch_parser.add_argument("-e", "--env", help="The environment to switch to")
+    switch_parser.add_argument("-p", "--participant", help="The participant to switch to")
 
     args = main_parser.parse_args(argv)
 
@@ -127,7 +127,7 @@ def main(argv=None):
     elif args.command == "products":
         return products(args)
     elif args.command == "switch":
-        return switch(args.switch_type, args.switch_arg)
+        return switch(args.env, args.participant)
     else:
         main_parser.print_help()
         return RESULT_FAILURE

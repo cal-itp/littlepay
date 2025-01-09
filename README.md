@@ -100,16 +100,10 @@ The most recent config used is saved for next time.
 
 ### Switch the active target
 
-For `envs`:
+Use one or both of the `-e/--env` and `-p/--participant` flags:
 
 ```console
-littlepay switch env <env_name>
-```
-
-And `participants`:
-
-```console
-littlepay switch participant <participant_id>
+littlepay switch -e <env_name> -p <participant_id>
 ```
 
 ## Work with groups

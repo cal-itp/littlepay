@@ -18,7 +18,6 @@ DEFAULT_CONFIG = {
     "envs": {ENV_QA: DEFAULT_ENV, ENV_PROD: DEFAULT_ENV},
     "participants": {"cst": {ENV_QA: DEFAULT_CREDENTIALS, ENV_PROD: DEFAULT_CREDENTIALS}},
 }
-CONFIG_TYPES = list(DEFAULT_ACTIVE.keys())
 
 
 def _ensure_current_exists() -> bool:

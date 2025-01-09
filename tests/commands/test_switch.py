@@ -26,31 +26,38 @@ def sample_config(custom_config_file: Path) -> dict:
 
 def test_switch_env(mock_commands_config):
     assert Config().active_env_name == "e1"
-    res = switch(switch_type="env", switch_arg="e2")
+    assert Config().active_participant_id == "p1"
+    res = switch(env="e2")
 
     assert res == RESULT_SUCCESS
     mock_commands_config.assert_called_once_with()
-    assert Config().active_env_name != "e1"
     assert Config().active_env_name == "e2"
+    assert Config().active_participant_id == "p1"
 
 
 def test_switch_participant(mock_commands_config):
+    assert Config().active_env_name == "e1"
     assert Config().active_participant_id == "p1"
-    res = switch(switch_type="participant", switch_arg="p2")
+    res = switch(participant="p2")
 
     assert res == RESULT_SUCCESS
     mock_commands_config.assert_called_once_with()
-    assert Config().active_participant_id != "p1"
+    assert Config().active_env_name == "e1"
     assert Config().active_participant_id == "p2"
 
 
-def test_switch_unrecognized_type(mock_commands_config):
-    env = Config().active_env_name
-    participant = Config().active_participant_id
+def test_switch_both(mock_commands_config):
+    assert Config().active_env_name == "e1"
+    assert Config().active_participant_id == "p1"
 
+    res = switch(env="e2", participant="p2")
+
+    assert res == RESULT_SUCCESS
+    mock_commands_config.assert_called_once_with()
+    assert Config().active_env_name == "e2"
+    assert Config().active_participant_id == "p2"
+
+
+def test_switch_none():
     with pytest.raises(ValueError):
-        switch(switch_type="unrecognized", switch_arg="new_value")
-
-    assert Config().active_env_name == env
-    assert Config().active_participant_id == participant
-    assert mock_commands_config.call_count == 0
+        switch()

@@ -1,16 +1,16 @@
 from littlepay.commands.configure import configure
-from littlepay.config import CONFIG_TYPES, Config
+from littlepay.config import Config
 
 
-def switch(switch_type: str, switch_arg: str) -> int:
-    if switch_type not in CONFIG_TYPES:
-        raise ValueError(f"Unsupported type: {switch_type}, must be one of: {', '.join(CONFIG_TYPES)}")
+def switch(env: str = None, participant: str = None) -> int:
+    if not (participant or env):
+        raise ValueError("Unsupported type: provide at least one of participant or env.")
 
     config = Config()
 
-    if switch_type == "env":
-        config.active_env_name = switch_arg
-    elif switch_type == "participant":
-        config.active_participant_id = switch_arg
+    if env:
+        config.active_env_name = env
+    if participant:
+        config.active_participant_id = participant
 
     return configure()
