@@ -41,7 +41,7 @@ class FundingSourceResponse:
         by datetime.isoformat(), i.e. without a trailing 'Z' offset character and with UTC offset expressed
         as +/-HH:mm
 
-        https://docs.python.org/3.11/library/datetime.html#datetime.datetime.fromisoformat
+        https://docs.python.org/3.12/library/datetime.html#datetime.datetime.fromisoformat
         """
         if self.created_date:
             self.created_date = datetime.fromisoformat(self.created_date.replace("Z", "+00:00", 1))
@@ -66,7 +66,7 @@ class FundingSourceDateFields:
         by datetime.isoformat(), i.e. without a trailing 'Z' offset character and with UTC offset expressed
         as +/-HH:mm
 
-        https://docs.python.org/3.11/library/datetime.html#datetime.datetime.fromisoformat
+        https://docs.python.org/3.12/library/datetime.html#datetime.datetime.fromisoformat
         """
         if self.created_date:
             self.created_date = datetime.fromisoformat(self.created_date.replace("Z", "+00:00", 1))
