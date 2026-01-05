@@ -108,6 +108,11 @@ class GroupsMixin(ClientProtocol):
 
         return self._post(endpoint, data, dict)
 
+    def unlink_concession_group_funding_source(self, group_id: str, funding_source_id: str) -> bool:
+        """Unlink a funding source from a concession group."""
+        endpoint = self.concession_group_funding_source_endpoint(group_id, funding_source_id)
+        return self._delete(endpoint)
+
     def update_concession_group_funding_source_expiry(self, group_id: str, funding_source_id: str, expiry: datetime) -> dict:
         """Update the expiry of a funding source already linked to a concession group."""
         endpoint = self.concession_group_funding_source_endpoint(group_id, funding_source_id)

@@ -64,6 +64,12 @@ def mock_ClientProtocol_post_link_concession_group_funding_source(mocker):
 
 
 @pytest.fixture
+def mock_ClientProtocol_delete_unlink_concession_group_funding_source(mocker):
+    response = {"status_code": 204}
+    return mocker.patch("littlepay.api.ClientProtocol._delete", side_effect=lambda *args, **kwargs: response)
+
+
+@pytest.fixture
 def mock_ClientProtocol_put_update_concession_group_funding_source(mocker):
     response = {"status_code": 204}
     return mocker.patch("littlepay.api.ClientProtocol._put", side_effect=lambda *args, **kwargs: response)
@@ -262,6 +268,15 @@ def test_GroupsMixin_link_concession_group_funding_source(mock_ClientProtocol_po
         endpoint, {"id": "funding-source-1234"}, dict
     )
     assert result == {"status_code": 201}
+
+
+def test_GroupsMixin_unlink_concession_group_funding_source(mock_ClientProtocol_delete_unlink_concession_group_funding_source):
+    client = GroupsMixin()
+    result = client.unlink_concession_group_funding_source("group-1234", "funding-source-1234")
+
+    endpoint = client.concession_group_funding_source_endpoint("group-1234", "funding-source-1234")
+    mock_ClientProtocol_delete_unlink_concession_group_funding_source.assert_called_once_with(endpoint)
+    assert result == {"status_code": 204}
 
 
 def test_GroupsMixin_format_expiry_not_datetime(expected_expiry_str):
