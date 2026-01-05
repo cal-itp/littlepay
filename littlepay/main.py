@@ -82,8 +82,12 @@ def main(argv=None):
     groups_remove.add_argument("--force", action="store_true", default=False, help="Don't ask for confirmation before removal")
     groups_remove.add_argument("group_id", help="The ID of the concession group to remove", metavar="ID")
 
-    groups_unlink = _subcmd(groups_commands, "unlink", help="Unlink a product from one or more concession groups")
-    groups_unlink.add_argument("product_id", help="The ID of the product to unlink")
+    groups_unlink = _subcmd(
+        groups_commands, "unlink", help="Unlink a product or funding source from one or more concession groups"
+    )
+    exclusive_groups_unlink = groups_unlink.add_mutually_exclusive_group(required=True)
+    exclusive_groups_unlink.add_argument("-p", "--product", help="The ID of the product to unlink")
+    exclusive_groups_unlink.add_argument("-s", "--source", help="The ID of the funding source to unlink")
 
     # littlepay products [-f PRODUCT] [-s STATUS] [{link,unlink}] [...]
     products_parser = _maincmd("products", help="Interact with products in the active environment")

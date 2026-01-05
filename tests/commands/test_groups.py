@@ -318,8 +318,8 @@ def test_groups_group_command__remove_HTTPError(capfd, mock_client, mock_input):
     assert "Matching groups (3)" in capture.out
 
 
-def test_groups_group_command__unlink(mock_client, capfd):
-    args = Namespace(group_command="unlink", product_id="1234")
+def test_groups_group_command__unlink_product(mock_client, capfd):
+    args = Namespace(group_command="unlink", product="1234", source=None)
     res = groups(args)
     capture = capfd.readouterr()
 
@@ -332,15 +332,42 @@ def test_groups_group_command__unlink(mock_client, capfd):
     assert "Matching groups (3)" in capture.out
 
 
-def test_groups_group_command__unlink_HTTPError(mock_client, capfd):
+def test_groups_group_command__unlink_product_HTTPError(mock_client, capfd):
     mock_client.unlink_concession_group_product.side_effect = HTTPError
 
-    args = Namespace(group_command="unlink", product_id="1234")
+    args = Namespace(group_command="unlink", product="1234", source=None)
     res = groups(args)
     capture = capfd.readouterr()
 
     assert res == RESULT_FAILURE
     assert "Unlinking group <-> product" in capture.out
+    assert "Error" in capture.out
+    assert "Unlinked" not in capture.out
+
+
+def test_groups_group_command__unlink_source(mock_client, capfd):
+    args = Namespace(group_command="unlink", product=None, source="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    for group in GROUP_RESPONSES:
+        mock_client.unlink_concession_group_funding_source.assert_any_call(group.id, "1234")
+
+    assert res == RESULT_SUCCESS
+    assert "Unlinking group <-> funding source" in capture.out
+    assert "Unlinked" in capture.out
+    assert "Matching groups (3)" in capture.out
+
+
+def test_groups_group_command__unlink_source_HTTPError(mock_client, capfd):
+    mock_client.unlink_concession_group_funding_source.side_effect = HTTPError
+
+    args = Namespace(group_command="unlink", product=None, source="1234")
+    res = groups(args)
+    capture = capfd.readouterr()
+
+    assert res == RESULT_FAILURE
+    assert "Unlinking group <-> funding source" in capture.out
     assert "Error" in capture.out
     assert "Unlinked" not in capture.out
 

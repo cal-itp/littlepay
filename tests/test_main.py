@@ -200,14 +200,36 @@ def test_main_groups_remove_force(mock_commands_groups, argv):
     assert call_args.force is True
 
 
-def test_main_groups_unlink(mock_commands_groups):
-    result = main(argv=["groups", "unlink", "1234"])
+@pytest.mark.parametrize("product_arg", ["-p", "--product"])
+def test_main_groups_unlink_product(mock_commands_groups, product_arg):
+    result = main(argv=["groups", "unlink", product_arg, "1234"])
 
     assert result == RESULT_SUCCESS
     mock_commands_groups.assert_called_once()
     call_args = mock_commands_groups.call_args.args[0]
     assert call_args.group_command == "unlink"
-    assert call_args.product_id == "1234"
+    assert call_args.product == "1234"
+    assert call_args.source is None
+
+
+@pytest.mark.parametrize("source_arg", ["-s", "--source"])
+def test_main_groups_unlink_source(mock_commands_groups, source_arg):
+    result = main(argv=["groups", "unlink", source_arg, "1234"])
+
+    assert result == RESULT_SUCCESS
+    mock_commands_groups.assert_called_once()
+    call_args = mock_commands_groups.call_args.args[0]
+    assert call_args.group_command == "unlink"
+    assert call_args.product is None
+    assert call_args.source == "1234"
+
+
+@pytest.mark.parametrize("invalid_argv", [["groups", "unlink"], ["groups", "unlink", "-p", "1", "-s", "2"]])
+def test_main_groups_unlink_exclusive(mock_commands_groups, invalid_argv):
+    with pytest.raises(SystemExit):
+        main(argv=invalid_argv)
+
+    assert mock_commands_groups.call_count == 0
 
 
 def test_main_products(mock_commands_products):

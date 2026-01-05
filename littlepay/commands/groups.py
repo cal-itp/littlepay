@@ -42,9 +42,12 @@ def groups(args: Namespace = None) -> int:
     if command == "link":
         for group in groups:
             return_code += link_product(client, group.id, args.product_id)
-    elif command == "unlink":
+    elif command == "unlink" and getattr(args, "product", None):
         for group in groups:
-            return_code += unlink_product(client, group.id, args.product_id)
+            return_code += unlink_product(client, group.id, args.product)
+    elif command == "unlink" and getattr(args, "source", None):
+        for group in groups:
+            return_code += unlink_funding_source(client, group.id, args.source)
     elif command == "migrate":
         for group in groups:
             return_code += migrate_group(client, group.id, getattr(args, "force", False))
@@ -142,6 +145,21 @@ def unlink_product(client: Client, group_id: str, product_id: str) -> int:
     try:
         client.unlink_concession_group_product(group_id, product_id)
         print("✅ Unlinked")
+    except HTTPError as err:
+        print(f"❌ Error: {err}")
+        return_code = RESULT_FAILURE
+
+    return return_code
+
+
+def unlink_funding_source(client: Client, group_id: str, funding_source_id: str) -> int:
+    config = Config()
+    print_active_message(config, "Unlinking group <-> funding source", f"[{group_id}] <-> [{funding_source_id}]")
+    return_code = RESULT_SUCCESS
+
+    try:
+        client.unlink_concession_group_funding_source(group_id, funding_source_id)
+        print("✅ Unlinked funding source")
     except HTTPError as err:
         print(f"❌ Error: {err}")
         return_code = RESULT_FAILURE
