@@ -120,7 +120,7 @@ positional arguments:
     migrate             Migrate a group from the old Customer Group format to the current format
     products            List products for one or more concession groups
     remove              Remove an existing concession group
-    unlink              Unlink a product from one or more concession groups
+    unlink              Unlink a product or funding source from one or more concession groups
 
 options:
   -h, --help            show this help message and exit
@@ -167,6 +167,22 @@ Without confirmation:
 
 ```console
 littlepay groups remove --force <group_id>
+```
+
+### Unlink a funding source from one or more groups
+
+For each group, unlink the given funding source from the group. Builds on the filtering syntax.
+
+E.g. to unlink a funding source from all groups:
+
+```console
+littlepay groups unlink -s <funding_source_id>
+```
+
+Or to unlink a funding source from a specific group:
+
+```console
+littlepay groups -f <group_id> unlink -s <funding_source_id>
 ```
 
 ## Work with products
@@ -250,7 +266,7 @@ littlepay groups -f <group_id> link <product_id>
 Unlinking groups from a product works the same:
 
 ```console
-littlepay groups -f <group_id> unlink <product_id>
+littlepay groups -f <group_id> unlink -p <product_id>
 ```
 
 ### Link and unlink a group to one or more products
