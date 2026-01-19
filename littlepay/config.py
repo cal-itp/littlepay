@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 import yaml
 
-
 CONFIG_DIR = Path(os.environ.get("LP_CONFIG_DIR", "~/.littlepay")).expanduser()
 CONFIG_FILE_CURRENT = CONFIG_DIR / ".current"
 DEFAULT_CONFIG_FILE = CONFIG_DIR / "config.yaml"

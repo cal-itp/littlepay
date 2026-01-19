@@ -1,6 +1,5 @@
 from littlepay.config import ENV_PROD, Config
 
-
 RESULT_SUCCESS = 0
 RESULT_FAILURE = 1
 

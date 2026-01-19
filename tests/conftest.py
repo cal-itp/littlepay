@@ -9,7 +9,6 @@ from littlepay.api import ListResponse
 import littlepay.config
 from littlepay.commands import RESULT_SUCCESS
 
-
 CUSTOM_CONFIG_FILE = "./tests/test.config.yaml"
 CUSTOM_CURRENT_FILE = "./tests/.current"
 

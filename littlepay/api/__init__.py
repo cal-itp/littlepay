@@ -5,7 +5,6 @@ from typing import Generator, Protocol, TypeVar
 
 from authlib.integrations.requests_client import OAuth2Session
 
-
 logger = logging.getLogger(__name__)
 
 
