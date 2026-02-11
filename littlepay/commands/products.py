@@ -50,19 +50,18 @@ def products(args: Namespace = None) -> int:
     client.oauth.ensure_active_token(client.token)
     config.active_token = client.token
 
-    if hasattr(args, "product_command"):
-        command = args.product_command
-    else:
-        command = None
-
+    # Get and print list of products
     products = _get_products(args, client)
     _list_products(args, config, products)
 
-    if command == "link":
-        for product in products:
-            return_code += link_product(client, args.group_id, product.id)
-    elif command == "unlink":
-        for product in products:
-            return_code += unlink_product(client, args.group_id, product.id)
+    # Handle subcommand, if present
+    command = getattr(args, "product_command", None)
+    match command:
+        case "link":
+            for product in products:
+                return_code += link_product(client, args.group_id, product.id)
+        case "unlink":
+            for product in products:
+                return_code += unlink_product(client, args.group_id, product.id)
 
     return RESULT_SUCCESS if return_code == RESULT_SUCCESS else RESULT_FAILURE
