@@ -7,6 +7,24 @@ from littlepay.commands.groups import link_product, unlink_product
 from littlepay.config import Config
 
 
+def _get_products(args: Namespace, client: Client) -> list:
+    """Get a list of products for the current Client, optionally filtered by status and filter"""
+
+    status = getattr(args, "product_status", None)
+    products = client.get_products(status=status)
+
+    if product_terms := getattr(args, "product_terms", None):
+        terms = [t.lower() for t in product_terms if t]
+        products = filter(
+            lambda p: any(
+                [any((term in p.id.lower(), term in p.code.lower(), term in p.description.lower())) for term in terms]
+            ),
+            products,
+        )
+
+    return list(products)
+
+
 def products(args: Namespace = None) -> int:
     return_code = RESULT_SUCCESS
     config = Config()
@@ -22,23 +40,7 @@ def products(args: Namespace = None) -> int:
     else:
         command = None
 
-    if hasattr(args, "product_status") and args.product_status is not None:
-        status = args.product_status
-    else:
-        status = None
-
-    products = client.get_products(status=status)
-
-    if hasattr(args, "product_terms") and args.product_terms is not None:
-        terms = [t.lower() for t in args.product_terms if t]
-        products = filter(
-            lambda p: any(
-                [any((term in p.id.lower(), term in p.code.lower(), term in p.description.lower())) for term in terms]
-            ),
-            products,
-        )
-
-    products = list(products)
+    products = _get_products(args, client)
     if csv_output:
         print(ProductResponse.csv_header())
     else:
