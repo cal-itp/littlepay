@@ -25,22 +25,11 @@ def _get_products(args: Namespace, client: Client) -> list:
     return list(products)
 
 
-def products(args: Namespace = None) -> int:
-    return_code = RESULT_SUCCESS
-    config = Config()
-    client = Client.from_active_config(config)
+def _list_products(args: Namespace, config: Config, products: list) -> None:
+    """Print a list of products, optionally in CSV format"""
 
-    client.oauth.ensure_active_token(client.token)
-    config.active_token = client.token
+    csv_output = getattr(args, "csv", False)
 
-    csv_output = hasattr(args, "csv") and args.csv
-
-    if hasattr(args, "product_command"):
-        command = args.product_command
-    else:
-        command = None
-
-    products = _get_products(args, client)
     if csv_output:
         print(ProductResponse.csv_header())
     else:
@@ -51,6 +40,23 @@ def products(args: Namespace = None) -> int:
             print(product.csv())
         else:
             print(product)
+
+
+def products(args: Namespace = None) -> int:
+    return_code = RESULT_SUCCESS
+    config = Config()
+    client = Client.from_active_config(config)
+
+    client.oauth.ensure_active_token(client.token)
+    config.active_token = client.token
+
+    if hasattr(args, "product_command"):
+        command = args.product_command
+    else:
+        command = None
+
+    products = _get_products(args, client)
+    _list_products(args, config, products)
 
     if command == "link":
         for product in products:
