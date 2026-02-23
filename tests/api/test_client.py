@@ -12,7 +12,6 @@ from littlepay.api import ListResponse, from_kwargs
 from littlepay.api.client import _client_from_active_config, _fix_bearer_token_header, _json_post_credentials, Client
 from littlepay.config import Config
 
-
 # type alias to give hints and help for fixture
 # represents a function taking any arguments that returns a Client
 ClientFunc: TypeAlias = Callable[..., Client]
