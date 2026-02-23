@@ -5,7 +5,7 @@
 | Name                                |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |------------------------------------ | -------: | -------: | -------: | -------: | ------: | --------: |
 | littlepay/\_\_init\_\_.py           |        5 |        2 |        0 |        0 |     60% |       5-7 |
-| littlepay/api/\_\_init\_\_.py       |       36 |        6 |        6 |        0 |     86% |73, 90, 105, 118, 138, 157 |
+| littlepay/api/\_\_init\_\_.py       |       36 |        6 |        6 |        0 |     86% |72, 89, 104, 117, 137, 156 |
 | littlepay/api/card\_tokenization.py |       10 |        0 |        0 |        0 |    100% |           |
 | littlepay/api/client.py             |       83 |        0 |       12 |        0 |    100% |           |
 | littlepay/api/funding\_sources.py   |       55 |        0 |       10 |        0 |    100% |           |
