@@ -61,7 +61,10 @@ def main(argv=None):
     groups_create = _subcmd(groups_commands, "create", help="Create a new concession group")
     groups_create.add_argument("group_label", help="A unique label associated with the concession group", metavar="LABEL")
 
-    _subcmd(groups_commands, "funding_sources", help="List funding sources for one or more concession groups")
+    groups_sources = _subcmd(groups_commands, "funding_sources", help="List funding sources for one or more concession groups")
+    groups_sources.add_argument(
+        "--csv", action="store_true", default=False, help="Output results in simple CSV format", dest="csv"
+    )
 
     groups_link = _subcmd(groups_commands, "link", help="Link one or more concession groups to a product")
     groups_link.add_argument("product_id", help="The ID of the product to link to")
