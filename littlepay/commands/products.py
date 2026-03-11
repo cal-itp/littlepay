@@ -7,30 +7,14 @@ from littlepay.commands.groups import link_product, unlink_product
 from littlepay.config import Config
 
 
-def products(args: Namespace = None) -> int:
-    return_code = RESULT_SUCCESS
-    config = Config()
-    client = Client.from_active_config(config)
+def _get_products(args: Namespace, client: Client) -> list:
+    """Get a list of products for the current Client, optionally filtered by status and filter"""
 
-    client.oauth.ensure_active_token(client.token)
-    config.active_token = client.token
-
-    csv_output = hasattr(args, "csv") and args.csv
-
-    if hasattr(args, "product_command"):
-        command = args.product_command
-    else:
-        command = None
-
-    if hasattr(args, "product_status") and args.product_status is not None:
-        status = args.product_status
-    else:
-        status = None
-
+    status = getattr(args, "product_status", None)
     products = client.get_products(status=status)
 
-    if hasattr(args, "product_terms") and args.product_terms is not None:
-        terms = [t.lower() for t in args.product_terms if t]
+    if product_terms := getattr(args, "product_terms", None):
+        terms = [t.lower() for t in product_terms if t]
         products = filter(
             lambda p: any(
                 [any((term in p.id.lower(), term in p.code.lower(), term in p.description.lower())) for term in terms]
@@ -38,7 +22,14 @@ def products(args: Namespace = None) -> int:
             products,
         )
 
-    products = list(products)
+    return list(products)
+
+
+def _list_products(args: Namespace, config: Config, products: list) -> None:
+    """Print a list of products, optionally in CSV format"""
+
+    csv_output = getattr(args, "csv", False)
+
     if csv_output:
         print(ProductResponse.csv_header())
     else:
@@ -50,11 +41,27 @@ def products(args: Namespace = None) -> int:
         else:
             print(product)
 
-    if command == "link":
-        for product in products:
-            return_code += link_product(client, args.group_id, product.id)
-    elif command == "unlink":
-        for product in products:
-            return_code += unlink_product(client, args.group_id, product.id)
+
+def products(args: Namespace = None) -> int:
+    return_code = RESULT_SUCCESS
+    config = Config()
+    client = Client.from_active_config(config)
+
+    client.oauth.ensure_active_token(client.token)
+    config.active_token = client.token
+
+    # Get and print list of products
+    products = _get_products(args, client)
+    _list_products(args, config, products)
+
+    # Handle subcommand, if present
+    command = getattr(args, "product_command", None)
+    match command:
+        case "link":
+            for product in products:
+                return_code += link_product(client, args.group_id, product.id)
+        case "unlink":
+            for product in products:
+                return_code += unlink_product(client, args.group_id, product.id)
 
     return RESULT_SUCCESS if return_code == RESULT_SUCCESS else RESULT_FAILURE
