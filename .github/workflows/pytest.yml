@@ -25,9 +25,9 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.version }}
           cache: pip
@@ -40,7 +40,7 @@ jobs:
         run: ./bin/coverage.sh
 
       - name: Coverage comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: py-cov-action/python-coverage-comment-action@e5fb2218463c3377f3504b0c5b5646ed53da7a2f # v4.5
         if: github.event_name != 'workflow_call' && matrix.version == '3.12'
         with:
           GITHUB_TOKEN: ${{ github.token }}
