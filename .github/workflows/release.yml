@@ -27,9 +27,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-python@v6
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
           cache: pip
@@ -42,7 +43,7 @@ jobs:
         run: python -m build
 
       - name: Publish to Test PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
         if: ${{ contains(github.ref, '-rc') }}
         with:
           repository_url: https://test.pypi.org/legacy/
@@ -60,7 +61,7 @@ jobs:
           echo "PYPI_RELEASE_URL=https://test.pypi.org/project/calitp-littlepay/$version" >> "$GITHUB_OUTPUT"
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
         if: ${{ !contains(github.ref, '-rc') }}
         with:
           print_hash: true
@@ -75,7 +76,7 @@ jobs:
           echo "PYPI_RELEASE_URL=https://pypi.org/project/calitp-littlepay/$version" >> "$GITHUB_OUTPUT"
 
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         env:
           # this syntax is the only way to get ternary-operator behavior (see https://mattdood.com/2022/3/github-actions-conditional-environment-variables-20220325012837)
           PYPI_RELEASE_URL: ${{ !contains(github.ref, '-rc') && steps.version.outputs.PYPI_RELEASE_URL || steps.test-version.outputs.PYPI_RELEASE_URL }}
