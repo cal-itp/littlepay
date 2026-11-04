@@ -8,6 +8,62 @@ from littlepay.commands import RESULT_FAILURE, RESULT_SUCCESS, print_active_mess
 from littlepay.config import Config
 
 
+def _get_groups(args: Namespace, client: Client) -> list:
+    """Get a list of groups for the current Client, optionally filtered by term"""
+
+    groups = client.get_concession_groups()
+
+    if group_terms := getattr(args, "group_terms", None):
+        terms = [t.lower() for t in group_terms if t]
+        groups = filter(
+            lambda g: any([term in g.id.lower() or term in g.label.lower() for term in terms]),
+            groups,
+        )
+
+    return list(groups)
+
+
+def _list_results(args: Namespace, client: Client, config: Config, groups: list, command: str) -> None:
+    """Print a list of groups and possibly their products or funding sources"""
+
+    return_code = RESULT_SUCCESS
+    csv_output = getattr(args, "csv", False)
+
+    if not csv_output:
+        print_active_message(config, f"👥 Matching groups ({len(groups)})")
+
+    match command:
+        case "products":
+            if csv_output:
+                # print a custom CSV header for group<>product associations
+                print("group_id,product_id,participant_id")
+            for group in groups:
+                products = list(client.get_concession_group_products(group.id))
+                if not csv_output:
+                    print(group)
+                    print(f"  🛒 Linked products ({len(products)})")
+                    for product in products:
+                        print(" ", product)
+                else:
+                    for product in products:
+                        print(f"{group.id},{product.id},{group.participant_id}")
+        case "funding_sources":
+            if csv_output:
+                # print a custom CSV header for group<>funding_source associations
+                print("group_id,funding_source_id,participant_id")
+            for group in groups:
+                if not csv_output:
+                    print(group)
+                return_code += funding_sources(client, group, csv_output)
+        case _:
+            if csv_output:
+                print(GroupResponse.csv_header())
+            for group in groups:
+                print(group.csv()) if csv_output else print(group)
+
+    return return_code
+
+
 def groups(args: Namespace = None) -> int:
     return_code = RESULT_SUCCESS
     config = Config()
@@ -16,66 +72,35 @@ def groups(args: Namespace = None) -> int:
     client.oauth.ensure_active_token(client.token)
     config.active_token = client.token
 
-    csv_output = hasattr(args, "csv") and args.csv
+    # Get list of groups
+    groups = _get_groups(args, client)
 
-    if hasattr(args, "group_command"):
-        command = args.group_command
-    else:
-        command = None
+    # Handle subcommand, if present
+    command = getattr(args, "group_command", None)
 
-    if command == "create":
-        return_code += create_group(client, args.group_label)
-    elif command == "remove":
-        return_code += remove_group(client, args.group_id, getattr(args, "force", False))
+    match command:
+        case "create":
+            return_code += create_group(client, args.group_label)
+            groups = _get_groups(args, client)  # Updating list after creating the new one
+        case "remove":
+            return_code += remove_group(client, args.group_id, getattr(args, "force", False))
+            groups = _get_groups(args, client)  # Updating list after removing the old one
+        case "link":
+            for group in groups:
+                return_code += link_product(client, group.id, args.product_id)
+        case "unlink":
+            if getattr(args, "product", None):
+                for group in groups:
+                    return_code += unlink_product(client, group.id, args.product)
+            elif getattr(args, "source", None):
+                for group in groups:
+                    return_code += unlink_funding_source(client, group.id, args.source)
+        case "migrate":
+            for group in groups:
+                return_code += migrate_group(client, group.id, getattr(args, "force", False))
 
-    groups = client.get_concession_groups()
-
-    if hasattr(args, "group_terms") and args.group_terms is not None:
-        terms = [t.lower() for t in args.group_terms if t]
-        groups = filter(
-            lambda g: any([term in g.id.lower() or term in g.label.lower() for term in terms]),
-            groups,
-        )
-
-    groups = list(groups)
-
-    if command == "link":
-        for group in groups:
-            return_code += link_product(client, group.id, args.product_id)
-    elif command == "unlink" and getattr(args, "product", None):
-        for group in groups:
-            return_code += unlink_product(client, group.id, args.product)
-    elif command == "unlink" and getattr(args, "source", None):
-        for group in groups:
-            return_code += unlink_funding_source(client, group.id, args.source)
-    elif command == "migrate":
-        for group in groups:
-            return_code += migrate_group(client, group.id, getattr(args, "force", False))
-
-    if csv_output and command != "products":
-        print(GroupResponse.csv_header())
-    elif csv_output and command == "products":
-        # print a custom CSV header for group<>product associations
-        print("group_id,product_id,participant_id")
-    else:
-        print_active_message(config, f"👥 Matching groups ({len(groups)})")
-
-    for group in groups:
-        if not csv_output:
-            print(group)
-        if command == "products":
-            products = list(client.get_concession_group_products(group.id))
-            if not csv_output:
-                print(f"  🛒 Linked products ({len(products)})")
-            for product in products:
-                if csv_output:
-                    print(f"{group.id},{product.id},{group.participant_id}")
-                else:
-                    print(" ", product)
-        elif command == "funding_sources":
-            return_code += funding_sources(client, group.id)
-        elif csv_output:
-            print(group.csv())
+    # Output resulting list
+    return_code += _list_results(args, client, config, groups, command)
 
     return RESULT_SUCCESS if return_code == RESULT_SUCCESS else RESULT_FAILURE
 
@@ -194,15 +219,19 @@ def migrate_group(client: Client, group_id: str, force: bool = False) -> int:
     return return_code
 
 
-def funding_sources(client: Client, group_id: str) -> int:
+def funding_sources(client: Client, group: GroupResponse, csv_output: bool) -> int:
     return_code = RESULT_SUCCESS
 
     try:
-        funding_sources = client.get_concession_group_linked_funding_sources(group_id)
+        funding_sources = client.get_concession_group_linked_funding_sources(group.id)
         funding_sources = list(funding_sources)
-        print(f"  💵 Linked funding sources ({len(funding_sources)})")
+        if not csv_output:
+            print(f"  💵 Linked funding sources ({len(funding_sources)})")
         for funding_source in funding_sources:
-            print(" ", funding_source)
+            if csv_output:
+                print(f"{group.id},{funding_source.id},{group.participant_id}")
+            else:
+                print(" ", funding_source)
     except HTTPError as err:
         print(f"❌ Error: {err}")
         return_code = RESULT_FAILURE
