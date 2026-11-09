@@ -76,7 +76,7 @@ jobs:
           echo "PYPI_RELEASE_URL=https://pypi.org/project/calitp-littlepay/$version" >> "$GITHUB_OUTPUT"
 
       - name: Release
-        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         env:
           # this syntax is the only way to get ternary-operator behavior (see https://mattdood.com/2022/3/github-actions-conditional-environment-variables-20220325012837)
           PYPI_RELEASE_URL: ${{ !contains(github.ref, '-rc') && steps.version.outputs.PYPI_RELEASE_URL || steps.test-version.outputs.PYPI_RELEASE_URL }}
