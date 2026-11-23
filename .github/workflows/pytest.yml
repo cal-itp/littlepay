@@ -41,7 +41,7 @@ jobs:
         run: ./bin/coverage.sh
 
       - name: Coverage comment
-        uses: py-cov-action/python-coverage-comment-action@e5fb2218463c3377f3504b0c5b5646ed53da7a2f # v4.5
+        uses: py-cov-action/python-coverage-comment-action@281cb0dcb5b15d4773037d51873558fddc5a7df8 # v4.7
         if: github.event_name != 'workflow_call' && matrix.version == '3.14'
         with:
           GITHUB_TOKEN: ${{ github.token }}
